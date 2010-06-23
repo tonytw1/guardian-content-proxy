@@ -1,0 +1,68 @@
+package nz.gen.wellington.guardian.contentapiproxy.utils;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.apache.log4j.Logger;
+
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+
+
+public class HttpFetcher {
+
+	private final Logger log = Logger.getLogger(HttpFetcher.class);
+
+	
+	public String fetchContent(String pageURL, String pageCharacterEncoding) {
+		try {
+			StringBuilder output = new StringBuilder();
+			URL url = new URL(pageURL);
+
+            URLFetchService urlFetchService = (URLFetchService) URLFetchServiceFactory.getURLFetchService(); 
+            HTTPRequest httpRequest = new HTTPRequest(url); 
+            
+			log.info("Http fetching: " + url);
+            HTTPResponse result = urlFetchService.fetch(httpRequest);
+            if (result.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            	return readResponseBody(pageCharacterEncoding, output, result);           	
+
+            } else {
+            	log.warn("Error response code was: " + result.getResponseCode());
+            	log.warn(readResponseBody(pageCharacterEncoding, output, result));
+            }
+
+		} catch (MalformedURLException e) {
+			log.warn(e);
+		} catch (IOException e) {
+			log.warn(e);
+		}
+		return null;
+	}
+
+
+	private String readResponseBody(String pageCharacterEncoding,
+			StringBuilder output, HTTPResponse result)
+			throws UnsupportedEncodingException, IOException {
+		String line;
+		
+		InputStream inputStream = new ByteArrayInputStream(result.getContent());
+		InputStreamReader input = new InputStreamReader(inputStream, pageCharacterEncoding);
+		BufferedReader reader = new BufferedReader(input);
+		while ((line = reader.readLine()) != null) {
+			output.append(line);
+		}
+		reader.close();
+		return output.toString();
+	}
+
+}

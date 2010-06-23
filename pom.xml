@@ -1,0 +1,122 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>nz.gen.wellington.guardian.proxy</groupId>
+  <artifactId>guardian-content-proxy</artifactId>
+  <packaging>war</packaging>
+  <name>Guardian content proxy</name>
+  <version>0.0.1-SNAPSHOT</version>
+  <build>
+  	<plugins>  		
+  		<plugin>
+  			<groupId>org.apache.maven.plugins</groupId>
+  			<artifactId>maven-compiler-plugin</artifactId>
+  				<configuration>
+  				 <source>1.5</source>
+  				 <target>1.5</target>
+  				</configuration>
+  			<version>2.0.2</version>
+  		</plugin>
+  	</plugins>
+  </build>
+ 
+  	<repositories>
+        <repository>
+            <id>dist.wso2.org</id>
+            <name>dist.wso2.org</name>
+            <url>
+                http://dist.wso2.org/maven2/
+            </url>
+        </repository>
+    </repositories>
+ 
+ 
+  <dependencies>
+  	<dependency>
+  		<groupId>junit</groupId>
+  		<artifactId>junit</artifactId>
+  		<version>3.8.1</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>log4j</groupId>
+  		<artifactId>log4j</artifactId>
+  		<version>1.2.8</version>
+  		<type>jar</type>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.htmlparser</groupId>
+  		<artifactId>htmlparser</artifactId>
+  		<version>1.6</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>javax.servlet</groupId>
+  		<artifactId>servlet-api</artifactId>
+  		<version>2.5</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+  
+  	<dependency>
+  		<groupId>net.jcip</groupId>
+  		<artifactId>jcip-annotations</artifactId>
+  		<version>1.0</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>commons-lang</groupId>
+  		<artifactId>commons-lang</artifactId>
+  		<version>2.4</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+
+  	
+  	<dependency>
+  		<groupId>rome</groupId>
+  		<artifactId>rome</artifactId>
+  		<version>0.9</version>
+  		<type>jar</type>
+  	</dependency>
+  	
+  	
+  	<dependency>
+    <groupId>rome</groupId>
+    <artifactId>rome-mediarss</artifactId>
+     <!-- rome Yahoo! Media RSS Plugin for ROME , hosted on http://dist.wso2.org/maven2-->
+    <version>0.2.1</version>
+	</dependency>
+  	<dependency>
+  		<groupId>org.jdom</groupId>
+  		<artifactId>jdom</artifactId>
+  		<version>1.1</version>
+  	</dependency>
+  	
+  	  	
+  	<dependency>
+  		<groupId>com.google.inject</groupId>
+  		<artifactId>guice</artifactId>
+  		<version>2.0</version>
+	</dependency>
+  	
+  	
+  	<dependency>
+  		<groupId>com.google.inject.extensions</groupId>
+  		<artifactId>guice-servlet</artifactId>
+  		<version>2.0</version>
+  		<type>jar</type>
+  		<scope>compile</scope>
+  	</dependency>
+
+
+  <dependency>
+    <groupId>com.google.appengine</groupId>
+    <artifactId>appengine-api-1.0-sdk</artifactId>
+    <version>1.2.8</version>
+    <type>jar</type>
+    <scope>compile</scope>
+  </dependency>
+  	  
+  </dependencies>
+</project>
