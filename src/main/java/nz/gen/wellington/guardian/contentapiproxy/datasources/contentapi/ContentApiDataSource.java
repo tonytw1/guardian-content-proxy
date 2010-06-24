@@ -1,8 +1,9 @@
-package nz.gen.wellington.guardian.contentapiproxy.datasources;
+package nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.servlets.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
@@ -16,7 +17,7 @@ import com.google.inject.Inject;
 public class ContentApiDataSource implements GuardianDataSource {
 	
 	protected static final String API_HOST = "http://content.guardianapis.com";
-	protected static final String API_KEY = "";
+	protected static final String API_KEY = "techdev";
 		
 	Logger log = Logger.getLogger(ContentApiDataSource.class);
 

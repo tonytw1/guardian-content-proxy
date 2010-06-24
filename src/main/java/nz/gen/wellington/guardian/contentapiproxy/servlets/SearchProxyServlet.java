@@ -7,8 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApiDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
 
 import org.apache.log4j.Logger;
 
@@ -32,7 +32,7 @@ public class SearchProxyServlet extends ApiProxyServlet {
 
 	
 	@Inject
-	public SearchProxyServlet(ContentApiDataSource datasource) {
+	public SearchProxyServlet(RssDataSource datasource) {
 		this.datasource = datasource;
 		this.cache = MemcacheServiceFactory.getMemcacheService();
 	}

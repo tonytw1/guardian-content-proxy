@@ -9,8 +9,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApiDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ContentApiDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;

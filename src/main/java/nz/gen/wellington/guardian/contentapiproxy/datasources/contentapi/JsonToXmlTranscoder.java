@@ -1,4 +1,4 @@
-package nz.gen.wellington.guardian.contentapiproxy.datasources;
+package nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi;
 
 import java.io.StringWriter;
 
