@@ -40,9 +40,7 @@ public class SearchProxyServlet extends ApiProxyServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
-		response.setContentType("text/xml");
-		response.setCharacterEncoding("UTF-8");
-		
+				
 		if (request.getRequestURI().equals("/search")) {
 					
             SearchQuery query = getSearchQueryFromRequest(request);
@@ -69,10 +67,12 @@ public class SearchProxyServlet extends ApiProxyServlet {
 			if (output != null) {
 				log.info("Outputing content: " + output.length() + " characters");
 				response.setStatus(HttpServletResponse.SC_OK);
+				response.setContentType("text/xml");
+				response.setCharacterEncoding("UTF-8");
 				PrintWriter writer = response.getWriter();
 				writer.print(output);
 				writer.flush();
-
+				
 			} else {
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);				
 			}
@@ -84,7 +84,7 @@ public class SearchProxyServlet extends ApiProxyServlet {
 	
 	private String getQueryCacheKey(HttpServletRequest request) {
 		final String cacheKey = request.getRequestURI() + request.getQueryString();
-		log.info("Cache key is: " + cacheKey);
+		log.debug("Cache key is: " + cacheKey);
 		return cacheKey;
 	}
 
