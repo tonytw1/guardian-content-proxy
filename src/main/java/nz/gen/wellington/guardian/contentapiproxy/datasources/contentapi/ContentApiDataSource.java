@@ -17,8 +17,8 @@ import com.google.inject.Inject;
 public class ContentApiDataSource implements GuardianDataSource {
 	
 	protected static final String API_HOST = "http://content.guardianapis.com";
-	protected static final String API_KEY = "techdev";
-		
+	protected static final String API_KEY = "";	// TODO A real api key would be required for this class to work
+	
 	Logger log = Logger.getLogger(ContentApiDataSource.class);
 
 	CachingHttpFetcher httpFetcher;
