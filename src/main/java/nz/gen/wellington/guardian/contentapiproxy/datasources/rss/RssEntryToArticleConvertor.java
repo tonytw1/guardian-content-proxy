@@ -57,7 +57,7 @@ public class RssEntryToArticleConvertor {
 
 
 	private void processMediaElements(SyndEntry item, Article article) {
-		
+		log.info("Processing media elements for: " + article.getTitle());
 		MediaEntryModuleImpl mediaModule = (MediaEntryModuleImpl) item.getModule(MediaModule.URI);
         if (mediaModule != null) {
         
@@ -65,23 +65,25 @@ public class RssEntryToArticleConvertor {
 	         MediaContent[] mediaContents = mediaModule.getMediaContents();
 	         if (mediaContents.length > 0) {
 	        	 MediaContent mediaContent = mediaContents[0];
-	        	 UrlReference reference = (UrlReference) mediaContent.getReference();
 	        	 
-	        	 Metadata metadata = mediaContent.getMetadata();	        	 
-	        	 log.info(metadata.getDescription() + ": " + mediaContent.getWidth() + "x" + mediaContent.getHeight());
-	        	 log.info(reference.getUrl());
-	        	 
-	        	 if (mediaContent.getWidth() == 140 && mediaContent.getHeight() == 84) {
-	        		 article.setThumbnailUrl(reference.getUrl().toExternalForm());
+	        	 if (mediaContent.getType().startsWith("image")) {
+	        		 UrlReference reference = (UrlReference) mediaContent.getReference();
+	        		 if (mediaContent.getWidth() == 140 && mediaContent.getHeight() == 84) {
+	        			 article.setThumbnailUrl(reference.getUrl().toExternalForm());
+	        		 }
 	        	 }
 	        	 
 	        	 for (int i = 0; i < mediaContents.length; i++) {
 	        		 mediaContent = mediaContents[i];
-	        		 reference = (UrlReference) mediaContent.getReference();
-	        		 if (mediaContent.getWidth() == 460) {
-	        			 MediaElement picture = new MediaElement("picture", reference.getUrl().toExternalForm());
-	        			 article.addMediaElement(picture);	        			 
-	        		 }					
+	        		 log.info(mediaContent.getType());
+	        		 if (mediaContent.getType().startsWith("image")) {
+	        			 UrlReference reference = (UrlReference) mediaContent.getReference();
+		        		 Metadata metadata = mediaContent.getMetadata();
+	        			 if (mediaContent.getWidth() == 460) {
+	        				 MediaElement picture = new MediaElement("picture", reference.getUrl().toExternalForm(), metadata.getDescription());
+	        				 article.addMediaElement(picture);
+	        			 }	
+	        		 }
 	        	 }
 	         }
         }

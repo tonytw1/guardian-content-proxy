@@ -48,8 +48,8 @@ public class SearchProxyServlet extends ApiProxyServlet {
             SearchQuery query = getSearchQueryFromRequest(request);
             query.setShowAllFields(true);
             query.setShowAllTags(true);
-            
-            final String queryCacheKey = datasource.getQueryCacheKey(query);
+                        
+            final String queryCacheKey = getQueryCacheKey(request);
             String output = (String) cache.get(queryCacheKey);
             if (output != null) {
             	log.info("Returning cached results for call url: " + queryCacheKey);				
@@ -81,8 +81,14 @@ public class SearchProxyServlet extends ApiProxyServlet {
 		return;
 	}
 
-
 	
+	private String getQueryCacheKey(HttpServletRequest request) {
+		final String cacheKey = request.getRequestURI() + request.getQueryString();
+		log.info("Cache key is: " + cacheKey);
+		return cacheKey;
+	}
+
+
 	private SearchQuery getSearchQueryFromRequest(HttpServletRequest request) {
 		SearchQuery query = new SearchQuery();
 		if (request.getParameter("section") != null) {
@@ -95,6 +101,7 @@ public class SearchProxyServlet extends ApiProxyServlet {
 		if (request.getParameter("page-size") != null) {
 			try {
 				Integer pageSize = Integer.parseInt(request.getParameter("page-size"));
+				log.debug("Query page size set to: " + pageSize);
 				query.setPageSize(pageSize);
 			} catch (NumberFormatException e) {
 			}

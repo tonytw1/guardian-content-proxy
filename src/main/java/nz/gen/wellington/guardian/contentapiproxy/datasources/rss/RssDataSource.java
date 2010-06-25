@@ -76,9 +76,13 @@ public class RssDataSource implements GuardianDataSource {
 				}
 				
 				articles = articleSectionSorter.sort(articles);
-				//if (query.getPageSize() < articles.size()) {
-				//	articles = articles.subList(0, query.getPageSize());
-				//}
+		
+				int pageSize = query.getPageSize() != null ? query.getPageSize() : 10;
+				if (pageSize < articles.size()) {
+					log.info("Limiting articles to: " + pageSize);
+					articles = articles.subList(0, pageSize);
+				}
+				
 				return articlesToXml(articles);
 								
 			} catch (IllegalArgumentException e) {
@@ -162,6 +166,11 @@ public class RssDataSource implements GuardianDataSource {
 				 writer.writeStartElement("asset");
 				 writer.writeAttribute("type", mediaElement.getType());
 				 writer.writeAttribute("file", mediaElement.getFile());
+				 
+				 writer.writeStartElement("fields");
+				 writeFieldElement(writer, "caption", mediaElement.getCaption());
+				 writer.writeEndElement();
+
 				 writer.writeEndElement();
 			 }			 
 			 writer.writeEndElement();
