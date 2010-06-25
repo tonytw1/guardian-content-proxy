@@ -13,6 +13,7 @@ import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.HasAttributeFilter;
+import org.htmlparser.util.NodeIterator;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import org.joda.time.DateTime;
@@ -98,8 +99,7 @@ public class RssEntryToArticleConvertor {
 			extractTagsFromRelatedDiv(description, article, parser, sections);
 			
 		} catch (ParserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 
@@ -114,7 +114,28 @@ public class RssEntryToArticleConvertor {
 			article.setStandfirst(ArticleHtmlCleaner.stripHtml(standfirst));
 			description.replace(standfirst, "");
 		}
-		article.setDescription(ArticleHtmlCleaner.stripHtml(description));
+		
+		StringBuilder body = new StringBuilder();
+		parser.setInputHTML(description);
+		NodeIterator elements = parser.elements();
+		while (elements.hasMoreNodes()) {
+			Node node = elements.nextNode();
+			if (node instanceof org.htmlparser.Tag) {
+				org.htmlparser.Tag tag = (org.htmlparser.Tag) node;
+				final String tagClass = tag.getAttribute("class");
+				if (tagClass == null || !(
+						tagClass.equals("standfirst") || 
+						tagClass.equals("track") ||
+						tagClass.equals("related") || 
+						tagClass.equals("terms") || 
+						tagClass.equals("author"))) {
+					body.append(tag.toHtml());
+				}
+			}
+		}
+		
+		body.append("<p>&copy; Guardian News & Media Limited " + new DateTime().toString("yyyy") + "</p>");
+		article.setDescription(ArticleHtmlCleaner.stripHtml(body.toString()));
 	}
 
 

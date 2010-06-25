@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
-import nz.gen.wellington.guardian.contentapiproxy.servlets.SearchQuery;
+import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;

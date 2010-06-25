@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 
 import org.apache.log4j.Logger;
 
@@ -21,7 +23,7 @@ import com.google.inject.Singleton;
 
 @SuppressWarnings("serial")
 @Singleton
-public class SearchProxyServlet extends ApiProxyServlet {
+public class SearchProxyServlet extends HttpServlet {
 
 	private static final int OUTGOING_TTL = 300;
 

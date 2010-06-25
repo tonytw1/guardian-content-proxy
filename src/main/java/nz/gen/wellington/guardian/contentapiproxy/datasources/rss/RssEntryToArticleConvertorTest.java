@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -32,6 +33,7 @@ public class RssEntryToArticleConvertorTest extends TestCase {
 		SyndFeedInput input = new SyndFeedInput();
 		feed = input.build(new StringReader(content));
 		convertor = new RssEntryToArticleConvertor();
+		sections = new HashMap<String, Section>();
 	}
 	
 	public void testShouldExtractAllFieldsCorrectly() throws Exception {

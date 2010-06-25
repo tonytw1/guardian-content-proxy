@@ -1,6 +1,6 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
-import nz.gen.wellington.guardian.contentapiproxy.servlets.SearchQuery;
+import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 
 
 public interface GuardianDataSource {

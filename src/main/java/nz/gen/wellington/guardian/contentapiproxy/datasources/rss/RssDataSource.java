@@ -14,9 +14,9 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.FreeTierContentApi
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
+import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
-import nz.gen.wellington.guardian.contentapiproxy.servlets.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
