@@ -13,6 +13,7 @@ import nz.gen.wellington.guardian.contentapiproxy.servlets.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,34 +95,25 @@ public class FreeTierContentApi {
 							JSONObject refinementGroup = refinementGroups.getJSONObject(i);
 							String type = refinementGroup.getString("type");
 							if (type.equals("keyword")) {
-								log.info(type + ": " + refinementGroup.toString());
 								JSONArray refinements = refinementGroup.getJSONArray("refinements");
 								for (int j = 0; j < refinements.length(); j++) {
 									JSONObject refinement = refinements.getJSONObject(j);
 									tags.add(
-											new Tag(refinement.getString("id"), refinement.getString("displayName"), null, "keyword")
+											new Tag(refinement.getString("displayName"), refinement.getString("id"), null, "keyword")
 											);									
 								}
 							}
 						}
 					}
-					
-					log.info(tags);
 					return tags;
 				}
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 		}			
 		return null;
 	}
 
-	
-	
-	
-	
-	
 	
 	private String buildSectionRefinementQueryUrl(String sectionId) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/search");
@@ -130,6 +122,7 @@ public class FreeTierContentApi {
 		queryUrl.append("&page-size=1");
 		queryUrl.append("&show-refinements=all");
 		queryUrl.append("&format=json");
+		queryUrl.append("&from-date=" + new DateTime().minusDays(7).toString("yyyy-MM-dd"));
 		return queryUrl.toString();			
 	}
 	

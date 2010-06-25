@@ -52,12 +52,6 @@ public class ContentApiDataSource implements GuardianDataSource {
 	}
 	
 	
-	@Override
-	public String getQueryCacheKey(SearchQuery query) {
-		return buildApiSearchQueryUrl(query);
-	}
-
-
 	private String buildApiSearchQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl;
 		try {

@@ -50,7 +50,7 @@ public class RssDataSource implements GuardianDataSource {
 	}
 	
 
-	@Override
+	
 	public String getContent(SearchQuery query) {
 		String callUrl = buildApiSearchQueryUrl(query);
 		log.info("Fetching articles from: " + callUrl);
@@ -112,15 +112,33 @@ public class RssDataSource implements GuardianDataSource {
 		XMLStreamWriter writer = xof.createXMLStreamWriter(output);
 
 		writer.writeStartElement("response");
-		writer.writeStartElement("results");
 
+		writer.writeStartElement("results");
 		for (Article article : articles) {
 			if (article != null) {
 				articleToXml(writer, article);
 			}
-		}
-				
+		}				
 		writer.writeEndElement();
+		
+		if (refinements != null && !refinements.isEmpty()) {
+			writer.writeStartElement("refinement-groups");
+			writer.writeStartElement("refinement-group");
+			writer.writeAttribute("type", "keyword");
+
+			writer.writeStartElement("refinements");
+			for (Tag tag : refinements) {
+				writer.writeStartElement("refinement");
+				writer.writeAttribute("id", tag.getId());
+				writer.writeAttribute("display-name", tag.getName());
+				//writer.writeAttribute("section-id", tag.getSection().getId());
+				writer.writeEndElement();
+			}
+			writer.writeEndElement();
+			writer.writeEndElement();
+			writer.writeEndElement();						
+		}
+		
 		writer.writeEndElement();
 		writer.close();
 
@@ -191,12 +209,6 @@ public class RssDataSource implements GuardianDataSource {
 	}
 
 	
-	@Override
-	public String getQueryCacheKey(SearchQuery query) {
-		return buildApiSearchQueryUrl(query);
-	}
-
-		
 	private String buildApiSearchQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST);
 		if (query.getSection() != null) {
