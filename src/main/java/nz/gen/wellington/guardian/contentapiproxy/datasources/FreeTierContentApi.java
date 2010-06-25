@@ -1,6 +1,5 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +8,6 @@ import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
-import nz.gen.wellington.guardian.contentapiproxy.servlets.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
@@ -27,7 +25,6 @@ public class FreeTierContentApi {
 	Logger log = Logger.getLogger(FreeTierContentApi.class);
 
 	CachingHttpFetcher httpFetcher;
-	
 	
 	@Inject
 	public FreeTierContentApi(CachingHttpFetcher httpFetcher) {
@@ -73,7 +70,6 @@ public class FreeTierContentApi {
 	}
 	
 	
-	
 	public List<Tag> getSectionRefinements(String sectionId) {		
 		String callUrl = buildSectionRefinementQueryUrl(sectionId);
 		log.info("Fetching from: " + callUrl);
@@ -115,6 +111,13 @@ public class FreeTierContentApi {
 	}
 
 	
+	public String buildApiSectionsQueryUrl() throws UnsupportedEncodingException {
+		StringBuilder queryUrl = new StringBuilder(API_HOST + "/sections");
+		queryUrl.append("?format=json");
+		return queryUrl.toString();
+	}
+	
+	
 	private String buildSectionRefinementQueryUrl(String sectionId) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/search");
 		queryUrl.append("?tag=type%2Farticle");
@@ -127,14 +130,7 @@ public class FreeTierContentApi {
 	}
 	
 	
-	private String buildApiSectionsQueryUrl() throws UnsupportedEncodingException {
-		StringBuilder queryUrl = new StringBuilder(API_HOST + "/sections");
-		queryUrl.append("?format=json");
-		return queryUrl.toString();
-	}
-	
-	
-	boolean isResponseOk(JSONObject json) {
+	private boolean isResponseOk(JSONObject json) {
 		try {
 			JSONObject response = json.getJSONObject("response");
 			String status = response.getString("status");

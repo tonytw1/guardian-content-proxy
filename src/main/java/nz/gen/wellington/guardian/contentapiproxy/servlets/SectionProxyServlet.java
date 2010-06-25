@@ -2,15 +2,12 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ContentApiDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.FreeTierContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
@@ -23,17 +20,15 @@ import com.google.inject.Singleton;
 @Singleton
 public class SectionProxyServlet extends ApiProxyServlet {
 
-	protected static final String API_HOST = "http://content.guardianapis.com";
-
 	Logger log = Logger.getLogger(SectionProxyServlet.class);
 
 	CachingHttpFetcher httpFetcher;
-	GuardianDataSource datasource;
+	FreeTierContentApi contentApi;
 	
 	@Inject
-	public SectionProxyServlet(CachingHttpFetcher httpFetcher, ContentApiDataSource datasource) {
+	public SectionProxyServlet(CachingHttpFetcher httpFetcher, FreeTierContentApi contentApi) {
 		this.httpFetcher = httpFetcher;
-		this.datasource = datasource;	// TODO migrate to this.
+		this.contentApi = contentApi;
 	}
 	
 	
@@ -44,7 +39,7 @@ public class SectionProxyServlet extends ApiProxyServlet {
 		
 		if (request.getRequestURI().equals("/sections")) {
 					
-			final String content = httpFetcher.fetchContent(buildApiSectionsQueryUrl("techdev"), "UTF-8");
+			final String content = httpFetcher.fetchContent(contentApi.buildApiSectionsQueryUrl(), "UTF-8");
 			if (content != null) {
 				response.setStatus(HttpServletResponse.SC_OK);
 				PrintWriter writer = response.getWriter();
@@ -60,12 +55,4 @@ public class SectionProxyServlet extends ApiProxyServlet {
 		return;
 	}
 	
-
-	private String buildApiSectionsQueryUrl(String apikey) throws UnsupportedEncodingException {
-		StringBuilder queryUrl = new StringBuilder(API_HOST + "/sections");
-		queryUrl.append("?api-key=" + URLEncoder.encode(apikey, "UTF-8"));
-		queryUrl.append("&format=json");
-		return queryUrl.toString();
-	}
-
 }
