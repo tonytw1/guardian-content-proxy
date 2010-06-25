@@ -83,7 +83,11 @@ public class RssDataSource implements GuardianDataSource {
 					articles = articles.subList(0, pageSize);
 				}
 				
-				return articlesToXml(articles);
+				List<Tag> refinements = null;
+				if (query.getSection() != null) {
+					refinements = freeTierContentApi.getSectionRefinements(query.getSection());
+				}
+				return outputXml(articles, refinements);
 								
 			} catch (IllegalArgumentException e) {
 				log.error(e.getMessage());
@@ -98,7 +102,7 @@ public class RssDataSource implements GuardianDataSource {
 	}
 
 	
-	private String articlesToXml(List<Article> articles) throws XMLStreamException {
+	private String outputXml(List<Article> articles, List<Tag> refinements) throws XMLStreamException {
 		if (articles == null) {
 			return null;
 		}

@@ -1,10 +1,15 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
+import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
+import nz.gen.wellington.guardian.contentapiproxy.servlets.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
@@ -67,6 +72,68 @@ public class FreeTierContentApi {
 	}
 	
 	
+	
+	public List<Tag> getSectionRefinements(String sectionId) {		
+		String callUrl = buildSectionRefinementQueryUrl(sectionId);
+		log.info("Fetching from: " + callUrl);
+		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		if (content != null) {		
+			JSONObject json;
+			try {
+				json = new JSONObject(content);
+				JSONObject response = json.getJSONObject("response");
+				
+				if (json != null && isResponseOk(json)) {
+
+					List<Tag> tags = new ArrayList<Tag>();
+					
+					if (response.has("refinementGroups")) {
+						JSONArray refinementGroups = response.getJSONArray("refinementGroups");
+						//log.info(refinementGroups.toString());
+						for (int i = 0; i < refinementGroups.length(); i++) {
+							JSONObject refinementGroup = refinementGroups.getJSONObject(i);
+							String type = refinementGroup.getString("type");
+							if (type.equals("keyword")) {
+								log.info(type + ": " + refinementGroup.toString());
+								JSONArray refinements = refinementGroup.getJSONArray("refinements");
+								for (int j = 0; j < refinements.length(); j++) {
+									JSONObject refinement = refinements.getJSONObject(j);
+									tags.add(
+											new Tag(refinement.getString("id"), refinement.getString("displayName"), null, "keyword")
+											);									
+								}
+							}
+						}
+					}
+					
+					log.info(tags);
+					return tags;
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}			
+		return null;
+	}
+
+	
+	
+	
+	
+	
+	
+	private String buildSectionRefinementQueryUrl(String sectionId) {
+		StringBuilder queryUrl = new StringBuilder(API_HOST + "/search");
+		queryUrl.append("?tag=type%2Farticle");
+		queryUrl.append("&section=" + sectionId);
+		queryUrl.append("&page-size=1");
+		queryUrl.append("&show-refinements=all");
+		queryUrl.append("&format=json");
+		return queryUrl.toString();			
+	}
+	
+	
 	private String buildApiSectionsQueryUrl() throws UnsupportedEncodingException {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/sections");
 		queryUrl.append("?format=json");
@@ -83,5 +150,6 @@ public class FreeTierContentApi {
 			return false;
 		}
 	}
+
 	
 }
