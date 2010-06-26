@@ -140,10 +140,9 @@ public class RssEntryToArticleConvertor {
 
 
 	private void extractTagsFromRelatedDiv(final String description, Article article, Parser parser, Map<String, Section> sections) throws ParserException {
-		NodeList list;
 		parser.setInputHTML(description);
 		NodeFilter relatedFilter = new HasAttributeFilter("class", "related");
-		list = parser.extractAllNodesThatMatch(relatedFilter);
+		NodeList list = parser.extractAllNodesThatMatch(relatedFilter);
 		if (list.size() > 0) {
 			org.htmlparser.Tag related = (org.htmlparser.Tag) list.elementAt(0);
 			
@@ -156,12 +155,43 @@ public class RssEntryToArticleConvertor {
 				String id = href.getAttribute("href");
 				id = id.replace("http://www.guardian.co.uk/", "");
 
+				log.info("Found tag with id: " + id);
 				String sectionId = id.split("/")[0];
-				Section section = sections.get(sectionId);
-				
-				article.addTag(new Tag(href.toPlainTextString(), id, section, "keyword")); // TODO contributor tags
+				if (sectionId.equals("profile")) {
+					article.addTag(new Tag(href.toPlainTextString(), id, null, "contributor"));
+
+				} else {
+					Section section = sections.get(sectionId);
+					article.addTag(new Tag(href.toPlainTextString(), id, section, "keyword"));
+				}
 			}
 		}
+		
+		parser.setInputHTML(description);
+		NodeFilter authorsFilter = new HasAttributeFilter("class", "author");
+		list = parser.extractAllNodesThatMatch(authorsFilter);
+		if (list.size() > 0) {
+			
+			for (int i = 0; i < list.size(); i++) {
+				org.htmlparser.Tag tag = (org.htmlparser.Tag) list.elementAt(i);
+				
+				org.htmlparser.Tag href = (org.htmlparser.Tag) tag.getFirstChild();
+				String id = href.getAttribute("href");
+				id = id.replace("http://www.guardian.co.uk/", "");
+
+				log.info("Found tag with id: " + id);
+				String sectionId = id.split("/")[0];
+				if (sectionId.equals("profile")) {
+					article.addTag(new Tag(href.toPlainTextString(), id, null, "contributor"));
+
+				} else {
+					Section section = sections.get(sectionId);
+					article.addTag(new Tag(href.toPlainTextString(), id, section, "keyword"));
+				}
+			}
+		}
+		
+		
 	}
 
 	
