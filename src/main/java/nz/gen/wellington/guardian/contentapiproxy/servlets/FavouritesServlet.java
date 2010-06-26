@@ -49,7 +49,6 @@ public class FavouritesServlet extends HttpServlet {
 		this.articleToXmlRenderer = articleToXmlRenderer;
 	}
 	
-
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
@@ -64,15 +63,8 @@ public class FavouritesServlet extends HttpServlet {
             
 			if (output == null) {			
 				log.info("Building result for call: " + queryCacheKey);
-								
-				List<String> favouriteSections = new ArrayList<String>();
-				favouriteSections.add("business");	// TODO hardcoded
-				favouriteSections.add("environment");
-				favouriteSections.add("travel");
-				
-				List<String> favouriteTags = new ArrayList<String>();
-				favouriteTags.add("environment/bp-oil-spill");
-				favouriteTags.add("sport/wimbledon");
+				List<String> favouriteSections = parseSectionsFromRequest(request);				
+				List<String> favouriteTags = parseTagsFromRequest(request);
 				
 				List<Article> combined = populateFavouriteArticles(favouriteSections, favouriteTags);
 											
@@ -107,6 +99,24 @@ public class FavouritesServlet extends HttpServlet {
 	}
 
 
+	private List<String> parseSectionsFromRequest(HttpServletRequest request) {
+		return commaSeperatedToList(request.getParameter("sections"));
+	}
+
+	private List<String> parseTagsFromRequest(HttpServletRequest request) {
+		return commaSeperatedToList(request.getParameter("tags"));
+	}
+	
+	private List<String> commaSeperatedToList(final String commaSeperated) {
+		List<String> list = new ArrayList<String>();
+		if (commaSeperated != null) {
+			for (String section : commaSeperated.split(",")) {
+				list.add(section);
+			}
+		}
+		return list;
+	}
+	
 
 	private List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags) {
 		List<Article> combined = new ArrayList<Article>();
