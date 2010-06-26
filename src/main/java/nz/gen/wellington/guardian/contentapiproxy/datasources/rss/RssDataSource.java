@@ -11,7 +11,6 @@ import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
-import nz.gen.wellington.guardian.contentapiproxy.servlets.ArticleToXmlRenderer;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
@@ -24,48 +23,23 @@ import com.sun.syndication.io.SyndFeedInput;
 
 public class RssDataSource implements GuardianDataSource {
 
-	private static final int DEFAULT_PAGE_SIZE = 10;
-
 	private static final String API_HOST = "http://www.guardian.co.uk";
 	
 	private CachingHttpFetcher httpFetcher;
 	private RssEntryToArticleConvertor rssEntryConvertor;
-	private ArticleSectionSorter articleSectionSorter;
 	private FreeTierContentApi freeTierContentApi;
-	private ArticleToXmlRenderer articleToXmlRenderer;
 	
 	Logger log = Logger.getLogger(RssDataSource.class);
 
 	
 	@Inject
-	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ArticleSectionSorter articleSectionSorter, FreeTierContentApi freeTierContentApi, ArticleToXmlRenderer articleToXmlRenderer) {
+	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, FreeTierContentApi freeTierContentApi) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
-		this.articleSectionSorter = articleSectionSorter;
 		this.freeTierContentApi = freeTierContentApi;
-		this.articleToXmlRenderer = articleToXmlRenderer;
 	}
 	
 	
-	public String getContent(SearchQuery query) {
-		List<Article> articles = getArticles(query);				
-		articles = articleSectionSorter.sort(articles);
-		
-		int pageSize = query.getPageSize() != null ? query.getPageSize() : DEFAULT_PAGE_SIZE;
-		if (pageSize < articles.size()) {
-			log.info("Limiting articles to: " + pageSize);
-			articles = articles.subList(0, pageSize);
-		}
-				
-		List<Tag> refinements = null;
-		if (query.getSection() != null) {
-			refinements = freeTierContentApi.getSectionRefinements(query.getSection());
-		}
-		
-		return articleToXmlRenderer.outputXml(articles, refinements);		
-	}
-
-
 	public List<Article> getArticles(SearchQuery query) {
 		String callUrl = buildApiSearchQueryUrl(query);
 		log.info("Fetching articles from: " + callUrl);
@@ -100,8 +74,13 @@ public class RssDataSource implements GuardianDataSource {
 		}
 		return null;
 	}
-
 	
+		
+	public List<Tag> getSectionRefinements(String sectionId) {
+		return freeTierContentApi.getSectionRefinements(sectionId);
+	}
+
+
 	private String buildApiSearchQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST);
 		if (query.getSection() != null) {

@@ -3,7 +3,6 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
@@ -14,7 +13,8 @@ import org.json.JSONObject;
 
 import com.google.inject.Inject;
 
-public class ContentApiDataSource implements GuardianDataSource {
+@Deprecated
+public class ContentApiDataSource {
 	
 	protected static final String API_HOST = "http://content.guardianapis.com";
 	protected static final String API_KEY = "";	// TODO A real api key would be required for this class to work

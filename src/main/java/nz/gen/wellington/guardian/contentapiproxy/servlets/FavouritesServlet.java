@@ -66,7 +66,7 @@ public class FavouritesServlet extends HttpServlet {
 				log.info("Building result for call: " + queryCacheKey);
 								
 				List<String> favouriteSections = new ArrayList<String>();
-				favouriteSections.add("business");
+				favouriteSections.add("business");	// TODO hardcoded
 				favouriteSections.add("environment");
 				favouriteSections.add("travel");
 				

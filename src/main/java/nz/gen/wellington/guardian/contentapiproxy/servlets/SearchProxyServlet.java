@@ -2,6 +2,7 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -9,8 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.ArticleSectionSorter;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
+import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 
 import org.apache.log4j.Logger;
 
@@ -26,17 +30,23 @@ import com.google.inject.Singleton;
 public class SearchProxyServlet extends HttpServlet {
 
 	private static final int OUTGOING_TTL = 300;
-
+	
+	private static final int DEFAULT_PAGE_SIZE = 10;
+	
 	Logger log = Logger.getLogger(SearchProxyServlet.class);
 
-	GuardianDataSource datasource;
-	MemcacheService cache;
+	private GuardianDataSource datasource;
+	private MemcacheService cache;
+	private ArticleSectionSorter articleSectionSorter;
+	private ArticleToXmlRenderer articleToXmlRenderer;
 
 	
 	@Inject
-	public SearchProxyServlet(RssDataSource datasource) {
+	public SearchProxyServlet(RssDataSource datasource, ArticleSectionSorter articleSectionSorter, ArticleToXmlRenderer articleToXmlRenderer) {
 		this.datasource = datasource;
 		this.cache = MemcacheServiceFactory.getMemcacheService();
+		this.articleSectionSorter = articleSectionSorter;
+		this.articleToXmlRenderer = articleToXmlRenderer;
 	}
 	
 
@@ -56,9 +66,8 @@ public class SearchProxyServlet extends HttpServlet {
             } 
             
 			if (output == null) {			
-				log.info("Building result for call: " + queryCacheKey);				
-	
-				output = datasource.getContent(query);
+				log.info("Building result for call: " + queryCacheKey);	
+				output = getContent(query);
 				if (output != null) {
 					log.info("Caching results for call: " + queryCacheKey);
 					cache.put(queryCacheKey, output, Expiration.byDeltaSeconds(OUTGOING_TTL));
@@ -83,6 +92,28 @@ public class SearchProxyServlet extends HttpServlet {
 		return;
 	}
 
+	
+	private String getContent(SearchQuery query) {
+		List<Article> articles = datasource.getArticles(query);				
+		articles = articleSectionSorter.sort(articles);
+		
+		int pageSize = query.getPageSize() != null ? query.getPageSize() : DEFAULT_PAGE_SIZE;
+		if (pageSize < articles.size()) {
+			log.info("Limiting articles to: " + pageSize);
+			articles = articles.subList(0, pageSize);
+		}
+				
+		List<Tag> refinements = null;
+		if (query.getSection() != null) {
+			refinements = datasource.getSectionRefinements(query.getSection());
+		}
+		
+		return articleToXmlRenderer.outputXml(articles, refinements);		
+	}
+
+	
+	
+	
 	
 	private String getQueryCacheKey(HttpServletRequest request) {
 		final String cacheKey = request.getRequestURI() + request.getQueryString();
