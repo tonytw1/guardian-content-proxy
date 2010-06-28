@@ -58,7 +58,6 @@ public class RssEntryToArticleConvertor {
 
 
 	private void processMediaElements(SyndEntry item, Article article) {
-		log.info("Processing media elements for: " + article.getTitle());
 		MediaEntryModuleImpl mediaModule = (MediaEntryModuleImpl) item.getModule(MediaModule.URI);
         if (mediaModule != null) {
         
@@ -76,7 +75,6 @@ public class RssEntryToArticleConvertor {
 	        	 
 	        	 for (int i = 0; i < mediaContents.length; i++) {
 	        		 mediaContent = mediaContents[i];
-	        		 log.info(mediaContent.getType());
 	        		 if (mediaContent.getType().startsWith("image")) {
 	        			 UrlReference reference = (UrlReference) mediaContent.getReference();
 		        		 Metadata metadata = mediaContent.getMetadata();
@@ -155,8 +153,7 @@ public class RssEntryToArticleConvertor {
 				String id = href.getAttribute("href");
 				id = id.replace("http://www.guardian.co.uk/", "");
 
-				log.info("Found tag with id: " + id);
-				String sectionId = id.split("/")[0];
+				final String sectionId = id.split("/")[0];
 				if (sectionId.equals("profile")) {
 					article.addTag(new Tag(href.toPlainTextString(), id, null, "contributor"));
 
@@ -179,7 +176,6 @@ public class RssEntryToArticleConvertor {
 				String id = href.getAttribute("href");
 				id = id.replace("http://www.guardian.co.uk/", "");
 
-				log.info("Found tag with id: " + id);
 				String sectionId = id.split("/")[0];
 				if (sectionId.equals("profile")) {
 					article.addTag(new Tag(href.toPlainTextString(), id, null, "contributor"));

@@ -77,7 +77,11 @@ public class FavouritesServlet extends HttpServlet {
 				output = articleToXmlRenderer.outputXml(combined, null);
 				if (output != null) {
 					log.info("Caching results for call: " + queryCacheKey);
-					cache.put(queryCacheKey, output, Expiration.byDeltaSeconds(OUTGOING_TTL));
+					try {
+						cache.put(queryCacheKey, output, Expiration.byDeltaSeconds(OUTGOING_TTL));
+					} catch (Exception e) {
+						log.error(e.getMessage());
+					}
 				}
 			}
 			
