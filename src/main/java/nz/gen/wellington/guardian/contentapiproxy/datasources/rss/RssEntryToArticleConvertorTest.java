@@ -34,19 +34,20 @@ public class RssEntryToArticleConvertorTest extends TestCase {
 		feed = input.build(new StringReader(content));
 		convertor = new RssEntryToArticleConvertor();
 		sections = new HashMap<String, Section>();
+		sections.put("poltics", new Section("politics", "Politics"));
 	}
 	
 	public void testShouldExtractAllFieldsCorrectly() throws Exception {
 		SyndEntry firstEntry = (SyndEntry) feed.getEntries().get(0);
-
+		
 		Article article = convertor.entryToArticle(firstEntry, sections);
 		assertEquals("Cameron defends Osborne's budget 'to protect the poor'", article.getTitle());
 		assertEquals("politics", article.getSection().getId());
 		assertEquals("Andrew Sparrow", article.getByline());
 		
-		assertEquals(6, article.getTags().size());
-		
-		assertEquals("All the news from Westminster including minute-by-minute coverage of PMQs and all the latest reaction to the budget", article.getStandfirst());				
+		assertEquals(7, article.getTags().size());
+				
+		assertEquals("All the news from Westminster including minute-by-minute coverage of PMQs and all the latest reaction to the budget\n\nRead a summary of events so far", article.getStandfirst());
 		assertEquals(new DateTime(2010, 6, 23, 7, 3, 39, 0), article.getPubDate());
 	}
 
