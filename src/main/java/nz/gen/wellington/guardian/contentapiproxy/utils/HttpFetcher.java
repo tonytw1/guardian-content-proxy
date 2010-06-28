@@ -18,7 +18,7 @@ import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 
 
-public class HttpFetcher {
+public abstract class HttpFetcher {
 
 	private final Logger log = Logger.getLogger(HttpFetcher.class);
 

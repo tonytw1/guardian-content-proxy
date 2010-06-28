@@ -31,12 +31,15 @@ public class RssDataSource implements GuardianDataSource {
 	
 	Logger log = Logger.getLogger(RssDataSource.class);
 
+	private Map<String, Section> sections;
+
 	
 	@Inject
 	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, FreeTierContentApi freeTierContentApi) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
 		this.freeTierContentApi = freeTierContentApi;
+		sections = freeTierContentApi.getSections();
 	}
 	
 	
@@ -51,8 +54,6 @@ public class RssDataSource implements GuardianDataSource {
 		
 				SyndFeedInput input = new SyndFeedInput();
 				SyndFeed feed = input.build(reader);
-
-				Map<String, Section> sections = freeTierContentApi.getSections();
 				
 				List<Article> articles = new ArrayList<Article>();
 				List entries = feed.getEntries();

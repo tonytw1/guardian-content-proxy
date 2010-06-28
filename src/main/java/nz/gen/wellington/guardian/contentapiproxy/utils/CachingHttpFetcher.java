@@ -23,7 +23,9 @@ public class CachingHttpFetcher extends HttpFetcher {
 	}
 
 	
-	public String httpFetch(String url, String charEncoding) {
+	public String fetchContent(String url, String charEncoding) {
+		log.info("Called for url '" + url);
+
 		final String content = fetchFromCache(url);
 		if (content != null) {
 			log.info("Found content for url '" + url + "' in cache");
@@ -36,6 +38,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 		if (fetchedContent != null) {
 			Expiration expiration = Expiration.byDeltaSeconds(DEFAULT_TTL);
 			cache.put(url, fetchedContent, expiration);
+			log.info("Cached url: " + url);
 		}
 		return fetchedContent;		
 	}

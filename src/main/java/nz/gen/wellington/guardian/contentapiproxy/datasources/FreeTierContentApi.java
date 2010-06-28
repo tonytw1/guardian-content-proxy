@@ -53,8 +53,7 @@ public class FreeTierContentApi {
 									section.getString("webTitle")));							
 						}
 						log.info("Found " + sections.size() + " sections");
-						return sections;
-						
+						return sections;						
 					}
 					
 				} catch (JSONException e) {
@@ -86,7 +85,6 @@ public class FreeTierContentApi {
 					
 					if (response.has("refinementGroups")) {
 						JSONArray refinementGroups = response.getJSONArray("refinementGroups");
-						//log.info(refinementGroups.toString());
 						for (int i = 0; i < refinementGroups.length(); i++) {
 							JSONObject refinementGroup = refinementGroups.getJSONObject(i);
 							String type = refinementGroup.getString("type");
