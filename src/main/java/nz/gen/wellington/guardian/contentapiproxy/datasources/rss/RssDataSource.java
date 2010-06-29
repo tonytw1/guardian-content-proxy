@@ -80,6 +80,10 @@ public class RssDataSource implements GuardianDataSource {
 	public List<Tag> getSectionRefinements(String sectionId) {
 		return freeTierContentApi.getSectionRefinements(sectionId);
 	}
+	
+	public List<Tag> getTagRefinements(String tagId) {
+		return freeTierContentApi.getTagRefinements(tagId);
+	}
 
 
 	private String buildApiSearchQueryUrl(SearchQuery query) {

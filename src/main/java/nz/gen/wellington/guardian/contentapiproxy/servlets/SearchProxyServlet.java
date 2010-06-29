@@ -113,9 +113,12 @@ public class SearchProxyServlet extends HttpServlet {
 		List<Tag> refinements = null;
 		if (query.getSection() != null) {
 			refinements = datasource.getSectionRefinements(query.getSection());
+
+		} else if (query.getTag() != null) {
+			refinements = datasource.getTagRefinements(query.getTag());
 		}
 		
-		return articleToXmlRenderer.outputXml(articles, refinements, query.isShowAllFields());		
+		return articleToXmlRenderer.outputXml(articles, refinements, query.isShowAllFields());
 	}
 
 	
