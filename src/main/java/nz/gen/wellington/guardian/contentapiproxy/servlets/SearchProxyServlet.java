@@ -56,8 +56,15 @@ public class SearchProxyServlet extends HttpServlet {
 		if (request.getRequestURI().equals("/search")) {
 					
             SearchQuery query = getSearchQueryFromRequest(request);
-            query.setShowAllFields(true);
-            query.setShowAllTags(true);
+            query.setShowAllFields(false);
+            if (request.getParameter("show-fields") != null && request.getParameter("show-fields").equals("true")) {
+                query.setShowAllFields(true);
+            }
+            
+            query.setShowAllTags(false);
+            if (request.getParameter("show-tags") != null && request.getParameter("show-tags").equals("true")) {
+                query.setShowAllTags(true);
+            }
                         
             final String queryCacheKey = getQueryCacheKey(request);
             String output = (String) cache.get(queryCacheKey);
@@ -108,12 +115,9 @@ public class SearchProxyServlet extends HttpServlet {
 			refinements = datasource.getSectionRefinements(query.getSection());
 		}
 		
-		return articleToXmlRenderer.outputXml(articles, refinements);		
+		return articleToXmlRenderer.outputXml(articles, refinements, query.isShowAllFields());		
 	}
 
-	
-	
-	
 	
 	private String getQueryCacheKey(HttpServletRequest request) {
 		final String cacheKey = request.getRequestURI() + request.getQueryString();

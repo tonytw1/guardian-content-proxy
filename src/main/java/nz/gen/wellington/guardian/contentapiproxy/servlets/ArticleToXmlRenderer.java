@@ -13,14 +13,23 @@ import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 
 import org.apache.log4j.Logger;
 
+import com.google.inject.Inject;
+
 public class ArticleToXmlRenderer {
 	
 	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
 	Logger log = Logger.getLogger(ArticleToXmlRenderer.class);
 
+	private ContentChecksumCalculator contentCheckSumCalculator;
 	
-	public String outputXml(List<Article> articles, List<Tag> refinements) {
+	@Inject
+	public ArticleToXmlRenderer(ContentChecksumCalculator contentCheckSumCalculator) {
+		this.contentCheckSumCalculator = contentCheckSumCalculator;
+	}
+
+
+	public String outputXml(List<Article> articles, List<Tag> refinements, boolean showAllFields) {
 		if (articles == null) {
 			return null;
 		}
@@ -33,31 +42,36 @@ public class ArticleToXmlRenderer {
 			writer.writeStartElement("response");
 			
 			writer.writeStartElement("results");
-			for (Article article : articles) {
-				if (article != null) {
-					articleToXml(writer, article);
-				}
-			}				
+			writer.writeAttribute("checksum", contentCheckSumCalculator.calculateChecksum(articles));
+			if (showAllFields) {
+				for (Article article : articles) {
+					if (article != null) {
+						articleToXml(writer, article);
+					}
+				}				
+			}
 			writer.writeEndElement();
 			
-			if (refinements != null && !refinements.isEmpty()) {
-				writer.writeStartElement("refinement-groups");
-				writer.writeStartElement("refinement-group");
-				writer.writeAttribute("type", "keyword");
+			if (showAllFields) {
+				if (refinements != null && !refinements.isEmpty()) {
+					writer.writeStartElement("refinement-groups");
+					writer.writeStartElement("refinement-group");
+					writer.writeAttribute("type", "keyword");
 				
-				writer.writeStartElement("refinements");
-				for (Tag tag : refinements) {
-					writer.writeStartElement("refinement");
-					writer.writeAttribute("id", tag.getId());
-					writer.writeAttribute("display-name", tag.getName());
-					//writer.writeAttribute("section-id", tag.getSection().getId());
+					writer.writeStartElement("refinements");
+					for (Tag tag : refinements) {
+						writer.writeStartElement("refinement");
+						writer.writeAttribute("id", tag.getId());
+						writer.writeAttribute("display-name", tag.getName());
+						//writer.writeAttribute("section-id", tag.getSection().getId());
+						writer.writeEndElement();
+					}
 					writer.writeEndElement();
+					writer.writeEndElement();
+					writer.writeEndElement();						
 				}
-				writer.writeEndElement();
-				writer.writeEndElement();
-				writer.writeEndElement();						
 			}
-			
+				
 			writer.writeEndElement();
 			writer.close();
 			return output.toString();
@@ -67,8 +81,8 @@ public class ArticleToXmlRenderer {
 		}
 		return null;
 	}
-	
-	
+
+
 	private void articleToXml(XMLStreamWriter writer, Article article) throws XMLStreamException {
 		if (article.getSection() == null) {
 			log.warn("Article has no section: " + article.getTitle());
@@ -130,6 +144,5 @@ public class ArticleToXmlRenderer {
 		writer.writeCharacters(value);
 		writer.writeEndElement();
 	}
-
 
 }

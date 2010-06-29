@@ -74,7 +74,12 @@ public class FavouritesServlet extends HttpServlet {
 					combined = combined.subList(0, MAX_FAVOURITES_SIZE);
 				}
 				
-				output = articleToXmlRenderer.outputXml(combined, null);
+				boolean showAll = false;
+				if (request.getParameter("show-fields") != null && request.getParameter("show-fields").equals("true")) {
+					showAll = true;
+				}
+				  
+				output = articleToXmlRenderer.outputXml(combined, null, showAll);
 				if (output != null) {
 					log.info("Caching results for call: " + queryCacheKey);
 					try {
