@@ -1,6 +1,7 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,6 +73,19 @@ public class FreeTierContentApi {
 	public List<Tag> getSectionRefinements(String sectionId) {		
 		String callUrl = buildSectionRefinementQueryUrl(sectionId);
 		log.info("Fetching from: " + callUrl);
+		return processRefinements(callUrl);
+	}
+	
+	
+	public List<Tag> getTagRefinements(String tagId) {		
+		String callUrl = buildTagRefinementQueryUrl(tagId);
+		log.info("Fetching from: " + callUrl);
+		return processRefinements(callUrl);
+	}
+
+
+
+	private List<Tag> processRefinements(String callUrl) {
 		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
 		if (content != null) {		
 			JSONObject json;
@@ -128,6 +142,21 @@ public class FreeTierContentApi {
 	}
 	
 	
+
+	private String buildTagRefinementQueryUrl(String tagId) {
+		StringBuilder queryUrl = new StringBuilder(API_HOST + "/search");
+		try {
+			queryUrl.append("?tag=type%2Farticle," + URLEncoder.encode(tagId, "UTF8"));
+		} catch (UnsupportedEncodingException e) {			
+		}
+		queryUrl.append("&page-size=1");
+		queryUrl.append("&show-refinements=all");
+		queryUrl.append("&format=json");
+		queryUrl.append("&from-date=" + new DateTime().minusDays(7).toString("yyyy-MM-dd"));
+		return queryUrl.toString();		
+	}
+
+	
 	private boolean isResponseOk(JSONObject json) {
 		try {
 			JSONObject response = json.getJSONObject("response");
@@ -138,5 +167,4 @@ public class FreeTierContentApi {
 		}
 	}
 
-	
 }

@@ -11,5 +11,6 @@ public interface GuardianDataSource {
 
 	public List<Article> getArticles(SearchQuery query);
 	public List<Tag> getSectionRefinements(String section);
+	public List<Tag> getTagRefinements(String tag);
 
 }
