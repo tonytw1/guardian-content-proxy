@@ -29,7 +29,7 @@ public class ArticleToXmlRenderer {
 	}
 
 
-	public String outputXml(List<Article> articles, List<Tag> refinements, boolean showAllFields) {
+	public String outputXml(List<Article> articles, String description, List<Tag> refinements, boolean showAllFields) {
 		if (articles == null) {
 			return null;
 		}
@@ -43,6 +43,9 @@ public class ArticleToXmlRenderer {
 			
 			writer.writeStartElement("results");
 			writer.writeAttribute("checksum", contentCheckSumCalculator.calculateChecksum(articles));
+			if (description != null && showAllFields) {
+				writer.writeAttribute("description", description);
+			}
 			if (showAllFields) {
 				for (Article article : articles) {
 					if (article != null) {

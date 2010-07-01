@@ -28,6 +28,7 @@ public class RssDataSource implements GuardianDataSource {
 	private CachingHttpFetcher httpFetcher;
 	private RssEntryToArticleConvertor rssEntryConvertor;
 	private FreeTierContentApi freeTierContentApi;
+	private String description;
 	
 	Logger log = Logger.getLogger(RssDataSource.class);
 
@@ -54,6 +55,8 @@ public class RssDataSource implements GuardianDataSource {
 		
 				SyndFeedInput input = new SyndFeedInput();
 				SyndFeed feed = input.build(reader);
+				
+				description = feed.getDescription();
 				
 				List<Article> articles = new ArrayList<Article>();
 				List entries = feed.getEntries();
@@ -85,6 +88,9 @@ public class RssDataSource implements GuardianDataSource {
 		return freeTierContentApi.getTagRefinements(tagId);
 	}
 
+	public String getDescription() {
+		return description;
+	}
 
 	private String buildApiSearchQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST);

@@ -33,7 +33,7 @@ public class RssEntryToArticleConvertor {
 	public Article entryToArticle(SyndEntry item, Map<String, Section> sections) {
 		
 		DCModule dcModule = (DCModule) item.getModule("http://purl.org/dc/elements/1.1/");
-		if (dcModule == null || !dcModule.getType().equals("Article")) {
+		if (dcModule == null || dcModule.getType() == null || !dcModule.getType().equals("Article")) {
 			return null;
 		}
 		

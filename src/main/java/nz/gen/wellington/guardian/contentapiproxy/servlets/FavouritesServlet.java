@@ -79,7 +79,7 @@ public class FavouritesServlet extends HttpServlet {
 					showAll = true;
 				}
 				  
-				output = articleToXmlRenderer.outputXml(combined, null, showAll);
+				output = articleToXmlRenderer.outputXml(combined, null, null, showAll);
 				if (output != null) {
 					log.info("Caching results for call: " + queryCacheKey);
 					try {
