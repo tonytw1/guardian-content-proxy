@@ -102,7 +102,6 @@ public class SearchProxyServlet extends HttpServlet {
 	
 	private String getContent(SearchQuery query) {
 		List<Article> articles = datasource.getArticles(query);
-		String description = datasource.getDescription();
 		articles = articleSectionSorter.sort(articles);
 		
 		int pageSize = query.getPageSize() != null ? query.getPageSize() : DEFAULT_PAGE_SIZE;
@@ -119,6 +118,11 @@ public class SearchProxyServlet extends HttpServlet {
 			refinements = datasource.getTagRefinements(query.getTag());
 		}
 		
+		String description = null;
+		boolean isContributorQuery = query.getTag() != null && query.getTag().startsWith("profile/");
+		if (isContributorQuery) {
+			description = datasource.getDescription();
+		}
 		return articleToXmlRenderer.outputXml(articles, description, refinements, query.isShowAllFields());
 	}
 
