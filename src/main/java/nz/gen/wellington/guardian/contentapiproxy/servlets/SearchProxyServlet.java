@@ -102,6 +102,10 @@ public class SearchProxyServlet extends HttpServlet {
 	
 	private String getContent(SearchQuery query) {
 		List<Article> articles = datasource.getArticles(query);
+		if (articles == null) {
+			return null;
+		}
+		
 		articles = articleSectionSorter.sort(articles);
 		
 		int pageSize = query.getPageSize() != null ? query.getPageSize() : DEFAULT_PAGE_SIZE;

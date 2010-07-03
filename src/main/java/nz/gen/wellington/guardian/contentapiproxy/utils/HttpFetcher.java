@@ -38,7 +38,6 @@ public abstract class HttpFetcher {
 
             } else {
             	log.warn("Error response code was: " + result.getResponseCode());
-            	log.warn(readResponseBody(pageCharacterEncoding, output, result));
             }
 
 		} catch (MalformedURLException e) {
