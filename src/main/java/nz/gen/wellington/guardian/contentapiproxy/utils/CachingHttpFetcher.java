@@ -12,7 +12,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 	
 	private final Logger log = Logger.getLogger(CachingHttpFetcher.class);
 	
-	private static final int DEFAULT_TTL = 300;
+	private static final int DEFAULT_TTL = 600;
 	MemcacheService cache;
 	 
 	 
