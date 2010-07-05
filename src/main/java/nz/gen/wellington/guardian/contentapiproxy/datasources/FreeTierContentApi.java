@@ -142,7 +142,6 @@ public class FreeTierContentApi {
 	}
 	
 	
-
 	private String buildTagRefinementQueryUrl(String tagId) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/search");
 		try {
@@ -152,7 +151,6 @@ public class FreeTierContentApi {
 		queryUrl.append("&page-size=1");
 		queryUrl.append("&show-refinements=all");
 		queryUrl.append("&format=json");
-		queryUrl.append("&from-date=" + new DateTime().minusDays(7).toString("yyyy-MM-dd"));
 		return queryUrl.toString();		
 	}
 
