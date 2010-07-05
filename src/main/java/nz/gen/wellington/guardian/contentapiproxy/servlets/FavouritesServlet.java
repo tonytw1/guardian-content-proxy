@@ -61,18 +61,14 @@ public class FavouritesServlet extends HttpServlet {
             	log.info("Returning cached results for call url: " + queryCacheKey);				
             }
             
-			if (output == null) {			
+			if (output == null) {
 				log.info("Building result for call: " + queryCacheKey);
 				List<String> favouriteSections = parseSectionsFromRequest(request);				
 				List<String> favouriteTags = parseTagsFromRequest(request);
 				
 				List<Article> combined = populateFavouriteArticles(favouriteSections, favouriteTags);
 											
-				combined = articleSectionSorter.sort(combined);
-				if (MAX_FAVOURITES_SIZE < combined.size()) {
-					log.info("Limiting articles to: " + MAX_FAVOURITES_SIZE);
-					combined = combined.subList(0, MAX_FAVOURITES_SIZE);
-				}
+				combined = articleSectionSorter.sort(combined);			
 				
 				boolean showAll = false;
 				if (request.getParameter("show-fields") != null && request.getParameter("show-fields").equals("true")) {

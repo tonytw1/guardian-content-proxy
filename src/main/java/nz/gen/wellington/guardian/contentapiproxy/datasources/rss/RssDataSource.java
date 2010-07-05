@@ -64,7 +64,7 @@ public class RssDataSource implements GuardianDataSource {
 				for (int i = 0; i < entries.size(); i++) {
 					SyndEntry item = (SyndEntry) entries.get(i);
 					Article article = rssEntryConvertor.entryToArticle(item, sections);
-					if (article != null) {
+					if (article != null && article.getSection() != null) {
 						articles.add(article);
 					}
 				}

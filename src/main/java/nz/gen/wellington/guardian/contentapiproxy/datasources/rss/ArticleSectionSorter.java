@@ -7,28 +7,48 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.joda.time.DateTime;
-
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 
+import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+
 public class ArticleSectionSorter {
+	
+	Logger log = Logger.getLogger(ArticleSectionSorter.class);
 
 	public List<Article> sort(List<Article> articles) {
+		LinkedList<Article> results = new LinkedList<Article>();
+
 		SortedMap<DateTime, Article> sorted = new TreeMap<DateTime, Article>();
 		for (Article article : articles) {
 			sorted.put(article.getPubDate(), article);
 		}
-
-		LinkedList<Article> results = new LinkedList<Article>();
-
-		while (!sorted.isEmpty()) {
-			Article latest = sorted.get(sorted.lastKey());
-			addArticlesForSection(sorted, results, latest.getSection());
+		
+		SortedMap<DateTime, Article> trimmed = trim(sorted, 15);
+		
+		while (!trimmed.isEmpty()) {
+			Article latest = trimmed.get(trimmed.lastKey());
+			addArticlesForSection(trimmed, results, latest.getSection());
 		}
-
 		return results;
 	}
+	
+	
+	private SortedMap<DateTime, Article> trim(SortedMap<DateTime, Article> sorted, int limit) {		
+		if (sorted.size() <= limit) {
+			return sorted;
+		}
+		
+		SortedMap<DateTime, Article> trimmed = new TreeMap<DateTime, Article>();
+		for (int i = 0; i < limit; i++) {
+			Article article = sorted.get(sorted.lastKey());
+			sorted.remove(article.getPubDate());
+			trimmed.put(article.getPubDate(), article);
+		}
+		return trimmed;
+	}
+
 	
 	private void addArticlesForSection(SortedMap<DateTime, Article> topStories, LinkedList<Article> results, Section section) {
 		List<Article> sectionArticles = new ArrayList<Article>();
