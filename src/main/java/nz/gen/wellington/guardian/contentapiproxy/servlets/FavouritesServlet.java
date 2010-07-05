@@ -31,8 +31,6 @@ public class FavouritesServlet extends HttpServlet {
 
 	private static final int OUTGOING_TTL = 300;
 
-	private static final int MAX_FAVOURITES_SIZE = 20;
-
 	Logger log = Logger.getLogger(FavouritesServlet.class);
 
 	private GuardianDataSource datasource;
@@ -66,7 +64,7 @@ public class FavouritesServlet extends HttpServlet {
 				List<String> favouriteSections = parseSectionsFromRequest(request);				
 				List<String> favouriteTags = parseTagsFromRequest(request);
 				
-				List<Article> combined = populateFavouriteArticles(favouriteSections, favouriteTags);
+				List<Article> combined = populateFavouriteArticles(favouriteSections, favouriteTags, 15);	// TODO Push size up
 											
 				combined = articleSectionSorter.sort(combined);			
 				
@@ -116,40 +114,49 @@ public class FavouritesServlet extends HttpServlet {
 		List<String> list = new ArrayList<String>();
 		if (commaSeperated != null) {
 			for (String section : commaSeperated.split(",")) {
-				list.add(section);
+				if (!section.trim().equals("")) {
+					list.add(section);
+				}
 			}
 		}
 		return list;
 	}
 	
 
-	private List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags) {
+	private List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags, int size) {
 		List<Article> combined = new ArrayList<Article>();
+		
+		int numberFromEachFavourite = 3;
+		int numberOfFavourites = favouriteSections.size() + favouriteTags.size();
+		numberFromEachFavourite = (size / numberOfFavourites) + 1;
+		if (numberFromEachFavourite < 3) {
+			numberFromEachFavourite=3;
+		}
+		
+		log.info("Number from each is: " + Integer.toString(numberFromEachFavourite));
 		for (String favouriteSection : favouriteSections) {
 			SearchQuery query = new SearchQuery();
-			query.setTag(favouriteSection);
+			query.setSection(favouriteSection);
 			List<Article> articles = datasource.getArticles(query);					
-			putLatestThreeStoriesOntoList(combined, articles);
+			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
 		}
 		
 		for (String favouriteTag : favouriteTags) {
 			SearchQuery query = new SearchQuery();
 			query.setTag(favouriteTag);
 			List<Article> articles = datasource.getArticles(query);					
-			putLatestThreeStoriesOntoList(combined, articles);
+			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
 		}
 		
-		SearchQuery latestQuery = new SearchQuery();
-		putLatestThreeStoriesOntoList(combined, datasource.getArticles(latestQuery));		
 		return combined;
 	}
 
 		
-	private void putLatestThreeStoriesOntoList(List<Article> combined, List<Article> articles) {
+	private void putLatestThreeStoriesOntoList(List<Article> combined, List<Article> articles, int number) {
 		if (articles == null) {
 			return;
 		}
-		final int numberToAdd = (articles.size() < 3) ? articles.size() : 3;
+		final int numberToAdd = (articles.size() < number) ? articles.size() : number;
 		for (int i = 0; i < numberToAdd; i++) {
 			Article article = articles.get(i);
 			if (article.getSection() != null) {
