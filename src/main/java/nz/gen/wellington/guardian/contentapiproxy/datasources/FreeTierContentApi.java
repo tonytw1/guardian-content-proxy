@@ -3,6 +3,7 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +23,11 @@ import com.google.inject.Inject;
 public class FreeTierContentApi {
 
 	private static final String API_HOST = "http://content.guardianapis.com";
+	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor"};
 
 	Logger log = Logger.getLogger(FreeTierContentApi.class);
 
+	
 	CachingHttpFetcher httpFetcher;
 	
 	@Inject
@@ -70,22 +73,21 @@ public class FreeTierContentApi {
 	}
 	
 	
-	public List<Tag> getSectionRefinements(String sectionId) {		
+	public Map<String, List<Tag>> getSectionRefinements(String sectionId) {		
 		String callUrl = buildSectionRefinementQueryUrl(sectionId);
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
 	}
 	
 	
-	public List<Tag> getTagRefinements(String tagId) {		
+	public Map<String, List<Tag>> getTagRefinements(String tagId) {		
 		String callUrl = buildTagRefinementQueryUrl(tagId);
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
 	}
 
-
-
-	private List<Tag> processRefinements(String callUrl) {
+	
+	private Map<String, List<Tag>> processRefinements(String callUrl) {
 		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
 		if (content != null) {		
 			JSONObject json;
@@ -95,25 +97,37 @@ public class FreeTierContentApi {
 				
 				if (json != null && isResponseOk(json)) {
 
-					List<Tag> tags = new ArrayList<Tag>();
-					
+					Map<String, List<Tag>> refinements = new HashMap<String, List<Tag>>();
 					if (response.has("refinementGroups")) {
 						JSONArray refinementGroups = response.getJSONArray("refinementGroups");
 						for (int i = 0; i < refinementGroups.length(); i++) {
 							JSONObject refinementGroup = refinementGroups.getJSONObject(i);
 							String type = refinementGroup.getString("type");
-							if (type.equals("keyword")) {
-								JSONArray refinements = refinementGroup.getJSONArray("refinements");
-								for (int j = 0; j < refinements.length(); j++) {
-									JSONObject refinement = refinements.getJSONObject(j);
+							
+
+							boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(type);
+							if (isPermittedRefinementType) {
+								
+								List<Tag> tags = refinements.get(type);
+								if (tags == null) {
+									tags = new ArrayList<Tag>();
+									refinements.put(type, tags);
+								}
+								
+								JSONArray refinementsJSON = refinementGroup.getJSONArray("refinements");
+								for (int j = 0; j < refinementsJSON.length(); j++) {
+									JSONObject refinement = refinementsJSON.getJSONObject(j);
 									tags.add(
-											new Tag(refinement.getString("displayName"), refinement.getString("id"), null, "keyword")
-											);									
+										new Tag(refinement.getString("displayName"), refinement.getString("id"), null, type)
+										);									
 								}
 							}
+							
+							
+							
 						}
 					}
-					return tags;
+					return refinements;
 				}
 			} catch (JSONException e) {
 				log.error(e.getMessage());

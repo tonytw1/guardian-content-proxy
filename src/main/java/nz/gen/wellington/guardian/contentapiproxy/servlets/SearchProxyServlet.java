@@ -3,6 +3,7 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -114,7 +115,7 @@ public class SearchProxyServlet extends HttpServlet {
 			articles = articles.subList(0, pageSize);
 		}
 				
-		List<Tag> refinements = null;
+		Map<String, List<Tag>> refinements = null;
 		if (query.getSection() != null) {
 			refinements = datasource.getSectionRefinements(query.getSection());
 
