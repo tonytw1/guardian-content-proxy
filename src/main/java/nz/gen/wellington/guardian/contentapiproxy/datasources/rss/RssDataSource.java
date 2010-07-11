@@ -79,6 +79,9 @@ public class RssDataSource implements GuardianDataSource {
 		return null;
 	}
 	
+	public Map<String, Section> getSections() {
+		return freeTierContentApi.getSections();
+	}
 		
 	public Map<String, List<Tag>> getSectionRefinements(String sectionId) {
 		return freeTierContentApi.getSectionRefinements(sectionId);
