@@ -1,6 +1,7 @@
 package nz.gen.wellington.guardian.contentapiproxy.servlets;
 
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 
@@ -32,6 +33,16 @@ public abstract class CacheAwareProxyServlet extends HttpServlet {
 	protected String cacheGet(String queryCacheKey) {
 		log.info("Getting Cached results for call: " + queryCacheKey);
 		return (String) cache.get(queryCacheKey);
+	}
+	
+	
+	protected final String getQueryCacheKey(HttpServletRequest request) {
+		StringBuilder cacheKey = new StringBuilder(request.getRequestURI());
+		if (request.getQueryString() != null) {
+			cacheKey.append(request.getQueryString());
+		}
+		log.debug("Cache key is: " + cacheKey.toString());
+		return cacheKey.toString();
 	}
 	
 }

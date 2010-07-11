@@ -119,14 +119,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 		return articleToXmlRenderer.outputXml(articles, description, refinements, query.isShowAllFields());
 	}
 
-	
-	private String getQueryCacheKey(HttpServletRequest request) {
-		final String cacheKey = request.getRequestURI() + request.getQueryString();
-		log.debug("Cache key is: " + cacheKey);
-		return cacheKey;
-	}
-
-
+		
 	private SearchQuery getSearchQueryFromRequest(HttpServletRequest request) {
 		SearchQuery query = new SearchQuery();
 		if (request.getParameter("section") != null) {

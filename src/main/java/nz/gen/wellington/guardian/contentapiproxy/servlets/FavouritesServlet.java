@@ -154,12 +154,5 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 			}
 		}
 	}
-
-
-	private String getQueryCacheKey(HttpServletRequest request) {
-		final String cacheKey = request.getRequestURI() + request.getQueryString();
-		log.debug("Cache key is: " + cacheKey);
-		return cacheKey;
-	}
 	
 }
