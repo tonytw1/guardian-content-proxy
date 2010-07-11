@@ -54,7 +54,7 @@ public class FreeTierContentApi {
 							JSONObject section = results.getJSONObject(i);
 							sections.put(section.getString("id"), new Section(
 									section.getString("id"),
-									section.getString("webTitle")));							
+									ArticleHtmlCleaner.stripHtml(section.getString("webTitle"))));
 						}
 						log.info("Found " + sections.size() + " sections");
 						return sections;						
