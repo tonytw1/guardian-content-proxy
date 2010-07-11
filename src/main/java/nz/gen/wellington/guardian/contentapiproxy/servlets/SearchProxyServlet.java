@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,10 +16,6 @@ import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 
-import org.apache.log4j.Logger;
-
-import com.google.appengine.api.memcache.Expiration;
-import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -28,16 +23,11 @@ import com.google.inject.Singleton;
 
 @SuppressWarnings("serial")
 @Singleton
-public class SearchProxyServlet extends HttpServlet {
-
-	private static final int OUTGOING_TTL = 300;
+public class SearchProxyServlet extends CacheAwareProxyServlet {
 	
 	private static final int DEFAULT_PAGE_SIZE = 10;
 	
-	Logger log = Logger.getLogger(SearchProxyServlet.class);
-
 	private GuardianDataSource datasource;
-	private MemcacheService cache;
 	private ArticleSectionSorter articleSectionSorter;
 	private ArticleToXmlRenderer articleToXmlRenderer;
 
@@ -77,8 +67,7 @@ public class SearchProxyServlet extends HttpServlet {
 				log.info("Building result for call: " + queryCacheKey);	
 				output = getContent(query);
 				if (output != null) {
-					log.info("Caching results for call: " + queryCacheKey);
-					cache.put(queryCacheKey, output, Expiration.byDeltaSeconds(OUTGOING_TTL));
+					cacheContent(queryCacheKey, output);
 				}
 				
 			}

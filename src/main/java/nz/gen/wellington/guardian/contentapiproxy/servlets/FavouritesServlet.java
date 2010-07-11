@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,10 +26,8 @@ import com.google.inject.Singleton;
 
 @SuppressWarnings("serial")
 @Singleton
-public class FavouritesServlet extends HttpServlet {
-
-	private static final int OUTGOING_TTL = 300;
-
+public class FavouritesServlet extends CacheAwareProxyServlet {
+	
 	Logger log = Logger.getLogger(FavouritesServlet.class);
 
 	private GuardianDataSource datasource;
@@ -75,12 +72,7 @@ public class FavouritesServlet extends HttpServlet {
 				  
 				output = articleToXmlRenderer.outputXml(combined, null, null, showAll);
 				if (output != null) {
-					log.info("Caching results for call: " + queryCacheKey);
-					try {
-						cache.put(queryCacheKey, output, Expiration.byDeltaSeconds(OUTGOING_TTL));
-					} catch (Exception e) {
-						log.error(e.getMessage());
-					}
+					cacheContent(queryCacheKey, output);
 				}
 			}
 			
