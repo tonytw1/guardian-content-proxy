@@ -16,7 +16,6 @@ import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -34,8 +33,8 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	
 	@Inject
 	public SearchProxyServlet(RssDataSource datasource, ArticleSectionSorter articleSectionSorter, ArticleToXmlRenderer articleToXmlRenderer) {
+		super();
 		this.datasource = datasource;
-		this.cache = MemcacheServiceFactory.getMemcacheService();
 		this.articleSectionSorter = articleSectionSorter;
 		this.articleToXmlRenderer = articleToXmlRenderer;
 	}
@@ -58,7 +57,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
             }
                         
             final String queryCacheKey = getQueryCacheKey(request);
-            String output = (String) cache.get(queryCacheKey);
+            String output = cacheGet(queryCacheKey);
             if (output != null) {
             	log.info("Returning cached results for call url: " + queryCacheKey);				
             } 

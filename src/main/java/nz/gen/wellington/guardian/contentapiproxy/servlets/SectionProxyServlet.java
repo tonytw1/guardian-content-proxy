@@ -12,7 +12,6 @@ import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
 
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -28,9 +27,9 @@ public class SectionProxyServlet extends CacheAwareProxyServlet {
 	
 	@Inject
 	public SectionProxyServlet(CachingHttpFetcher httpFetcher, FreeTierContentApi contentApi) {
+		super();
 		this.httpFetcher = httpFetcher;
 		this.contentApi = contentApi;
-		this.cache =  MemcacheServiceFactory.getMemcacheService();
 	}
 	
 	
@@ -42,14 +41,13 @@ public class SectionProxyServlet extends CacheAwareProxyServlet {
 		if (request.getRequestURI().equals("/sections")) {
 			
 			final String queryCacheKey = "secitons";
-			String output = (String) cache.get(queryCacheKey);
+			String output = cacheGet(queryCacheKey);
 			if (output != null) {
-	        	log.info("Returning cached results for call url: " + queryCacheKey);				
-			} 
+	        	log.info("Returning cached results for call url: " + queryCacheKey);
+			}
 					
 			final String content = httpFetcher.fetchContent(contentApi.buildApiSectionsQueryUrl(), "UTF-8");
-			if (content != null) {
-				
+			if (content != null) {				
 				cacheContent(queryCacheKey, content);
 				
 				response.setStatus(HttpServletResponse.SC_OK);

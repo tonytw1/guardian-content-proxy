@@ -17,9 +17,7 @@ import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 
 import org.apache.log4j.Logger;
 
-import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -38,8 +36,8 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 	
 	@Inject
 	public FavouritesServlet(RssDataSource datasource, ArticleSectionSorter articleSectionSorter, ArticleToXmlRenderer articleToXmlRenderer) {
+		super();
 		this.datasource = datasource;
-		this.cache = MemcacheServiceFactory.getMemcacheService();
 		this.articleSectionSorter = articleSectionSorter;
 		this.articleToXmlRenderer = articleToXmlRenderer;
 	}
