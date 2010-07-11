@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
@@ -49,7 +50,7 @@ public class FreeTierContentApi {
 						JSONObject jsonResponse = json.getJSONObject("response");
 						JSONArray results = jsonResponse.getJSONArray("results");
 						
-						Map<String, Section> sections = new HashMap<String, Section>();
+						Map<String, Section> sections = new TreeMap<String, Section>();
 						for (int i = 0; i < results.length(); i++) {
 							JSONObject section = results.getJSONObject(i);
 							sections.put(section.getString("id"), new Section(
