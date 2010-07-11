@@ -17,7 +17,6 @@ import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 
 import org.apache.log4j.Logger;
 
-import com.google.appengine.api.memcache.MemcacheService;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -29,7 +28,6 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 	Logger log = Logger.getLogger(FavouritesServlet.class);
 
 	private GuardianDataSource datasource;
-	private MemcacheService cache;
 	private ArticleSectionSorter articleSectionSorter;
 	private ArticleToXmlRenderer articleToXmlRenderer;
 
@@ -49,7 +47,7 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 		if (request.getRequestURI().equals("/favourites")) {
 			
             final String queryCacheKey = getQueryCacheKey(request);
-            String output = (String) cache.get(queryCacheKey);
+            String output = cacheGet(queryCacheKey);
             if (output != null) {
             	log.info("Returning cached results for call url: " + queryCacheKey);				
             }

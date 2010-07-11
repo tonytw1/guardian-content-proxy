@@ -22,7 +22,9 @@ import org.json.JSONObject;
 import com.google.inject.Inject;
 
 public class FreeTierContentApi {
-
+	
+	private List<String> badSections = Arrays.asList("Community", "Crosswords", "Extra", "Help", "Info", "Local", "From the Guardian", "From the Observer", "News", "Weather");
+	
 	private static final String API_HOST = "http://content.guardianapis.com";
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor"};
 
@@ -53,9 +55,14 @@ public class FreeTierContentApi {
 						Map<String, Section> sections = new TreeMap<String, Section>();
 						for (int i = 0; i < results.length(); i++) {
 							JSONObject section = results.getJSONObject(i);
-							sections.put(section.getString("id"), new Section(
+														
+							Section loadedSection = new Section(
 									section.getString("id"),
-									ArticleHtmlCleaner.stripHtml(section.getString("webTitle"))));
+									ArticleHtmlCleaner.stripHtml(section.getString("webTitle")));
+							
+							if (!badSections.contains(loadedSection.getName())) {
+								sections.put(section.getString("id"), loadedSection);
+							}							
 						}
 						log.info("Found " + sections.size() + " sections");
 						return sections;						
