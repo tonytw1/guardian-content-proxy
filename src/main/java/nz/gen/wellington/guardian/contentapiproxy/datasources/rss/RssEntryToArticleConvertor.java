@@ -75,7 +75,7 @@ public class RssEntryToArticleConvertor {
 	        	 
 	        	 for (int i = 0; i < mediaContents.length; i++) {
 	        		 mediaContent = mediaContents[i];
-	        		 if (mediaContent.getType().startsWith("image")) {
+	        		 if (mediaContent.getType() != null && mediaContent.getType().startsWith("image")) {
 	        			 UrlReference reference = (UrlReference) mediaContent.getReference();
 		        		 Metadata metadata = mediaContent.getMetadata();
 	        			 if (mediaContent.getWidth() == 460) {
