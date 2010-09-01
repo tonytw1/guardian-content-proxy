@@ -116,6 +116,10 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 		
 		int numberFromEachFavourite = 3;
 		int numberOfFavourites = favouriteSections.size() + favouriteTags.size();
+		if (!(numberOfFavourites > 0)) {
+			return combined;
+		}
+				
 		numberFromEachFavourite = (size / numberOfFavourites) + 1;
 		if (numberFromEachFavourite < 3) {
 			numberFromEachFavourite=3;
