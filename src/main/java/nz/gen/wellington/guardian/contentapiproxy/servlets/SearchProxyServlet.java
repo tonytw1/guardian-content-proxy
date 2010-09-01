@@ -112,14 +112,19 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 		}
 		
 		String description = null;
-		boolean isContributorQuery = query.getTag() != null && query.getTag().startsWith("profile/");
-		if (isContributorQuery) {
+		if (isNotDefaultMeaninglessDescription(datasource.getDescription())) {
 			description = datasource.getDescription();
 		}
 		return articleToXmlRenderer.outputXml(articles, description, refinements, query.isShowAllFields());
 	}
+	
+	
+	private boolean isNotDefaultMeaninglessDescription(String description) {
+		return description != null && !(description.startsWith("Articles published by guardian.co.uk")
+				|| description.startsWith("Latest news and features from guardian.co.uk, the world's leading liberal voice"));
+	}
 
-		
+
 	private SearchQuery getSearchQueryFromRequest(HttpServletRequest request) {
 		SearchQuery query = new SearchQuery();
 		if (request.getParameter("section") != null) {
