@@ -95,10 +95,6 @@ public class ArticleToXmlRenderer {
 
 
 	private void articleToXml(XMLStreamWriter writer, Article article) throws XMLStreamException {
-		//if (article.getSection() == null) {
-		//	log.warn("Article has no section: " + article.getTitle());
-		//	return;
-		//}
 		 writer.writeStartElement("content");
 		 if (article.getId() != null) writer.writeAttribute("id", article.getId());
 		 if (article.getSection() != null) writer.writeAttribute("section-id", article.getSection().getId());

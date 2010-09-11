@@ -2,12 +2,9 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssEntryToArticleConvertor;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
@@ -22,18 +19,15 @@ import com.sun.syndication.io.SyndFeedInput;
 public class AboutDataSource {
 	
 	private CachingHttpFetcher httpFetcher;
-	private RssEntryToArticleConvertor rssEntryConvertor;
 	private String description;
 	
 	Logger log = Logger.getLogger(AboutDataSource.class);
 	
 	@Inject
-	public AboutDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor) {
+	public AboutDataSource(CachingHttpFetcher httpFetcher) {
 		this.httpFetcher = httpFetcher;
-		this.rssEntryConvertor = rssEntryConvertor;
 	}
-	
-	
+		
 	public List<Article> getArticles() {
 		final String callUrl = "http://eelpieconsulting.co.uk/rss";
 		
