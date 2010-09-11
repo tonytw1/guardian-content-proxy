@@ -32,6 +32,8 @@ public class ArticleToXmlRenderer {
 
 
 	public String outputXml(List<Article> articles, String description, Map<String, List<Tag>> refinements, boolean showAllFields) {
+		System.out.println(articles.size());
+		
 		if (articles == null) {
 			return null;
 		}
@@ -93,18 +95,18 @@ public class ArticleToXmlRenderer {
 
 
 	private void articleToXml(XMLStreamWriter writer, Article article) throws XMLStreamException {
-		if (article.getSection() == null) {
-			log.warn("Article has no section: " + article.getTitle());
-			return;
-		}
-		 writer.writeStartElement("content");		 
-         writer.writeAttribute("id", article.getId());         		 
-		 writer.writeAttribute("section-id", article.getSection().getId());
+		//if (article.getSection() == null) {
+		//	log.warn("Article has no section: " + article.getTitle());
+		//	return;
+		//}
+		 writer.writeStartElement("content");
+		 if (article.getId() != null) writer.writeAttribute("id", article.getId());
+		 if (article.getSection() != null) writer.writeAttribute("section-id", article.getSection().getId());
 		 writer.writeAttribute("web-publication-date", article.getPubDate().toString(DATE_TIME_FORMAT));
 
 		 writer.writeStartElement("fields");
 		 writeFieldElement(writer, "headline", article.getTitle());
-		 writeFieldElement(writer, "byline", article.getByline());
+		 if (article.getByline() != null) writeFieldElement(writer, "byline", article.getByline());
 		 writeFieldElement(writer, "standfirst", article.getStandfirst());
 
 		 if (article.getThumbnailUrl() != null) {
