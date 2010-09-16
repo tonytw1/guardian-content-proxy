@@ -18,10 +18,13 @@ import com.sun.syndication.io.SyndFeedInput;
 
 public class AboutDataSource {
 	
+	private static final String ABOUT_RSS_FEED = "http://eelpieconsulting.co.uk/rss2";
+	
+	private static Logger log = Logger.getLogger(AboutDataSource.class);
+	
 	private CachingHttpFetcher httpFetcher;
 	private String description;
 	
-	Logger log = Logger.getLogger(AboutDataSource.class);
 	
 	@Inject
 	public AboutDataSource(CachingHttpFetcher httpFetcher) {
@@ -29,7 +32,7 @@ public class AboutDataSource {
 	}
 		
 	public List<Article> getArticles() {
-		final String callUrl = "http://eelpieconsulting.co.uk/rss";
+		final String callUrl = ABOUT_RSS_FEED;
 		
 		log.info("Fetching articles from: " + callUrl);
 		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
