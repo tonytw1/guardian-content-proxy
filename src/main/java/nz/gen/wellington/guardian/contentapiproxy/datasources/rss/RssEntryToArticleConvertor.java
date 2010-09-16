@@ -38,12 +38,14 @@ public class RssEntryToArticleConvertor {
 		}
 		
 		Article article = new Article();
-		article.setId(dcModule.getIdentifier());
 		article.setTitle(ArticleHtmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(new DateTime(item.getPublishedDate()));
 		article.setByline(ArticleHtmlCleaner.stripHtml(item.getAuthor()));
-		
-		setSectionFromDCSubject(dcModule, article, sections);
+
+		if (dcModule != null) {
+			article.setId(dcModule.getIdentifier());
+			setSectionFromDCSubject(dcModule, article, sections);
+		}
 		
 		final String description = item.getDescription().getValue();
 		processBody(description, article, sections);
@@ -192,7 +194,7 @@ public class RssEntryToArticleConvertor {
 
 	
 	private void setSectionFromDCSubject(DCModule dcModule, Article article, Map<String, Section> sections) {
-		String sectionName = dcModule.getSubject().getValue();		
+		String sectionName = dcModule.getSubject().getValue();
 		article.setSection(getSectionByName(sections, sectionName));
 	}
 
