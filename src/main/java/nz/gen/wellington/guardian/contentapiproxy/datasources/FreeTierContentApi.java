@@ -23,15 +23,14 @@ import com.google.inject.Inject;
 
 public class FreeTierContentApi {
 	
-	private List<String> badSections = Arrays.asList("Community", "Crosswords", "Extra", "Help", "Info", "Local", "From the Guardian", "From the Observer", "News", "Weather");
+	private Logger log = Logger.getLogger(FreeTierContentApi.class);
 	
+	private List<String> badSections = Arrays.asList("Community", "Crosswords", "Extra", "Help", "Info", "Local", "From the Guardian", "From the Observer", "News", "Weather");	
 	private static final String API_HOST = "http://content.guardianapis.com";
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor"};
-
-	Logger log = Logger.getLogger(FreeTierContentApi.class);
-
+	private String apiKey = null;
 	
-	CachingHttpFetcher httpFetcher;
+	private CachingHttpFetcher httpFetcher;
 	
 	@Inject
 	public FreeTierContentApi(CachingHttpFetcher httpFetcher) {
@@ -131,8 +130,6 @@ public class FreeTierContentApi {
 								}
 							}
 							
-							
-							
 						}
 					}
 					return refinements;
@@ -148,6 +145,7 @@ public class FreeTierContentApi {
 	public String buildApiSectionsQueryUrl() throws UnsupportedEncodingException {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/sections");
 		queryUrl.append("?format=json");
+		appendApiKey(queryUrl);
 		return queryUrl.toString();
 	}
 	
@@ -160,7 +158,8 @@ public class FreeTierContentApi {
 		queryUrl.append("&show-refinements=all");
 		queryUrl.append("&format=json");
 		queryUrl.append("&from-date=" + new DateTime().minusDays(7).toString("yyyy-MM-dd"));
-		return queryUrl.toString();			
+		appendApiKey(queryUrl);
+		return queryUrl.toString();
 	}
 	
 	
@@ -173,7 +172,15 @@ public class FreeTierContentApi {
 		queryUrl.append("&page-size=1");
 		queryUrl.append("&show-refinements=all");
 		queryUrl.append("&format=json");
-		return queryUrl.toString();		
+		appendApiKey(queryUrl);
+		return queryUrl.toString();
+	}
+
+
+	private void appendApiKey(StringBuilder queryUrl) {
+		if (apiKey != null) {
+			queryUrl.append("&api-key=" + apiKey);
+		}
 	}
 
 	
