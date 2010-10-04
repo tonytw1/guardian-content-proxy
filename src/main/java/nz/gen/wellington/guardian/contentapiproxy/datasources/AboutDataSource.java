@@ -11,6 +11,9 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
+import com.sun.syndication.feed.WireFeed;
+import com.sun.syndication.feed.atom.Content;
+import com.sun.syndication.feed.atom.Entry;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
@@ -18,7 +21,7 @@ import com.sun.syndication.io.SyndFeedInput;
 
 public class AboutDataSource {
 	
-	private static final String ABOUT_RSS_FEED = "http://eelpieconsulting.co.uk/rss2";
+	private static final String ABOUT_RSS_FEED = "http://eelpieconsulting.co.uk/atom";
 	
 	private static Logger log = Logger.getLogger(AboutDataSource.class);
 	
@@ -42,7 +45,9 @@ public class AboutDataSource {
 			try {
 		
 				SyndFeedInput input = new SyndFeedInput();
+				input.setPreserveWireFeed(true);				
 				SyndFeed feed = input.build(reader);
+				WireFeed wireFeed = feed.originalWireFeed();
 				
 				description = feed.getDescription();
 				
@@ -71,8 +76,12 @@ public class AboutDataSource {
 		Article article = new Article();
 		article.setTitle(item.getTitle());
 		article.setPubDate(new DateTime(item.getPublishedDate()));
-		article.setStandfirst(item.getDescription().getValue());
-		article.setDescription(item.getDescription().getValue());
+	
+		Entry atomEntry = (Entry) item.getWireEntry();
+		article.setStandfirst(ArticleHtmlCleaner.stripHtml(atomEntry.getSummary().getValue()));
+	
+		Content body = (Content) atomEntry.getContents().get(0);
+		article.setDescription(ArticleHtmlCleaner.stripHtml(body.getValue()));
 		return article;
 	}
 

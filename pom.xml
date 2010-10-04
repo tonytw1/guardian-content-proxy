@@ -121,13 +121,6 @@
 
   	  
   <dependency>
-  	<groupId>rome</groupId>
-  	<artifactId>rome</artifactId>
-  	<version>0.9</version>
-  	<type>jar</type>
-  	<scope>compile</scope>
-  </dependency>
-  <dependency>
   	<groupId>xerces</groupId>
   	<artifactId>xerces</artifactId>
   	<version>2.4.0</version>
@@ -138,6 +131,13 @@
   	<groupId>commons-codec</groupId>
   	<artifactId>commons-codec</artifactId>
   	<version>1.4</version>
+  	<type>jar</type>
+  	<scope>compile</scope>
+  </dependency>
+  <dependency>
+  	<groupId>net.java.dev.rome</groupId>
+  	<artifactId>rome</artifactId>
+  	<version>1.0.0</version>
   	<type>jar</type>
   	<scope>compile</scope>
   </dependency>
