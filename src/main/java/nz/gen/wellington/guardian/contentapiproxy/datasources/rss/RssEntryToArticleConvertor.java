@@ -200,11 +200,18 @@ public class RssEntryToArticleConvertor {
 
 
 	private Section getSectionByName(Map<String, Section> sections, String sectionName) {
+		if (sections == null) {
+			return null;
+		}
 		for (String sectionId : sections.keySet()) {
 			Section section = sections.get(sectionId);
-			if (section.getName().equals(sectionName)) {
-				return section;
-			}	
+			if (section != null) {
+				if (section.getName().equals(sectionName)) {
+					return section;
+				}
+			} else {
+				log.warn("Article has an unknown section id: " + sectionId);
+			}
 		}
 		return null;
 	}
