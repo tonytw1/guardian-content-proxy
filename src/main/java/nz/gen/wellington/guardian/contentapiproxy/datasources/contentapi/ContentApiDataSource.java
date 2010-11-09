@@ -16,18 +16,16 @@ import com.google.inject.Inject;
 @Deprecated
 public class ContentApiDataSource {
 	
+	private static Logger log = Logger.getLogger(ContentApiDataSource.class);
+	
 	protected static final String API_HOST = "http://content.guardianapis.com";
 	protected static final String API_KEY = "";	// TODO A real api key would be required for this class to work
+	private CachingHttpFetcher httpFetcher;
 	
-	Logger log = Logger.getLogger(ContentApiDataSource.class);
-
-	CachingHttpFetcher httpFetcher;
-
 	@Inject
 	public ContentApiDataSource(CachingHttpFetcher httpFetcher) {
 		this.httpFetcher = httpFetcher;
 	}
-
 	
 	public String getContent(SearchQuery query) {	
 		String callUrl = buildApiSearchQueryUrl(query);
@@ -52,6 +50,7 @@ public class ContentApiDataSource {
 	}
 	
 	
+	// TODO this really wants to use a builder pattern.
 	private String buildApiSearchQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl;
 		try {

@@ -28,7 +28,6 @@ public class FreeTierContentApi {
 	private List<String> badSections = Arrays.asList("Community", "Crosswords", "Extra", "Help", "Info", "Local", "From the Guardian", "From the Observer", "News", "Weather");	
 	private static final String API_HOST = "http://content.guardianapis.com";
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor"};
-	private String apiKey = null;
 	
 	private CachingHttpFetcher httpFetcher;
 	
@@ -57,7 +56,7 @@ public class FreeTierContentApi {
 														
 							Section loadedSection = new Section(
 									section.getString("id"),
-									ArticleHtmlCleaner.stripHtml(section.getString("webTitle")));
+									HtmlCleaner.stripHtml(section.getString("webTitle")));
 							
 							if (!badSections.contains(loadedSection.getName())) {
 								sections.put(section.getString("id"), loadedSection);
@@ -96,56 +95,59 @@ public class FreeTierContentApi {
 	
 	private Map<String, List<Tag>> processRefinements(String callUrl) {
 		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
-		if (content != null) {		
-			JSONObject json;
-			try {
-				json = new JSONObject(content);
-				JSONObject response = json.getJSONObject("response");
+		if (content == null) {
+			log.warn("Failed to fetch url: " + callUrl);
+			return null;
+		}
+		
+		JSONObject json;
+		try {
+			json = new JSONObject(content);
+			JSONObject response = json.getJSONObject("response");
 				
-				if (json != null && isResponseOk(json)) {
+			if (json != null && isResponseOk(json)) {
 
-					Map<String, List<Tag>> refinements = new HashMap<String, List<Tag>>();
-					if (response.has("refinementGroups")) {
-						JSONArray refinementGroups = response.getJSONArray("refinementGroups");
-						for (int i = 0; i < refinementGroups.length(); i++) {
-							JSONObject refinementGroup = refinementGroups.getJSONObject(i);
-							String type = refinementGroup.getString("type");
+				Map<String, List<Tag>> refinements = new HashMap<String, List<Tag>>();
+				if (response.has("refinementGroups")) {
+					JSONArray refinementGroups = response.getJSONArray("refinementGroups");
+					for (int i = 0; i < refinementGroups.length(); i++) {
+						JSONObject refinementGroup = refinementGroups.getJSONObject(i);
+						String type = refinementGroup.getString("type");
+						
+
+						boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(type);
+						if (isPermittedRefinementType) {
 							
-
-							boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(type);
-							if (isPermittedRefinementType) {
-								
-								List<Tag> tags = refinements.get(type);
-								if (tags == null) {
-									tags = new ArrayList<Tag>();
-									refinements.put(type, tags);
-								}
-								
-								JSONArray refinementsJSON = refinementGroup.getJSONArray("refinements");
-								for (int j = 0; j < refinementsJSON.length(); j++) {
-									JSONObject refinement = refinementsJSON.getJSONObject(j);
-									tags.add(
-										new Tag(refinement.getString("displayName"), refinement.getString("id"), null, type)
-										);									
-								}
+							List<Tag> tags = refinements.get(type);
+							if (tags == null) {
+								tags = new ArrayList<Tag>();
+								refinements.put(type, tags);
 							}
 							
+							JSONArray refinementsJSON = refinementGroup.getJSONArray("refinements");
+							for (int j = 0; j < refinementsJSON.length(); j++) {
+								JSONObject refinement = refinementsJSON.getJSONObject(j);
+								tags.add(
+									new Tag(refinement.getString("displayName"), refinement.getString("id"), null, type)
+									);									
+							}
 						}
+						
 					}
-					return refinements;
 				}
-			} catch (JSONException e) {
-				log.error(e.getMessage());
+				return refinements;
 			}
-		}			
+		} catch (JSONException e) {
+			log.error(e.getMessage());
+		}
+		
 		return null;
 	}
 
 	
-	public String buildApiSectionsQueryUrl() throws UnsupportedEncodingException {
+	private String buildApiSectionsQueryUrl() throws UnsupportedEncodingException {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/sections");
 		queryUrl.append("?format=json");
-		appendApiKey(queryUrl);
 		return queryUrl.toString();
 	}
 	
@@ -158,7 +160,6 @@ public class FreeTierContentApi {
 		queryUrl.append("&show-refinements=all");
 		queryUrl.append("&format=json");
 		queryUrl.append("&from-date=" + new DateTime().minusDays(7).toString("yyyy-MM-dd"));
-		appendApiKey(queryUrl);
 		return queryUrl.toString();
 	}
 	
@@ -172,17 +173,8 @@ public class FreeTierContentApi {
 		queryUrl.append("&page-size=1");
 		queryUrl.append("&show-refinements=all");
 		queryUrl.append("&format=json");
-		appendApiKey(queryUrl);
 		return queryUrl.toString();
 	}
-
-
-	private void appendApiKey(StringBuilder queryUrl) {
-		if (apiKey != null) {
-			queryUrl.append("&api-key=" + apiKey);
-		}
-	}
-
 	
 	private boolean isResponseOk(JSONObject json) {
 		try {

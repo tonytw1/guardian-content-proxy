@@ -72,14 +72,14 @@ public class AboutDataSource {
 	
 	private Article entryToArticle(SyndEntry item) {
 		Article article = new Article();
-		article.setTitle(ArticleHtmlCleaner.stripHtml(item.getTitle()));
+		article.setTitle(HtmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(new DateTime(item.getPublishedDate()));
 		
 		Entry atomEntry = (Entry) item.getWireEntry();
-		article.setStandfirst(ArticleHtmlCleaner.stripHtml(atomEntry.getSummary().getValue()));
+		article.setStandfirst(HtmlCleaner.stripHtml(atomEntry.getSummary().getValue()));
 	
 		Content body = (Content) atomEntry.getContents().get(0);
-		article.setDescription(ArticleHtmlCleaner.stripHtml(body.getValue()));
+		article.setDescription(HtmlCleaner.stripHtml(body.getValue()));
 		return article;
 	}
 

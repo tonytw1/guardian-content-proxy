@@ -2,7 +2,7 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources.rss;
 
 import java.util.Map;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.ArticleHtmlCleaner;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.HtmlCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
@@ -38,9 +38,9 @@ public class RssEntryToArticleConvertor {
 		}
 		
 		Article article = new Article();
-		article.setTitle(ArticleHtmlCleaner.stripHtml(item.getTitle()));
+		article.setTitle(HtmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(new DateTime(item.getPublishedDate()));
-		article.setByline(ArticleHtmlCleaner.stripHtml(item.getAuthor()));
+		article.setByline(HtmlCleaner.stripHtml(item.getAuthor()));
 
 		if (dcModule != null) {
 			article.setId(dcModule.getIdentifier());
@@ -111,7 +111,7 @@ public class RssEntryToArticleConvertor {
 		NodeList list = parser.extractAllNodesThatMatch(standfirstFilter);
 		if (list.size() > 0) {
 			final String standfirst = list.elementAt(0).toHtml();
-			article.setStandfirst(ArticleHtmlCleaner.stripHtml(standfirst));
+			article.setStandfirst(HtmlCleaner.stripHtml(standfirst));
 			description.replace(standfirst, "");
 		}
 		
@@ -135,7 +135,7 @@ public class RssEntryToArticleConvertor {
 		}
 		
 		body.append("<p>&copy; Guardian News & Media Limited " + new DateTime().toString("yyyy") + "</p>");
-		article.setDescription(ArticleHtmlCleaner.stripHtml(body.toString()));
+		article.setDescription(HtmlCleaner.stripHtml(body.toString()));
 	}
 
 
