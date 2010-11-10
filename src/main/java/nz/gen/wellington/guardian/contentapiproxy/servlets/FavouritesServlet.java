@@ -44,8 +44,7 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
 				
-		if (request.getRequestURI().equals("/favourites")) {
-			
+		if (request.getRequestURI().equals("/favourites")) {			
             final String queryCacheKey = getQueryCacheKey(request);
             String output = cacheGet(queryCacheKey);
             if (output != null) {
@@ -58,17 +57,17 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 				List<String> favouriteTags = parseTagsFromRequest(request);
 				
 				List<Article> combined = populateFavouriteArticles(favouriteSections, favouriteTags, 15);	// TODO Push size up
-											
-				combined = articleSectionSorter.sort(combined);			
-				
-				boolean showAll = false;
-				if (request.getParameter("show-fields") != null && request.getParameter("show-fields").equals("true")) {
-					showAll = true;
-				}
-				  
-				output = articleToXmlRenderer.outputXml(combined, null, null, showAll);
-				if (output != null) {
-					cacheContent(queryCacheKey, output);
+				if (combined != null) {					
+					combined = articleSectionSorter.sort(combined);				
+					boolean showAll = false;
+					if (request.getParameter("show-fields") != null && request.getParameter("show-fields").equals("true")) {
+						showAll = true;
+					}
+					
+					output = articleToXmlRenderer.outputXml(combined, null, null, showAll);
+					if (output != null) {
+						cacheContent(queryCacheKey, output);
+					}
 				}
 			}
 			

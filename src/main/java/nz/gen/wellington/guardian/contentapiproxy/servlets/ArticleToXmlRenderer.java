@@ -19,10 +19,10 @@ import com.google.inject.Inject;
 
 public class ArticleToXmlRenderer {
 	
+	private static Logger log = Logger.getLogger(ArticleToXmlRenderer.class);
+
 	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
-	Logger log = Logger.getLogger(ArticleToXmlRenderer.class);
-
 	private ContentChecksumCalculator contentCheckSumCalculator;
 	
 	@Inject
@@ -32,11 +32,6 @@ public class ArticleToXmlRenderer {
 
 
 	public String outputXml(List<Article> articles, String description, Map<String, List<Tag>> refinements, boolean showAllFields) {
-		System.out.println(articles.size());
-		
-		if (articles == null) {
-			return null;
-		}
 		
 		XMLOutputFactory xof = XMLOutputFactory.newInstance();
 		StringWriter output = new StringWriter();
