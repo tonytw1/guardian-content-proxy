@@ -28,11 +28,14 @@ public class FreeTierContentApi {
 	
 	private ContentApiUrlBuilder contentApiUrlBuilder;
 	private CachingHttpFetcher httpFetcher;
+	private ContentApiJsonParser contentApiJsonParser;
 	
 	@Inject
-	public FreeTierContentApi(ContentApiUrlBuilder contentApiUrlBuilder, CachingHttpFetcher httpFetcher) {
+	public FreeTierContentApi(ContentApiUrlBuilder contentApiUrlBuilder, CachingHttpFetcher httpFetcher, ContentApiJsonParser contentApiJsonParser) {
 		this.contentApiUrlBuilder = contentApiUrlBuilder;
 		this.httpFetcher = httpFetcher;
+		this.contentApiJsonParser = contentApiJsonParser;
+		
 	}
 
 	
@@ -45,24 +48,28 @@ public class FreeTierContentApi {
 				
 				try {
 					JSONObject json = new JSONObject(content);
-					if (json != null && isResponseOk(json)) {						
+					if (json != null && contentApiJsonParser.isResponseOk(json)) {						
 						JSONObject jsonResponse = json.getJSONObject("response");
 						JSONArray results = jsonResponse.getJSONArray("results");
 						
 						Map<String, Section> sections = new TreeMap<String, Section>();
 						for (int i = 0; i < results.length(); i++) {
-							JSONObject section = results.getJSONObject(i);
-														
-							Section loadedSection = new Section(
-									section.getString("id"),
-									HtmlCleaner.stripHtml(section.getString("webTitle")));
-							
-							if (!badSections.contains(loadedSection.getName())) {
-								sections.put(section.getString("id"), loadedSection);
-							}							
+							JSONObject section = results.getJSONObject(i);														
+							Section loadedSection = new Section(section.getString("id"), section.getString("webTitle"));
+							sections.put(loadedSection.getId(), loadedSection);
 						}
-						log.info("Found " + sections.size() + " sections");
-						return sections;						
+												
+						Map<String, Section> goodSections = new TreeMap<String, Section>();
+						for (String sectionName : sections.keySet()) {
+							if (!badSections.contains(sectionName)) {								
+								Section goodSection = sections.get(sectionName);
+								goodSection.setName(HtmlCleaner.stripHtml(goodSection.getName()));
+								goodSections.put(sectionName, goodSection);							
+							}
+						}
+						
+						log.info("Found " + goodSections.size() + " good sections");
+						return goodSections;		
 					}
 					
 				} catch (JSONException e) {
@@ -104,8 +111,7 @@ public class FreeTierContentApi {
 			json = new JSONObject(content);
 			JSONObject response = json.getJSONObject("response");
 				
-			if (json != null && isResponseOk(json)) {
-
+			if (json != null && contentApiJsonParser.isResponseOk(json)) {
 				Map<String, List<Tag>> refinements = new HashMap<String, List<Tag>>();
 				if (response.has("refinementGroups")) {
 					JSONArray refinementGroups = response.getJSONArray("refinementGroups");
@@ -113,7 +119,6 @@ public class FreeTierContentApi {
 						JSONObject refinementGroup = refinementGroups.getJSONObject(i);
 						String type = refinementGroup.getString("type");
 						
-
 						boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(type);
 						if (isPermittedRefinementType) {
 							
@@ -143,15 +148,4 @@ public class FreeTierContentApi {
 		return null;
 	}
 	
-	
-	private boolean isResponseOk(JSONObject json) {
-		try {
-			JSONObject response = json.getJSONObject("response");
-			String status = response.getString("status");
-			return status != null && status.equals("ok");
-		} catch (JSONException e) {
-			return false;
-		}
-	}
-
 }
