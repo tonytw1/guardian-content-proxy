@@ -21,7 +21,7 @@ import com.google.inject.Inject;
 
 public class FreeTierContentApi {
 	
-	private Logger log = Logger.getLogger(FreeTierContentApi.class);
+	private static Logger log = Logger.getLogger(FreeTierContentApi.class);
 	
 	private List<String> badSections = Arrays.asList("Community", "Crosswords", "Extra", "Help", "Info", "Local", "From the Guardian", "From the Observer", "News", "Weather");	
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor"};
@@ -34,10 +34,8 @@ public class FreeTierContentApi {
 	public FreeTierContentApi(ContentApiUrlBuilder contentApiUrlBuilder, CachingHttpFetcher httpFetcher, ContentApiJsonParser contentApiJsonParser) {
 		this.contentApiUrlBuilder = contentApiUrlBuilder;
 		this.httpFetcher = httpFetcher;
-		this.contentApiJsonParser = contentApiJsonParser;
-		
+		this.contentApiJsonParser = contentApiJsonParser;		
 	}
-
 	
 	public Map<String, Section> getSections() {
 		log.info("Fetching section list from free tier content api");
