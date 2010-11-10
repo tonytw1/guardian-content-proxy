@@ -50,8 +50,11 @@ public class AboutDataSource {
 				description = feed.getDescription();
 				
 				List<Article> articles = new ArrayList<Article>();
-				List entries = feed.getEntries();
+				
+				@SuppressWarnings("unchecked")
+				List<SyndEntry> entries = feed.getEntries();				
 				log.info("Found " + entries.size() + " content items");
+				
 				for (int i = 0; i < entries.size(); i++) {
 					SyndEntry item = (SyndEntry) entries.get(i);
 					Article article = entryToArticle(item);
