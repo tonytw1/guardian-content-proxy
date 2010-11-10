@@ -23,6 +23,8 @@ import com.sun.syndication.io.SyndFeedInput;
 
 public class RssDataSource implements GuardianDataSource {
 
+	private static Logger log = Logger.getLogger(RssDataSource.class);
+	
 	private static final String API_HOST = "http://www.guardian.co.uk";
 	
 	private CachingHttpFetcher httpFetcher;
@@ -30,22 +32,17 @@ public class RssDataSource implements GuardianDataSource {
 	private FreeTierContentApi freeTierContentApi;
 	private String description;
 	
-	Logger log = Logger.getLogger(RssDataSource.class);
-
-	private Map<String, Section> sections;
-	
 	
 	@Inject
 	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, FreeTierContentApi freeTierContentApi) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
 		this.freeTierContentApi = freeTierContentApi;
-		sections = freeTierContentApi.getSections();	// TODO this is probably not a good idea - could imply sections are cached forever.
 	}
 	
 	
 	public List<Article> getArticles(SearchQuery query) {
-		String callUrl = buildApiSearchQueryUrl(query);
+		String callUrl = buildQueryUrl(query);
 		
 		log.info("Fetching articles from: " + callUrl);
 		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");		
@@ -70,8 +67,9 @@ public class RssDataSource implements GuardianDataSource {
 			
 			@SuppressWarnings("unchecked")
 			List<SyndEntry> entries = feed.getEntries();
-			
 			log.info("Found " + entries.size() + " content items");
+			
+			Map<String, Section> sections = getSections();
 			for (int i = 0; i < entries.size(); i++) {
 				SyndEntry item = entries.get(i);
 				Article article = rssEntryConvertor.entryToArticle(item, sections);
@@ -102,11 +100,12 @@ public class RssDataSource implements GuardianDataSource {
 		return freeTierContentApi.getTagRefinements(tagId);
 	}
 
+	// TODO this method looks out of place - what does it do?
 	public String getDescription() {
 		return description;
 	}
 
-	private String buildApiSearchQueryUrl(SearchQuery query) {
+	private String buildQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST);
 		if (query.getSection() != null) {
 			queryUrl.append("/" + query.getSection());
