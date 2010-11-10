@@ -49,19 +49,11 @@ public class FreeTierContentApi {
 				try {
 					JSONObject json = new JSONObject(content);
 					if (json != null && contentApiJsonParser.isResponseOk(json)) {						
-						JSONObject jsonResponse = json.getJSONObject("response");
-						JSONArray results = jsonResponse.getJSONArray("results");
-						
-						Map<String, Section> sections = new TreeMap<String, Section>();
-						for (int i = 0; i < results.length(); i++) {
-							JSONObject section = results.getJSONObject(i);														
-							Section loadedSection = new Section(section.getString("id"), section.getString("webTitle"));
-							sections.put(loadedSection.getId(), loadedSection);
-						}
+						Map<String, Section> sections = contentApiJsonParser.extractSections(json);
 												
-						Map<String, Section> goodSections = new TreeMap<String, Section>();
+						Map<String, Section> goodSections = new TreeMap<String, Section>();						
 						for (String sectionName : sections.keySet()) {
-							if (!badSections.contains(sectionName)) {								
+							if (!badSections.contains(sectionName)) {		
 								Section goodSection = sections.get(sectionName);
 								goodSection.setName(HtmlCleaner.stripHtml(goodSection.getName()));
 								goodSections.put(sectionName, goodSection);							
@@ -79,12 +71,12 @@ public class FreeTierContentApi {
 				
 			}
 			
-		} catch (UnsupportedEncodingException e) {			
+		} catch (UnsupportedEncodingException e) {
 		}
 		return null;		
 	}
-	
-	
+
+
 	public Map<String, List<Tag>> getSectionRefinements(String sectionId) {		
 		String callUrl = contentApiUrlBuilder.buildSectionRefinementQueryUrl(sectionId);
 		log.info("Fetching from: " + callUrl);
