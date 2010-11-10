@@ -1,7 +1,6 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,7 +13,6 @@ import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,13 +24,14 @@ public class FreeTierContentApi {
 	private Logger log = Logger.getLogger(FreeTierContentApi.class);
 	
 	private List<String> badSections = Arrays.asList("Community", "Crosswords", "Extra", "Help", "Info", "Local", "From the Guardian", "From the Observer", "News", "Weather");	
-	private static final String API_HOST = "http://content.guardianapis.com";
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor"};
 	
+	private ContentApiUrlBuilder contentApiUrlBuilder;
 	private CachingHttpFetcher httpFetcher;
 	
 	@Inject
-	public FreeTierContentApi(CachingHttpFetcher httpFetcher) {
+	public FreeTierContentApi(ContentApiUrlBuilder contentApiUrlBuilder, CachingHttpFetcher httpFetcher) {
+		this.contentApiUrlBuilder = contentApiUrlBuilder;
 		this.httpFetcher = httpFetcher;
 	}
 
@@ -40,7 +39,7 @@ public class FreeTierContentApi {
 	public Map<String, Section> getSections() {
 		log.info("Fetching section list from free tier content api");
 		try {
-			final String callUrl = buildApiSectionsQueryUrl();
+			final String callUrl = contentApiUrlBuilder.buildApiSectionsQueryUrl();
 			final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
 			if (content != null) {
 				
@@ -80,14 +79,14 @@ public class FreeTierContentApi {
 	
 	
 	public Map<String, List<Tag>> getSectionRefinements(String sectionId) {		
-		String callUrl = buildSectionRefinementQueryUrl(sectionId);
+		String callUrl = contentApiUrlBuilder.buildSectionRefinementQueryUrl(sectionId);
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
 	}
 	
 	
 	public Map<String, List<Tag>> getTagRefinements(String tagId) {		
-		String callUrl = buildTagRefinementQueryUrl(tagId);
+		String callUrl = contentApiUrlBuilder.buildTagRefinementQueryUrl(tagId);
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
 	}
@@ -143,38 +142,7 @@ public class FreeTierContentApi {
 		
 		return null;
 	}
-
 	
-	private String buildApiSectionsQueryUrl() throws UnsupportedEncodingException {
-		StringBuilder queryUrl = new StringBuilder(API_HOST + "/sections");
-		queryUrl.append("?format=json");
-		return queryUrl.toString();
-	}
-	
-	
-	private String buildSectionRefinementQueryUrl(String sectionId) {
-		StringBuilder queryUrl = new StringBuilder(API_HOST + "/search");
-		queryUrl.append("?tag=type%2Farticle");
-		queryUrl.append("&section=" + sectionId);
-		queryUrl.append("&page-size=1");
-		queryUrl.append("&show-refinements=all");
-		queryUrl.append("&format=json");
-		queryUrl.append("&from-date=" + new DateTime().minusDays(7).toString("yyyy-MM-dd"));
-		return queryUrl.toString();
-	}
-	
-	
-	private String buildTagRefinementQueryUrl(String tagId) {
-		StringBuilder queryUrl = new StringBuilder(API_HOST + "/search");
-		try {
-			queryUrl.append("?tag=type%2Farticle," + URLEncoder.encode(tagId, "UTF8"));
-		} catch (UnsupportedEncodingException e) {			
-		}
-		queryUrl.append("&page-size=1");
-		queryUrl.append("&show-refinements=all");
-		queryUrl.append("&format=json");
-		return queryUrl.toString();
-	}
 	
 	private boolean isResponseOk(JSONObject json) {
 		try {
