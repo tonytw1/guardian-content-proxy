@@ -37,8 +37,8 @@ public class ContentApiDataSource {
 				if (json != null && isResponseOk(json)) {						
 					JSONObject jsonResponse = json.getJSONObject("response");
 					JSONArray results = jsonResponse.getJSONArray("results");
-					populateMediaElements(results);							
-					return new JsonToXmlTranscoder().jsonToXml(json);					
+					populateMediaElements(results);	// TODO only attempt this is the key supports it.							
+					return new JsonToXmlTranscoder().jsonToXml(json);
 				}
 				
 			} catch (JSONException e) {
