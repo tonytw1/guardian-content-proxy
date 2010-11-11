@@ -19,7 +19,6 @@ import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-
 @SuppressWarnings("serial")
 @Singleton
 public class SearchProxyServlet extends CacheAwareProxyServlet {
@@ -43,19 +42,23 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
 				
-		if (request.getRequestURI().equals("/search")) {
-					
+		if (request.getRequestURI().equals("/search")) {					
             SearchQuery query = getSearchQueryFromRequest(request);
-            query.setShowAllFields(false);
-            if (request.getParameter("show-fields") != null && request.getParameter("show-fields").equals("true")) {
+
+            // TODO 'true' is not compatible with the Content API spec. Migrate away from this.
+            query.setShowAllFields(false); 
+            final String showFieldsParameter = request.getParameter("show-fields");
+			if (showFieldsParameter != null && (showFieldsParameter.equals("all") || showFieldsParameter.equals("true"))) {
                 query.setShowAllFields(true);
             }
             
-            query.setShowAllTags(false);
-            if (request.getParameter("show-tags") != null && request.getParameter("show-tags").equals("true")) {
+            // TODO 'true' is not compatible with the Content API spec. Migrate away from this.
+			query.setShowAllTags(false);
+            String showAllTagsParameter = request.getParameter("show-tags");
+			if (showAllTagsParameter != null && (showAllTagsParameter.equals("all") || showAllTagsParameter.equals("true"))) {
                 query.setShowAllTags(true);
             }
-                        
+			
             final String queryCacheKey = getQueryCacheKey(request);
             String output = cacheGet(queryCacheKey);
             if (output != null) {
