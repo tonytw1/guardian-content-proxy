@@ -28,7 +28,6 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	private GuardianDataSource datasource;
 	private ArticleSectionSorter articleSectionSorter;
 	private ArticleToXmlRenderer articleToXmlRenderer;
-
 	
 	@Inject
 	public SearchProxyServlet(RssDataSource datasource, ArticleSectionSorter articleSectionSorter, ArticleToXmlRenderer articleToXmlRenderer) {
@@ -114,20 +113,10 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 			refinements = datasource.getTagRefinements(query.getTag());
 		}
 		
-		String description = null;
-		if (isNotDefaultMeaninglessDescription(datasource.getDescription())) {
-			description = datasource.getDescription();
-		}
-		return articleToXmlRenderer.outputXml(articles, description, refinements, query.isShowAllFields());
+		return articleToXmlRenderer.outputXml(articles, datasource.getDescription(), refinements, query.isShowAllFields());
 	}
 	
 	
-	private boolean isNotDefaultMeaninglessDescription(String description) {
-		return description != null && !(description.startsWith("Articles published by guardian.co.uk")
-				|| description.startsWith("Latest news and features from guardian.co.uk, the world's leading liberal voice"));
-	}
-
-
 	private SearchQuery getSearchQueryFromRequest(HttpServletRequest request) {
 		SearchQuery query = new SearchQuery();
 		if (request.getParameter("section") != null) {

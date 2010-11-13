@@ -31,13 +31,14 @@ public class RssDataSource implements GuardianDataSource {
 	private RssEntryToArticleConvertor rssEntryConvertor;
 	private FreeTierContentApi freeTierContentApi;
 	private String description;
-	
-	
+	private DescriptionFilter descriptionFilter;
+		
 	@Inject
-	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, FreeTierContentApi freeTierContentApi) {
+	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, FreeTierContentApi freeTierContentApi, DescriptionFilter descriptionFilter) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
 		this.freeTierContentApi = freeTierContentApi;
+		this.descriptionFilter = descriptionFilter;
 	}
 	
 	
@@ -100,9 +101,8 @@ public class RssDataSource implements GuardianDataSource {
 		return freeTierContentApi.getTagRefinements(tagId);
 	}
 
-	// TODO this method looks out of place - what does it do?
 	public String getDescription() {
-		return description;
+		return descriptionFilter.filterOutMeaninglessDescriptions(description);
 	}
 
 	private String buildQueryUrl(SearchQuery query) {
