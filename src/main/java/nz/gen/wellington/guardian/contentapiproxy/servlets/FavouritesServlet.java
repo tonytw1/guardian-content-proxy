@@ -60,7 +60,7 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 				if (combined != null) {					
 					combined = articleSectionSorter.sort(combined);				
 					boolean showAll = false;
-					if (request.getParameter("show-fields") != null && request.getParameter("show-fields").equals("true")) {
+					if (request.getParameter("show-fields") != null && (request.getParameter("show-fields").equals("true") || request.getParameter("show-fields").equals("all"))) {
 						showAll = true;
 					}
 					
