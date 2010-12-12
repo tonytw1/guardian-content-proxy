@@ -161,7 +161,9 @@ public class RssEntryToArticleConvertor {
 
 				} else {
 					Section section = sections.get(sectionId);
-					article.addTag(new Tag(href.toPlainTextString(), id, section, "keyword"));
+					if (section != null) {
+						article.addTag(new Tag(href.toPlainTextString(), id, section, "keyword"));
+					}
 				}
 			}
 		}
