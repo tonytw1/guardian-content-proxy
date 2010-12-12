@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
@@ -23,7 +22,6 @@ public class FreeTierContentApi {
 	
 	private static Logger log = Logger.getLogger(FreeTierContentApi.class);
 	
-	private List<String> badSections = Arrays.asList("Community", "Crosswords", "Extra", "Help", "Info", "Local", "From the Guardian", "From the Observer", "News", "Weather");	
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor"};
 	
 	private ContentApiUrlBuilder contentApiUrlBuilder;
@@ -47,19 +45,9 @@ public class FreeTierContentApi {
 				try {
 					JSONObject json = new JSONObject(content);
 					if (json != null && contentApiJsonParser.isResponseOk(json)) {						
-						Map<String, Section> sections = contentApiJsonParser.extractSections(json);
-												
-						Map<String, Section> goodSections = new TreeMap<String, Section>();						
-						for (String sectionName : sections.keySet()) {
-							if (!badSections.contains(sectionName)) {		
-								Section goodSection = sections.get(sectionName);
-								goodSection.setName(HtmlCleaner.stripHtml(goodSection.getName()));
-								goodSections.put(sectionName, goodSection);							
-							}
-						}
-						
-						log.info("Found " + goodSections.size() + " good sections");
-						return goodSections;		
+						Map<String, Section> sections = contentApiJsonParser.extractSections(json);					
+						log.info("Found " + sections.size() + " good sections");
+						return sections;		
 					}
 					
 				} catch (JSONException e) {
