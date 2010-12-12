@@ -2,9 +2,9 @@ package nz.gen.wellington.guardian.contentapiproxy.model;
 
 public class MediaElement {
 	
-	String type;
-	String file;
-	String caption;
+	private String type;
+	private String file;
+	private String caption;
 		
 	public MediaElement(String type, String file, String caption) {
 		this.type = type;

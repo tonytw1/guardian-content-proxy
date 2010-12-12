@@ -77,6 +77,11 @@ public class RssDataSource implements GuardianDataSource {
 			log.info("Found " + entries.size() + " content items");
 			
 			Map<String, Section> sections = getSections();
+			if (sections == null) {
+				log.warn("Sections are not available - articles cannot be processed");
+				return null;
+			}
+			
 			for (int i = 0; i < entries.size(); i++) {
 				SyndEntry item = entries.get(i);
 				Article article = rssEntryConvertor.entryToArticle(item, sections);

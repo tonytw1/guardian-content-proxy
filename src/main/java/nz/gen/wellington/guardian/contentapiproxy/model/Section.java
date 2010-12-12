@@ -2,8 +2,8 @@ package nz.gen.wellington.guardian.contentapiproxy.model;
 
 public class Section {
 	
-	String id;
-	String name;
+	private String id;
+	private String name;
 	
 	public Section(String id, String name) {
 		this.id = id;
