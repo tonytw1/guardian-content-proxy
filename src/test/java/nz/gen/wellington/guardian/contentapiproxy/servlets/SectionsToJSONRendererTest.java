@@ -11,7 +11,6 @@ import junit.framework.TestCase;
 
 public class SectionsToJSONRendererTest extends TestCase {
 	
-	@Test
 	public void testShouldRenderJSON() throws Exception {
 		Map<String, Section> sections = new HashMap<String, Section>();
 		Section section = new Section("environment", "Environment");
