@@ -31,7 +31,7 @@ public class RssDataSource implements GuardianDataSource {
 	private static final String API_HOST = "http://www.guardian.co.uk";
 	
 	// TODO push section filtering to it's own class
-	private List<String> badSectionNames = Arrays.asList("Community", "Crosswords", "Extra", "Help", "Info", "Local", "From the Guardian", "From the Observer", "News", "Weather");
+	private List<String> badSectionIds = Arrays.asList("community", "crosswords", "extra", "help", "info", "local", "news", "weather");
 	
 	private CachingHttpFetcher httpFetcher;
 	private RssEntryToArticleConvertor rssEntryConvertor;
@@ -125,10 +125,10 @@ public class RssDataSource implements GuardianDataSource {
 	
 	private Map<String, Section> stripHtmlFromSectionNames(Map<String, Section> sections) {
 		Map<String, Section> cleanedSections = new TreeMap<String, Section>();						
-		for (String sectionName : sections.keySet()) {
-			Section section = sections.get(sectionName);
+		for (String sectionId : sections.keySet()) {
+			Section section = sections.get(sectionId);
 			section.setName(HtmlCleaner.stripHtml(section.getName()));
-			cleanedSections.put(section.getName(), section);
+			cleanedSections.put(section.getId(), section);
 		}		
 		return cleanedSections;
 	}
@@ -136,10 +136,10 @@ public class RssDataSource implements GuardianDataSource {
 	
 	private Map<String, Section> removeBadSections(Map<String, Section> sections) {
 		Map<String, Section> allowedSections = new TreeMap<String, Section>();						
-		for (String sectionName : sections.keySet()) {
-			if (!badSectionNames.contains(sectionName)) {
-				Section section = sections.get(sectionName);
-				allowedSections.put(section.getName(), section);				
+		for (String sectionIds : sections.keySet()) {
+			if (!badSectionIds.contains(sectionIds)) {
+				Section section = sections.get(sectionIds);
+				allowedSections.put(section.getId(), section);				
 			}
 		}
 		return allowedSections;
