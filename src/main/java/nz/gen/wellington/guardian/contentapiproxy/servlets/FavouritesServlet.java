@@ -3,6 +3,7 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -127,14 +128,14 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 		log.info("Number from each is: " + Integer.toString(numberFromEachFavourite));
 		for (String favouriteSection : favouriteSections) {
 			SearchQuery query = new SearchQuery();
-			query.setSection(favouriteSection);
+			query.setSections(Arrays.asList(favouriteSection));
 			List<Article> articles = datasource.getArticles(query);					
 			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
 		}
 		
 		for (String favouriteTag : favouriteTags) {
 			SearchQuery query = new SearchQuery();
-			query.setTag(favouriteTag);
+			query.setTags(Arrays.asList(favouriteTag));
 			List<Article> articles = datasource.getArticles(query);					
 			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
 		}

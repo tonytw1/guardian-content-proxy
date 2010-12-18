@@ -57,12 +57,12 @@ public class ContentApiDataSource {
 			queryUrl = new StringBuilder(API_HOST + "/search?api-key=" + URLEncoder.encode(API_KEY, "UTF-8"));
 			queryUrl.append("&format=json");
 			
-			if (query.getTag() != null) {
-				queryUrl.append("&tag=" + URLEncoder.encode(query.getTag(), "UTF-8"));
+			if (query.getTags() != null && query.getTags().size() == 0) {
+				queryUrl.append("&tag=" + URLEncoder.encode(query.getTags().get(0), "UTF-8"));
 			}
 			
-			if (query.getSection() != null) {
-				queryUrl.append("&section=" + URLEncoder.encode(query.getSection(), "UTF-8"));
+			if (query.getSections() != null && query.getSections().size() == 0) {
+				queryUrl.append("&section=" + URLEncoder.encode(query.getSections().get(0), "UTF-8"));
 			}
 			
 			if (query.isShowAllFields()) {

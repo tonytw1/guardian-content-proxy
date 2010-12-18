@@ -24,6 +24,7 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
+// TODO needs to be able to implement favourites logic
 public class RssDataSource implements GuardianDataSource {
 
 	private static Logger log = Logger.getLogger(RssDataSource.class);
@@ -49,14 +50,25 @@ public class RssDataSource implements GuardianDataSource {
 	
 	
 	public List<Article> getArticles(SearchQuery query) {
-		String callUrl = buildQueryUrl(query);
 		
-		log.info("Fetching articles from: " + callUrl);
-		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");		
-		if (content != null) {
-			return extractArticlesFromRss(content);			
-		} else {
-			log.warn("Failed to fetch content from: " + callUrl);		
+		boolean isSingleTagOrSectionQuery = true;	// TODO
+		if (isSingleTagOrSectionQuery) {
+			
+			String callUrl = null;
+			if (query.getSections() != null) {
+				callUrl = buildSectionQueryUrl(query.getSections().get(0));
+			}
+			if (query.getTags() != null) {
+				callUrl = buildSectionQueryUrl(query.getTags().get(0));
+			}
+			
+			log.info("Fetching articles from: " + callUrl);
+			final String content = httpFetcher.fetchContent(callUrl, "UTF-8");		
+			if (content != null) {
+				return extractArticlesFromRss(content);			
+			} else {
+				log.warn("Failed to fetch content from: " + callUrl);		
+			}
 		}
 		
 		return null;
@@ -144,16 +156,18 @@ public class RssDataSource implements GuardianDataSource {
 		}
 		return allowedSections;
 	}
-
 	
-	private String buildQueryUrl(SearchQuery query) {
+	
+	private String buildSectionQueryUrl(String sectionId) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST);
-		if (query.getSection() != null) {
-			queryUrl.append("/" + query.getSection());
-		}
-		if (query.getTag() != null) {
-			queryUrl.append("/" + query.getTag());
-		}
+		queryUrl.append("/" + sectionId);		
+		queryUrl.append("/rss");
+		return queryUrl.toString();
+	}
+	
+	private String buildTagQueryUrl(String tagId) {
+		StringBuilder queryUrl = new StringBuilder(API_HOST);
+		queryUrl.append("/" + tagId);		
 		queryUrl.append("/rss");
 		return queryUrl.toString();
 	}

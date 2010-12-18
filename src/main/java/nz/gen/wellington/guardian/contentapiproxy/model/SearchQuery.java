@@ -1,27 +1,29 @@
 package nz.gen.wellington.guardian.contentapiproxy.model;
 
+import java.util.List;
+
 public class SearchQuery {
 
-	private String tag;
-	private String section;
+	private List<String> tags;
+	private List<String> sections;
 	private boolean showAllFields;	
 	private boolean showAllTags;
 	private Integer pageSize;
 	
-	public String getTag() {
-		return tag;
+	public List<String> getTags() {
+		return tags;
 	}
 
-	public void setTag(String tag) {
-		this.tag = tag;
+	public void setTags(List<String> tags) {
+		this.tags = tags;
 	}
 	
-	public String getSection() {
-		return section;
+	public List<String> getSections() {
+		return sections;
 	}
 
-	public void setSection(String section) {
-		this.section = section;
+	public void setSections(List<String> sections) {
+		this.sections = sections;
 	}
 
 	public boolean isShowAllFields() {

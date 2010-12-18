@@ -2,6 +2,7 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -106,11 +107,12 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 		}
 				
 		Map<String, List<Tag>> refinements = null;
-		if (query.getSection() != null) {
-			refinements = datasource.getSectionRefinements(query.getSection());
 
-		} else if (query.getTag() != null) {
-			refinements = datasource.getTagRefinements(query.getTag());
+		final boolean isSectionQuery = query.getSections() != null && query.getTags().size() == 1;
+		if (isSectionQuery) {
+			refinements = datasource.getSectionRefinements(query.getSections().get(0));
+		} else if (query.getTags() != null && query.getTags().size() == 1) {
+			refinements = datasource.getTagRefinements(query.getTags().get(0));
 		}
 		
 		return articleToXmlRenderer.outputXml(articles, datasource.getDescription(), refinements, query.isShowAllFields());
@@ -120,10 +122,10 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	private SearchQuery getSearchQueryFromRequest(HttpServletRequest request) {
 		SearchQuery query = new SearchQuery();
 		if (request.getParameter("section") != null) {
-			query.setSection(request.getParameter("section"));
+			query.setSections(extractIds(request.getParameter("section")));
 		}
 		if (request.getParameter("tag") != null) {
-			query.setTag(request.getParameter("tag"));
+			query.setTags(extractIds(request.getParameter("tag")));
 		}
 		
 		if (request.getParameter("page-size") != null) {
@@ -135,6 +137,11 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 			}
 		}
 		return query;
+	}
+
+
+	private List<String> extractIds(String parameter) {
+		return Arrays.asList(parameter);	// TODO implement for multiple
 	}
 
 }
