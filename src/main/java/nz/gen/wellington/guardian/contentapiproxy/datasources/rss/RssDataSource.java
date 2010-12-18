@@ -24,7 +24,6 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
-// TODO needs to be able to implement favourites logic
 public class RssDataSource implements GuardianDataSource {
 
 	private static Logger log = Logger.getLogger(RssDataSource.class);
@@ -144,8 +143,8 @@ public class RssDataSource implements GuardianDataSource {
 		for (String sectionName : sections.keySet()) {
 			Section section = sections.get(sectionName);
 			section.setName(HtmlCleaner.stripHtml(section.getName()));
-			cleanedSections.put(section.getName(), section);
-		}		
+			cleanedSections.put(section.getId(), section);
+		}
 		return cleanedSections;
 	}
 	
@@ -155,7 +154,7 @@ public class RssDataSource implements GuardianDataSource {
 		for (String sectionName : sections.keySet()) {
 			if (!badSectionNames.contains(sectionName)) {
 				Section section = sections.get(sectionName);
-				allowedSections.put(section.getName(), section);				
+				allowedSections.put(section.getId(), section);				
 			}
 		}
 		return allowedSections;
@@ -176,8 +175,8 @@ public class RssDataSource implements GuardianDataSource {
 	}
 	
 	
-	
-	private List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags, int size) {
+	// TODO reduce visibilty when favourites servlet is depreciated.
+	public List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags, int size) {
 		log.info("Fetching favourites: " + favouriteSections + ", " + favouriteTags);
 		List<Article> combined = new ArrayList<Article>();
 		
