@@ -53,15 +53,8 @@ public class RssDataSource implements GuardianDataSource {
 		
 		boolean isSingleTagOrSectionQuery = true;	// TODO
 		if (isSingleTagOrSectionQuery) {
-			
-			String callUrl = null;
-			if (query.getSections() != null) {
-				callUrl = buildSectionQueryUrl(query.getSections().get(0));
-			}
-			if (query.getTags() != null) {
-				callUrl = buildSectionQueryUrl(query.getTags().get(0));
-			}
-			
+			String callUrl = buildQueryUrl(query);
+		
 			log.info("Fetching articles from: " + callUrl);
 			final String content = httpFetcher.fetchContent(callUrl, "UTF-8");		
 			if (content != null) {
@@ -156,18 +149,17 @@ public class RssDataSource implements GuardianDataSource {
 		}
 		return allowedSections;
 	}
+
 	
-	
-	private String buildSectionQueryUrl(String sectionId) {
+	@Deprecated
+	private String buildQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST);
-		queryUrl.append("/" + sectionId);		
-		queryUrl.append("/rss");
-		return queryUrl.toString();
-	}
-	
-	private String buildTagQueryUrl(String tagId) {
-		StringBuilder queryUrl = new StringBuilder(API_HOST);
-		queryUrl.append("/" + tagId);		
+		if (query.getSections() != null && query.getSections().size() == 1) {
+			queryUrl.append("/" + query.getSections().get(0));
+		}
+		if (query.getTags() != null && query.getTags().size() == 1) {
+			queryUrl.append("/" + query.getTags().get(0));
+		}
 		queryUrl.append("/rss");
 		return queryUrl.toString();
 	}

@@ -108,7 +108,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 				
 		Map<String, List<Tag>> refinements = null;
 
-		final boolean isSectionQuery = query.getSections() != null && query.getTags().size() == 1;
+		final boolean isSectionQuery = query.getSections() != null && query.getSections().size() == 1;
 		if (isSectionQuery) {
 			refinements = datasource.getSectionRefinements(query.getSections().get(0));
 		} else if (query.getTags() != null && query.getTags().size() == 1) {
