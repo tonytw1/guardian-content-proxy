@@ -1,5 +1,6 @@
 package nz.gen.wellington.guardian.contentapiproxy.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SearchQuery {
@@ -10,6 +11,11 @@ public class SearchQuery {
 	private boolean showAllTags;
 	private Integer pageSize;
 	
+	public SearchQuery() {
+		sections = new ArrayList<String>();
+		tags = new ArrayList<String>();
+	}
+
 	public List<String> getTags() {
 		return tags;
 	}
@@ -48,6 +54,14 @@ public class SearchQuery {
 
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	public void addSection(String sectionId) {
+		this.sections.add(sectionId);
+	}
+
+	public void addTag(String tagId) {
+		this.tags.add(tagId);
 	}
 	
 }

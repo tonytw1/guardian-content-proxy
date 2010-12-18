@@ -51,7 +51,16 @@ public class RssDataSource implements GuardianDataSource {
 	
 	public List<Article> getArticles(SearchQuery query) {
 		
-		boolean isSingleTagOrSectionQuery = true;	// TODO
+		int count = 0;
+		if (query.getSections() != null) {
+			count = count + query.getSections().size();
+		}
+		if (query.getTags() != null) {
+			count = count + query.getTags().size();
+		}
+		
+		log.info("Count: " + count);
+		boolean isSingleTagOrSectionQuery = count <= 1;
 		if (isSingleTagOrSectionQuery) {
 			String callUrl = buildQueryUrl(query);
 		
@@ -62,8 +71,10 @@ public class RssDataSource implements GuardianDataSource {
 			} else {
 				log.warn("Failed to fetch content from: " + callUrl);		
 			}
+			
+		} else {
+			return populateFavouriteArticles(query.getSections(), query.getTags(), query.getPageSize());
 		}
-		
 		return null;
 	}
 
@@ -162,6 +173,55 @@ public class RssDataSource implements GuardianDataSource {
 		}
 		queryUrl.append("/rss");
 		return queryUrl.toString();
+	}
+	
+	
+	
+	private List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags, int size) {
+		log.info("Fetching favourites: " + favouriteSections + ", " + favouriteTags);
+		List<Article> combined = new ArrayList<Article>();
+		
+		int numberFromEachFavourite = 3;
+		int numberOfFavourites = favouriteSections.size() + favouriteTags.size();
+		if (!(numberOfFavourites > 0)) {
+			return combined;
+		}
+				
+		numberFromEachFavourite = (size / numberOfFavourites) + 1;
+		if (numberFromEachFavourite < 3) {
+			numberFromEachFavourite=3;
+		}
+		
+		log.info("Number from each is: " + Integer.toString(numberFromEachFavourite));
+		for (String favouriteSection : favouriteSections) {
+			SearchQuery query = new SearchQuery();
+			query.setSections(Arrays.asList(favouriteSection));
+			List<Article> articles = this.getArticles(query);					
+			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
+		}
+		
+		for (String favouriteTag : favouriteTags) {
+			SearchQuery query = new SearchQuery();
+			query.setTags(Arrays.asList(favouriteTag));
+			List<Article> articles = this.getArticles(query);					
+			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
+		}
+		
+		return combined;
+	}
+	
+	
+	private void putLatestThreeStoriesOntoList(List<Article> combined, List<Article> articles, int number) {
+		if (articles == null) {
+			return;
+		}
+		final int numberToAdd = (articles.size() < number) ? articles.size() : number;
+		for (int i = 0; i < numberToAdd; i++) {
+			Article article = articles.get(i);
+			if (article.getSection() != null) {
+				combined.add(article);
+			}
+		}
 	}
 	
 }

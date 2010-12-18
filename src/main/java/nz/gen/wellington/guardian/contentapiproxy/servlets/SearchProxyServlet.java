@@ -2,6 +2,7 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -122,10 +123,10 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	private SearchQuery getSearchQueryFromRequest(HttpServletRequest request) {
 		SearchQuery query = new SearchQuery();
 		if (request.getParameter("section") != null) {
-			query.setSections(extractIds(request.getParameter("section")));
+			extractIds(request.getParameter("section"), query);
 		}
 		if (request.getParameter("tag") != null) {
-			query.setTags(extractIds(request.getParameter("tag")));
+			extractIds(request.getParameter("tag"), query);
 		}
 		
 		if (request.getParameter("page-size") != null) {
@@ -140,8 +141,30 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	}
 
 
-	private List<String> extractIds(String parameter) {
-		return Arrays.asList(parameter);	// TODO implement for multiple
+	private void extractIds(String parameter, SearchQuery query) {
+		parameter = URLDecoder.decode(parameter);
+		log.info("Parameter: " + parameter);
+		String[] fields = parameter.split("\\|");
+		List<String> asList = Arrays.asList(fields);
+		log.info(asList);
+		for (String field : asList) {
+			log.info("Field: " + field);
+
+			String[] sectionAndTagIds = field.split("/");
+			String sectionId = sectionAndTagIds[0];
+			
+			if (sectionAndTagIds.length > 1) {
+				String tagId = sectionAndTagIds[1];
+				if (sectionId.equals(tagId)) {
+					query.addSection(sectionId);
+				} else {
+					query.addTag(field);
+				}
+				
+			} else {
+				query.addSection(sectionId);
+			}			
+		}
 	}
 
 }

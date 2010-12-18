@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-
+@Deprecated
 @SuppressWarnings("serial")
 @Singleton
 public class FavouritesServlet extends CacheAwareProxyServlet {
