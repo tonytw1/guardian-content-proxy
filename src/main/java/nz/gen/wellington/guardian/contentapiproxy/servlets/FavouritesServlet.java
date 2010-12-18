@@ -3,7 +3,6 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,7 +13,6 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.ArticleSectionSorter;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
-import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 
 import org.apache.log4j.Logger;
 
@@ -57,7 +55,7 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 				List<String> favouriteSections = parseSectionsFromRequest(request);				
 				List<String> favouriteTags = parseTagsFromRequest(request);
 				
-				List<Article> combined = populateFavouriteArticles(favouriteSections, favouriteTags, 15);	// TODO Push size up
+				List<Article> combined = ((RssDataSource) datasource).populateFavouriteArticles(favouriteSections, favouriteTags, 15);	// TODO Push size up
 				if (combined != null) {					
 					combined = articleSectionSorter.sort(combined);				
 					boolean showAll = false;
@@ -108,53 +106,6 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 			}
 		}
 		return list;
-	}
-	
-
-	private List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags, int size) {
-		List<Article> combined = new ArrayList<Article>();
-		
-		int numberFromEachFavourite = 3;
-		int numberOfFavourites = favouriteSections.size() + favouriteTags.size();
-		if (!(numberOfFavourites > 0)) {
-			return combined;
-		}
-				
-		numberFromEachFavourite = (size / numberOfFavourites) + 1;
-		if (numberFromEachFavourite < 3) {
-			numberFromEachFavourite=3;
-		}
-		
-		log.info("Number from each is: " + Integer.toString(numberFromEachFavourite));
-		for (String favouriteSection : favouriteSections) {
-			SearchQuery query = new SearchQuery();
-			query.setSections(Arrays.asList(favouriteSection));
-			List<Article> articles = datasource.getArticles(query);					
-			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
-		}
-		
-		for (String favouriteTag : favouriteTags) {
-			SearchQuery query = new SearchQuery();
-			query.setTags(Arrays.asList(favouriteTag));
-			List<Article> articles = datasource.getArticles(query);					
-			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
-		}
-		
-		return combined;
-	}
-
-		
-	private void putLatestThreeStoriesOntoList(List<Article> combined, List<Article> articles, int number) {
-		if (articles == null) {
-			return;
-		}
-		final int numberToAdd = (articles.size() < number) ? articles.size() : number;
-		for (int i = 0; i < numberToAdd; i++) {
-			Article article = articles.get(i);
-			if (article.getSection() != null) {
-				combined.add(article);
-			}
-		}
 	}
 	
 }
