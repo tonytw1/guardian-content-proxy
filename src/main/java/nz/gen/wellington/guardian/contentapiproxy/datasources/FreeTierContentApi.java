@@ -22,7 +22,7 @@ public class FreeTierContentApi {
 	
 	private static Logger log = Logger.getLogger(FreeTierContentApi.class);
 	
-	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor"};
+	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section"};
 	
 	private ContentApiUrlBuilder contentApiUrlBuilder;
 	private CachingHttpFetcher httpFetcher;
