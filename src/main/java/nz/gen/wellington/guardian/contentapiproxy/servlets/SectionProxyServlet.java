@@ -12,6 +12,7 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
@@ -53,9 +54,9 @@ public class SectionProxyServlet extends CacheAwareProxyServlet {
 			if (sections != null) {
 				
 				String content = sectionsToJSONRenderer.outputJSON(sections);				
-				cacheContent(queryCacheKey, content);
-				
+				cacheContent(queryCacheKey, content);				
 				response.setStatus(HttpServletResponse.SC_OK);
+				response.addHeader("Etag", DigestUtils.md5Hex(output));
 				PrintWriter writer = response.getWriter();
 				writer.print(content);
 				writer.flush();

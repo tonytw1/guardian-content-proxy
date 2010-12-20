@@ -11,6 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.ArticleSectionSorter;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
@@ -80,6 +82,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 				response.setStatus(HttpServletResponse.SC_OK);
 				response.setContentType("text/xml");
 				response.setCharacterEncoding("UTF-8");
+				response.addHeader("Etag", DigestUtils.md5Hex(output));
 				PrintWriter writer = response.getWriter();
 				writer.print(output);
 				writer.flush();

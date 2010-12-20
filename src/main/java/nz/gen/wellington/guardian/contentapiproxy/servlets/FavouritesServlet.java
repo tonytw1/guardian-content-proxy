@@ -14,6 +14,7 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.ArticleSection
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
@@ -75,6 +76,7 @@ public class FavouritesServlet extends CacheAwareProxyServlet {
 				response.setStatus(HttpServletResponse.SC_OK);
 				response.setContentType("text/xml");
 				response.setCharacterEncoding("UTF-8");
+				response.addHeader("Etag", DigestUtils.md5Hex(output));
 				PrintWriter writer = response.getWriter();
 				writer.print(output);
 				writer.flush();
