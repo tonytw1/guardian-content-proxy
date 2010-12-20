@@ -48,8 +48,7 @@ public class RssDataSource implements GuardianDataSource {
 	}
 	
 	
-	public List<Article> getArticles(SearchQuery query) {
-		
+	public List<Article> getArticles(SearchQuery query) {		
 		int count = 0;
 		if (query.getSections() != null) {
 			count = count + query.getSections().size();
@@ -58,7 +57,6 @@ public class RssDataSource implements GuardianDataSource {
 			count = count + query.getTags().size();
 		}
 		
-		log.info("Count: " + count);
 		boolean isSingleTagOrSectionQuery = count <= 1;
 		if (isSingleTagOrSectionQuery) {
 			String callUrl = buildQueryUrl(query);
@@ -191,7 +189,6 @@ public class RssDataSource implements GuardianDataSource {
 			numberFromEachFavourite=3;
 		}
 		
-		log.info("Number from each is: " + Integer.toString(numberFromEachFavourite));
 		for (String favouriteSection : favouriteSections) {
 			SearchQuery query = new SearchQuery();
 			query.setSections(Arrays.asList(favouriteSection));
