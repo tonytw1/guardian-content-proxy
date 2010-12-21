@@ -3,8 +3,10 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources;
 import java.util.Map;
 import java.util.TreeMap;
 
+import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +33,23 @@ public class ContentApiJsonParser {
 			sections.put(loadedSection.getId(), loadedSection);
 		}
 		return sections;
+	}
+
+	public Article extractContentItem(JSONObject json) throws JSONException {
+		JSONObject jsonResponse = json.getJSONObject("response");
+		JSONObject content = jsonResponse.getJSONObject("content");
+		
+		Article article = new Article();
+		article.setId(content.getString("id"));
+
+		JSONObject fields = content.getJSONObject("fields");
+		article.setHeadline(fields.getString("headline"));
+		article.setByline(fields.getString("byline"));
+		article.setStandfirst(fields.getString("standfirst"));
+		article.setThumbnailUrl(fields.getString("thumbnail"));
+		article.setDescription(fields.getString("body"));
+		article.setPubDate(new DateTime().toDateTime());
+		return article;
 	}
 
 }

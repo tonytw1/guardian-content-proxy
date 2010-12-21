@@ -41,7 +41,7 @@ public class RssEntryToArticleConvertorTest extends TestCase {
 		SyndEntry firstEntry = (SyndEntry) feed.getEntries().get(0);
 		
 		Article article = convertor.entryToArticle(firstEntry, sections);
-		assertEquals("Cameron defends Osborne's budget 'to protect the poor'", article.getTitle());
+		assertEquals("Cameron defends Osborne's budget 'to protect the poor'", article.getHeadline());
 		assertEquals("politics", article.getSection().getId());
 		assertEquals("Andrew Sparrow", article.getByline());
 		

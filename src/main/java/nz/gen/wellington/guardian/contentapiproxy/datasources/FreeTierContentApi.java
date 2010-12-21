@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
@@ -47,7 +48,7 @@ public class FreeTierContentApi {
 					if (json != null && contentApiJsonParser.isResponseOk(json)) {						
 						Map<String, Section> sections = contentApiJsonParser.extractSections(json);					
 						log.info("Found " + sections.size() + " good sections");
-						return sections;		
+						return sections;
 					}
 					
 				} catch (JSONException e) {
@@ -61,8 +62,28 @@ public class FreeTierContentApi {
 		}
 		return null;		
 	}
-
-
+	
+	
+	public Article getArticle(String contentId) {
+		log.info("Fetching content item: " + contentId);
+		final String callUrl = contentApiUrlBuilder.buildApiContentItemUrl(contentId);
+		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		if (content != null) {				
+			try {
+				JSONObject json = new JSONObject(content);
+				if (json != null && contentApiJsonParser.isResponseOk(json)) {						
+					return contentApiJsonParser.extractContentItem(json);
+				}
+					
+			} catch (JSONException e) {
+				log.info("JSON error while processing call url: " + callUrl);		
+				return null;
+			}				
+		}		
+		return null;		
+	}
+	
+	
 	public Map<String, List<Tag>> getSectionRefinements(String sectionId) {		
 		String callUrl = contentApiUrlBuilder.buildSectionRefinementQueryUrl(sectionId);
 		log.info("Fetching from: " + callUrl);

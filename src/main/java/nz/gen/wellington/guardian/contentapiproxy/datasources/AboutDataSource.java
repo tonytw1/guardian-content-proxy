@@ -75,7 +75,7 @@ public class AboutDataSource {
 	
 	private Article entryToArticle(SyndEntry item) {
 		Article article = new Article();
-		article.setTitle(HtmlCleaner.stripHtml(item.getTitle()));
+		article.setHeadline(HtmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(new DateTime(item.getPublishedDate()));
 		
 		Entry atomEntry = (Entry) item.getWireEntry();

@@ -12,7 +12,7 @@ public class Article implements Serializable {
 	private static final long serialVersionUID = 5L;
 	
 	private String id;
-	private String title;
+	private String headline;
 	private String byline;
 	private DateTime pubDate;
 	private String standfirst;
@@ -39,8 +39,8 @@ public class Article implements Serializable {
 		this.id = id;
 	}
 
-	public String getTitle() {
-		return title;
+	public String getHeadline() {
+		return headline;
 	}
 
 	public String getStandfirst() {
@@ -59,8 +59,8 @@ public class Article implements Serializable {
 		this.pubDate = dateTime;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setHeadline(String headline) {
+		this.headline = headline;
 	}
 
 	public String getDescription() {

@@ -38,7 +38,7 @@ public class RssEntryToArticleConvertor {
 		}
 		
 		Article article = new Article();
-		article.setTitle(HtmlCleaner.stripHtml(item.getTitle()));
+		article.setHeadline(HtmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(new DateTime(item.getPublishedDate()));
 		article.setByline(HtmlCleaner.stripHtml(item.getAuthor()));
 

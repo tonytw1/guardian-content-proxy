@@ -14,6 +14,7 @@ public class GuiceServletConfig extends GuiceServletContextListener {
 		     @Override
 		     protected void configureServlets() {
 		    	 serve("/about").with(AboutProxyServlet.class);
+		    	 serve("/saved").with(SavedProxyServlet.class);
 		    	 serve("/search").with(SearchProxyServlet.class);
 		    	 serve("/sections").with(SectionProxyServlet.class);
 		    	 serve("/favourites").with(FavouritesServlet.class);		    	 
