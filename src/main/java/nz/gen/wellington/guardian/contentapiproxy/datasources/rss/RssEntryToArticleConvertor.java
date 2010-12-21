@@ -28,7 +28,8 @@ import com.sun.syndication.feed.synd.SyndEntry;
 
 public class RssEntryToArticleConvertor {
 
-	Logger log = Logger.getLogger(RssEntryToArticleConvertor.class);
+	private static final String URL_PREFIX = "http://www.guardian.co.uk/";
+	private static Logger log = Logger.getLogger(RssEntryToArticleConvertor.class);
 	
 	public Article entryToArticle(SyndEntry item, Map<String, Section> sections) {
 		
@@ -38,12 +39,14 @@ public class RssEntryToArticleConvertor {
 		}
 		
 		Article article = new Article();
+		if (item.getLink().startsWith(URL_PREFIX)) {
+			article.setId(item.getLink().replace(URL_PREFIX, ""));
+		}
 		article.setHeadline(HtmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(new DateTime(item.getPublishedDate()));
 		article.setByline(HtmlCleaner.stripHtml(item.getAuthor()));
 
 		if (dcModule != null) {
-			article.setId(dcModule.getIdentifier());
 			setSectionFromDCSubject(dcModule, article, sections);
 		}
 		
@@ -153,7 +156,7 @@ public class RssEntryToArticleConvertor {
 				
 				org.htmlparser.Tag href = (org.htmlparser.Tag) tag.getFirstChild();
 				String id = href.getAttribute("href");
-				id = id.replace("http://www.guardian.co.uk/", "");
+				id = id.replace(URL_PREFIX, "");
 
 				final String sectionId = id.split("/")[0];
 				if (sectionId.equals("profile")) {
@@ -176,7 +179,7 @@ public class RssEntryToArticleConvertor {
 				
 				org.htmlparser.Tag href = (org.htmlparser.Tag) tag.getFirstChild();
 				String id = href.getAttribute("href");
-				id = id.replace("http://www.guardian.co.uk/", "");
+				id = id.replace(URL_PREFIX, "");
 
 				String sectionId = id.split("/")[0];
 				if (sectionId.equals("profile")) {
