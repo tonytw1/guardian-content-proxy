@@ -7,13 +7,13 @@ import org.joda.time.DateTime;
 
 public class ContentApiUrlBuilder {
 	
-	private static final String API_HOST = "http://content.guardianapis.com";
-	private static final String API_KEY = "";
+	public static final String API_HOST = "http://content.guardianapis.com";
+	private String apiKey = "";
 	
 	public String buildApiSectionsQueryUrl() throws UnsupportedEncodingException {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/sections");
 		queryUrl.append("?format=json");
-		queryUrl.append("&api-key=" + API_KEY);
+		appendApiKey(queryUrl);
 		return queryUrl.toString();
 	}
 	
@@ -21,7 +21,7 @@ public class ContentApiUrlBuilder {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/" + contentId);
 		queryUrl.append("?format=json");
 		queryUrl.append("&show-fields=all");
-		queryUrl.append("&api-key=" + API_KEY);
+		appendApiKey(queryUrl);
 		return queryUrl.toString();
 	}
 	
@@ -33,7 +33,7 @@ public class ContentApiUrlBuilder {
 		queryUrl.append("&show-refinements=all");
 		queryUrl.append("&format=json");
 		queryUrl.append("&from-date=" + new DateTime().minusDays(7).toString("yyyy-MM-dd"));
-		queryUrl.append("&api-key=" + API_KEY);
+		appendApiKey(queryUrl);
 		return queryUrl.toString();
 	}
 	
@@ -47,8 +47,14 @@ public class ContentApiUrlBuilder {
 		queryUrl.append("&page-size=1");
 		queryUrl.append("&show-refinements=all");
 		queryUrl.append("&format=json");
-		queryUrl.append("&api-key=" + API_KEY);
+		appendApiKey(queryUrl);
 		return queryUrl.toString();
 	}
-		
+	
+	private void appendApiKey(StringBuilder queryUrl) {
+		if (apiKey != null) {
+			queryUrl.append("&api-key=" + apiKey);
+		}
+	}
+	
 }

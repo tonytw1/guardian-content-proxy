@@ -85,6 +85,16 @@ public class FreeTierContentApi {
 	}
 	
 	
+	public String getShortUrlFor(String contentId) {
+		log.info("Fetching short url for: " + contentId);
+		Article article = this.getArticle(contentId);	
+		if (article != null) {
+			return article.getShortUrl();
+		}
+		return null;
+	}
+	
+	
 	public Map<String, List<Tag>> getSectionRefinements(String sectionId) {		
 		String callUrl = contentApiUrlBuilder.buildSectionRefinementQueryUrl(sectionId);
 		log.info("Fetching from: " + callUrl);
