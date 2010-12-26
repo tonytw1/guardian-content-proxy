@@ -48,27 +48,19 @@ public class ContentApiJsonParser {
 		JSONObject content = jsonResponse.getJSONObject("content");
 		
 		Article article = new Article();
-		article.setId(content.getString("id"));
-		article.setPubDate(new DateTime(parseDate(content.getString("webPublicationDate"))));
-		article.setWebUrl(content.getString("webUrl"));
-
-		JSONObject fields = content.getJSONObject("fields");
-		article.setHeadline(fields.getString("headline"));
-		if (fields.has("byline")) {
-			article.setByline(fields.getString("byline"));
-		}
-		article.setStandfirst(fields.getString("standfirst"));
-		if (fields.has("thumbnail")) {
-			article.setThumbnailUrl(fields.getString("thumbnail"));
-		}
-		article.setDescription(fields.getString("body"));
-		if (fields.has("shortUrl")) {
-			article.setShortUrl(fields.getString("shortUrl"));
-		}
+		article.setId(getJsonStringIfPresent(content, "id"));
+		article.setPubDate(new DateTime(parseDate(getJsonStringIfPresent(content, "webPublicationDate"))));
+		article.setWebUrl(getJsonStringIfPresent(content, "webUrl"));
+		
+		JSONObject fields = content.getJSONObject("fields");		
+		article.setHeadline(getJsonStringIfPresent(fields, "headline"));
+		article.setByline(getJsonStringIfPresent(fields, "byline"));		
+		article.setStandfirst(getJsonStringIfPresent(fields, "standfirst"));
+		article.setThumbnailUrl(getJsonStringIfPresent(fields, "thumbnail"));
+		article.setDescription(getJsonStringIfPresent(fields, "body"));
+		article.setShortUrl(getJsonStringIfPresent(fields, "shortUrl"));		
 		return article;
 	}
-	
-	
 	
 	public static Date parseDate(String dateString) {
 		 SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
@@ -84,5 +76,12 @@ public class ContentApiJsonParser {
 		
 		return null;
 	}
-
+	
+	private String getJsonStringIfPresent(JSONObject json, String field) throws JSONException {
+		if (json.has(field)) {
+			return (String) json.get(field);
+		}
+		return null;
+	}
+	
 }

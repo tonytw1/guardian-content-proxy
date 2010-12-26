@@ -8,7 +8,11 @@ import org.joda.time.DateTime;
 public class ContentApiUrlBuilder {
 	
 	public static final String API_HOST = "http://content.guardianapis.com";
-	private String apiKey = "";
+	private String apiKey;
+		
+	public ContentApiUrlBuilder(String apiKey) {
+		this.apiKey = apiKey;
+	}
 	
 	public String buildApiSectionsQueryUrl() throws UnsupportedEncodingException {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/sections");

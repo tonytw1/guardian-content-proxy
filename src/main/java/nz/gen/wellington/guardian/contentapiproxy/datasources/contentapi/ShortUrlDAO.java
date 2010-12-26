@@ -17,11 +17,11 @@ public class ShortUrlDAO {
 
 	private final Logger log = Logger.getLogger(ShortUrlDAO.class);
 	private MemcacheService cache;
-	private FreeTierContentApi contentApi;
+	private FreeTierContentApi freeTierContentApi;
 	
 	@Inject
 	public ShortUrlDAO(FreeTierContentApi freeTierContentApi) {
-		this.contentApi = freeTierContentApi;
+		this.freeTierContentApi = freeTierContentApi;
 		cache = MemcacheServiceFactory.getMemcacheService();
 	}
 	
@@ -39,7 +39,7 @@ public class ShortUrlDAO {
 			}
 		}
 		
-		final String shortUrl = contentApi.getShortUrlFor(contentId);
+		final String shortUrl = freeTierContentApi.getShortUrlFor(contentId);
 		if (shortUrl != null) {
 			storeShortUrl(contentId, shortUrl);
 			return shortUrl;

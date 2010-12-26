@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.FreeTierContentApi;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.HtmlCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
@@ -36,16 +36,16 @@ public class RssDataSource implements GuardianDataSource {
 	
 	private CachingHttpFetcher httpFetcher;
 	private RssEntryToArticleConvertor rssEntryConvertor;
-	private FreeTierContentApi freeTierContentApi;
+	private ContentApi contentApi;
 	private String description;
 	private DescriptionFilter descriptionFilter;
 	private ShortUrlDAO shortUrlDao;
 		
 	@Inject
-	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, FreeTierContentApi freeTierContentApi, DescriptionFilter descriptionFilter, ShortUrlDAO shortUrlDao) {
+	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ShortUrlDAO shortUrlDao) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
-		this.freeTierContentApi = freeTierContentApi;
+		this.contentApi = contentApi;
 		this.descriptionFilter = descriptionFilter;
 		this.shortUrlDao = shortUrlDao;
 	}
@@ -125,7 +125,7 @@ public class RssDataSource implements GuardianDataSource {
 	
 	
 	public Map<String, Section> getSections() {		
-		Map<String, Section> sections = freeTierContentApi.getSections();
+		Map<String, Section> sections = contentApi.getSections();
 		if (sections != null) {
 			sections = stripHtmlFromSectionNames(sections);
 			sections = removeBadSections(sections);			
@@ -135,11 +135,11 @@ public class RssDataSource implements GuardianDataSource {
 	
 	
 	public Map<String, List<Tag>> getSectionRefinements(String sectionId) {
-		return freeTierContentApi.getSectionRefinements(sectionId);
+		return contentApi.getSectionRefinements(sectionId);
 	}
 	
 	public Map<String, List<Tag>> getTagRefinements(String tagId) {
-		return freeTierContentApi.getTagRefinements(tagId);
+		return contentApi.getTagRefinements(tagId);
 	}
 
 	public String getDescription() {

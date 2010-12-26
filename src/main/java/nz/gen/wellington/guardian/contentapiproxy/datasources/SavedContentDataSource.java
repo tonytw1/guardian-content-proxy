@@ -15,11 +15,11 @@ public class SavedContentDataSource {
 		
 	private static Logger log = Logger.getLogger(SavedContentDataSource.class);
 	
-	private FreeTierContentApi contentApi;
+	private ContentApi contentApi;
 	private ShortUrlDAO shortUrlDao;
 	
 	@Inject
-	public SavedContentDataSource(FreeTierContentApi contentApi, ShortUrlDAO shortUrlDao) {
+	public SavedContentDataSource(ContentApi contentApi, ShortUrlDAO shortUrlDao) {
 		this.contentApi = contentApi;
 		this.shortUrlDao = shortUrlDao;
 	}
