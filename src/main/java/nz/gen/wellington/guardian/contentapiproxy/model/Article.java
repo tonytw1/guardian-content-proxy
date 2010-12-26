@@ -17,6 +17,9 @@ public class Article implements Serializable {
 	private DateTime pubDate;
 	private String standfirst;
 	private String description;
+	private String shortUrl;
+	private String webUrl;
+	
 	
 	private Section section;
 	private List<Tag> tags;
@@ -132,6 +135,22 @@ public class Article implements Serializable {
 
 	public List<MediaElement> getMediaElements() {
 		return mediaElements;
+	}
+
+	public String getShortUrl() {
+		return shortUrl;
+	}
+
+	public void setShortUrl(String shortUrl) {
+		this.shortUrl = shortUrl;
+	}
+
+	public String getWebUrl() {
+		return webUrl;
+	}
+
+	public void setWebUrl(String webUrl) {
+		this.webUrl = webUrl;
 	}
 	
 }

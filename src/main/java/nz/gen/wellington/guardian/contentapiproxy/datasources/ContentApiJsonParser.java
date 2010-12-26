@@ -1,17 +1,25 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ContentApiJsonParser {
+	
+	private static Logger log = Logger.getLogger(ContentApiJsonParser.class);
+	
+	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 		
 	public boolean isResponseOk(JSONObject json) {
 		try {
@@ -41,15 +49,40 @@ public class ContentApiJsonParser {
 		
 		Article article = new Article();
 		article.setId(content.getString("id"));
+		article.setPubDate(new DateTime(parseDate(content.getString("webPublicationDate"))));
+		article.setWebUrl(content.getString("webUrl"));
 
 		JSONObject fields = content.getJSONObject("fields");
 		article.setHeadline(fields.getString("headline"));
-		article.setByline(fields.getString("byline"));
+		if (fields.has("byline")) {
+			article.setByline(fields.getString("byline"));
+		}
 		article.setStandfirst(fields.getString("standfirst"));
-		article.setThumbnailUrl(fields.getString("thumbnail"));
+		if (fields.has("thumbnail")) {
+			article.setThumbnailUrl(fields.getString("thumbnail"));
+		}
 		article.setDescription(fields.getString("body"));
-		article.setPubDate(new DateTime().toDateTime());
+		if (fields.has("shortUrl")) {
+			article.setShortUrl(fields.getString("shortUrl"));
+		}
 		return article;
+	}
+	
+	
+	
+	public static Date parseDate(String dateString) {
+		 SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
+			 if (dateString.endsWith("Z")) {
+				 dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+				 dateFormat.setTimeZone(java.util.TimeZone.getTimeZone("Zulu"));
+			 }		 
+			 try {
+				return dateFormat.parse(dateString);
+			} catch (ParseException e) {
+				 log.error("Failed to parse date '" + dateString +  "': " + e.getMessage());
+			}
+		
+		return null;
 	}
 
 }

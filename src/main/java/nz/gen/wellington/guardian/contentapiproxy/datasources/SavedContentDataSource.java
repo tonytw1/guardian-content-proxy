@@ -3,6 +3,7 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources;
 import java.util.ArrayList;
 import java.util.List;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 
 import org.apache.log4j.Logger;
@@ -15,10 +16,12 @@ public class SavedContentDataSource {
 	private static Logger log = Logger.getLogger(SavedContentDataSource.class);
 	
 	private FreeTierContentApi contentApi;
+	private ShortUrlDAO shortUrlDao;
 	
 	@Inject
-	public SavedContentDataSource(FreeTierContentApi contentApi) {
+	public SavedContentDataSource(FreeTierContentApi contentApi, ShortUrlDAO shortUrlDao) {
 		this.contentApi = contentApi;
+		this.shortUrlDao = shortUrlDao;
 	}
 		
 	public List<Article> getArticles(List<String> articleIds) {		
@@ -45,7 +48,11 @@ public class SavedContentDataSource {
 
 	private Article fetchArticle(String contentId) {
 		log.info("Fetching content item: " + contentId);
-		return contentApi.getArticle(contentId);
+		Article article = contentApi.getArticle(contentId);
+		if (article != null && article.getShortUrl() != null) {
+			shortUrlDao.storeShortUrl(article.getId(), article.getShortUrl());
+		}
+		return article;
 	}
 	
 	public String getDescription() {

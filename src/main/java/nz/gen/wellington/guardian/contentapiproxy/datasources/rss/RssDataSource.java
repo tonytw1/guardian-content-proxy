@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.FreeTierContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.HtmlCleaner;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
@@ -38,13 +39,15 @@ public class RssDataSource implements GuardianDataSource {
 	private FreeTierContentApi freeTierContentApi;
 	private String description;
 	private DescriptionFilter descriptionFilter;
+	private ShortUrlDAO shortUrlDao;
 		
 	@Inject
-	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, FreeTierContentApi freeTierContentApi, DescriptionFilter descriptionFilter) {
+	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, FreeTierContentApi freeTierContentApi, DescriptionFilter descriptionFilter, ShortUrlDAO shortUrlDao) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
 		this.freeTierContentApi = freeTierContentApi;
 		this.descriptionFilter = descriptionFilter;
+		this.shortUrlDao = shortUrlDao;
 	}
 	
 	
@@ -98,7 +101,8 @@ public class RssDataSource implements GuardianDataSource {
 			for (int i = 0; i < entries.size(); i++) {
 				SyndEntry item = entries.get(i);
 				Article article = rssEntryConvertor.entryToArticle(item, sections);
-				if (article != null && article.getSection() != null) {
+				if (article != null && article.getSection() != null) {					
+					decorateArticleWithShortUrlIfAvailable(article);					
 					articles.add(article);
 				}
 			}
@@ -110,6 +114,13 @@ public class RssDataSource implements GuardianDataSource {
 			log.error(e.getMessage());
 		}
 		return null;
+	}
+
+
+	private void decorateArticleWithShortUrlIfAvailable(Article article) {
+		if (article.getId() != null) {
+			article.setShortUrl(shortUrlDao.getShortUrlFor(article.getId()));
+		}
 	}
 	
 	

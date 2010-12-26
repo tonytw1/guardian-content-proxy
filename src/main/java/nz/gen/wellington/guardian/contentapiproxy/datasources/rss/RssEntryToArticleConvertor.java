@@ -3,6 +3,7 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources.rss;
 import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.HtmlCleaner;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
@@ -18,6 +19,7 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import org.joda.time.DateTime;
 
+import com.google.inject.Inject;
 import com.sun.syndication.feed.module.DCModule;
 import com.sun.syndication.feed.module.mediarss.MediaEntryModuleImpl;
 import com.sun.syndication.feed.module.mediarss.MediaModule;
@@ -31,6 +33,13 @@ public class RssEntryToArticleConvertor {
 	private static final String URL_PREFIX = "http://www.guardian.co.uk/";
 	private static Logger log = Logger.getLogger(RssEntryToArticleConvertor.class);
 	
+	private ShortUrlDAO shortUrlDAO;
+	
+	@Inject
+	public RssEntryToArticleConvertor(ShortUrlDAO shortUrlDAO) {
+		this.shortUrlDAO = shortUrlDAO;
+	}
+	
 	public Article entryToArticle(SyndEntry item, Map<String, Section> sections) {
 		
 		DCModule dcModule = (DCModule) item.getModule("http://purl.org/dc/elements/1.1/");
@@ -41,6 +50,8 @@ public class RssEntryToArticleConvertor {
 		Article article = new Article();
 		if (item.getLink().startsWith(URL_PREFIX)) {
 			article.setId(item.getLink().replace(URL_PREFIX, ""));
+			article.setWebUrl(item.getLink());
+			article.setShortUrl(shortUrlDAO.getShortUrlFor(article.getId()));
 		}
 		article.setHeadline(HtmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(new DateTime(item.getPublishedDate()));
@@ -54,7 +65,7 @@ public class RssEntryToArticleConvertor {
 		processBody(description, article, sections);
 		
 		processMediaElements(item, article);
-		
+				
 		if (article.getPubDate() != null && article.getSection() != null) {
 			return article;
 		}

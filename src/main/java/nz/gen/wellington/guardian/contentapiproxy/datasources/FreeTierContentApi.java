@@ -76,7 +76,8 @@ public class FreeTierContentApi {
 				}
 					
 			} catch (JSONException e) {
-				log.info("JSON error while processing call url: " + callUrl);		
+				log.info("JSON error while processing call url: " + callUrl);
+				log.info(e);
 				return null;
 			}				
 		}		

@@ -92,11 +92,16 @@ public class ArticleToXmlRenderer {
 	private void articleToXml(XMLStreamWriter writer, Article article) throws XMLStreamException {
 		 writer.writeStartElement("content");
 		 if (article.getId() != null) writer.writeAttribute("id", article.getId());
+		 if (article.getWebUrl() != null) writer.writeAttribute("web-url", article.getWebUrl());
+
 		 if (article.getSection() != null) writer.writeAttribute("section-id", article.getSection().getId());		 
 		 if (article.getPubDate() != null) {
 			 writer.writeAttribute("web-publication-date", article.getPubDate().toString(DATE_TIME_FORMAT));
 		 }
 		 writer.writeStartElement("fields");
+		 if (article.getShortUrl() != null) {
+			 writeFieldElement(writer, "short-url", article.getShortUrl());
+		 }
 		 writeFieldElement(writer, "headline", article.getHeadline());
 		 if (article.getByline() != null) writeFieldElement(writer, "byline", article.getByline());
 		 writeFieldElement(writer, "standfirst", article.getStandfirst());
