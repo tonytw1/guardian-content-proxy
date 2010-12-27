@@ -11,14 +11,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.ArticleSectionSorter;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -26,22 +25,17 @@ import com.google.inject.Singleton;
 @SuppressWarnings("serial")
 @Singleton
 public class SearchProxyServlet extends CacheAwareProxyServlet {
-	
-	private static final int DEFAULT_PAGE_SIZE = 10;
-	
+		
 	private GuardianDataSource datasource;
-	private ArticleSectionSorter articleSectionSorter;
 	private ArticleToXmlRenderer articleToXmlRenderer;
 	
 	@Inject
-	public SearchProxyServlet(RssDataSource datasource, ArticleSectionSorter articleSectionSorter, ArticleToXmlRenderer articleToXmlRenderer) {
+	public SearchProxyServlet(RssDataSource datasource, ArticleToXmlRenderer articleToXmlRenderer) {
 		super();
 		this.datasource = datasource;
-		this.articleSectionSorter = articleSectionSorter;
 		this.articleToXmlRenderer = articleToXmlRenderer;
 	}
 	
-
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
 				
@@ -102,14 +96,6 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 			return null;
 		}
 		
-		articles = articleSectionSorter.sort(articles);
-		
-		int pageSize = query.getPageSize() != null ? query.getPageSize() : DEFAULT_PAGE_SIZE;
-		if (pageSize < articles.size()) {
-			log.info("Limiting articles to: " + pageSize);
-			articles = articles.subList(0, pageSize);
-		}
-				
 		Map<String, List<Tag>> refinements = null;
 
 		final boolean isSectionQuery = query.getSections() != null && query.getSections().size() == 1;

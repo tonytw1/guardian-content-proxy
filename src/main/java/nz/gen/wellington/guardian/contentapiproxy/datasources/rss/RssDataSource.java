@@ -28,8 +28,9 @@ import com.sun.syndication.io.SyndFeedInput;
 public class RssDataSource implements GuardianDataSource {
 
 	private static Logger log = Logger.getLogger(RssDataSource.class);
-
+	
 	private static final String API_HOST = "http://www.guardian.co.uk";
+	private static final int DEFAULT_PAGE_SIZE = 10;
 	
 	// TODO push section filtering to it's own class
 	private List<String> badSectionNames = Arrays.asList("community", "crosswords", "extra", "help", "info", "local", "theguardian", "theobserver", "news", "weather");
@@ -40,18 +41,68 @@ public class RssDataSource implements GuardianDataSource {
 	private String description;
 	private DescriptionFilter descriptionFilter;
 	private ShortUrlDAO shortUrlDao;
+	private ArticleSectionSorter articleSectionSorter;
+
 		
 	@Inject
-	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ShortUrlDAO shortUrlDao) {
+	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ShortUrlDAO shortUrlDao, ArticleSectionSorter articleSectionSorter) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
 		this.contentApi = contentApi;
 		this.descriptionFilter = descriptionFilter;
 		this.shortUrlDao = shortUrlDao;
+		this.articleSectionSorter = articleSectionSorter;
 	}
 	
 	
 	public List<Article> getArticles(SearchQuery query) {		
+		boolean isSingleTagOrSectionQuery = isSingleTagOrSectionQuery(query);
+		
+		List<Article> articles = null;
+		if (isSingleTagOrSectionQuery) {
+			String callUrl = buildQueryUrl(query);
+			log.info("Fetching articles from: " + callUrl);
+			final String content = httpFetcher.fetchContent(callUrl, "UTF-8");		
+			if (content != null) {
+				articles = extractArticlesFromRss(content);			
+			} else {
+				log.warn("Failed to fetch content from: " + callUrl);		
+			}
+			
+		} else {
+			articles =  populateFavouriteArticles(query.getSections(), query.getTags(), query.getPageSize());
+		}
+		
+		if (articles == null) {
+			return null;
+		}
+				
+		articles = sortAndTrimArticleList(query, articles);		
+		decorateArticlesWithShortUrls(articles);
+		return articles;
+	}
+
+
+	private void decorateArticlesWithShortUrls(List<Article> articles) {
+		log.info("Decorating " + articles.size() + " articles with short urls");
+		for (Article article : articles) {
+			decorateArticleWithShortUrlIfAvailable(article);		
+		}
+	}
+
+
+	private List<Article> sortAndTrimArticleList(SearchQuery query, List<Article> articles) {
+		articles = articleSectionSorter.sort(articles);		
+		int pageSize = query.getPageSize() != null ? query.getPageSize() : DEFAULT_PAGE_SIZE;
+		if (pageSize < articles.size()) {
+			log.info("Limiting articles to: " + pageSize);
+			articles = articles.subList(0, pageSize);
+		}
+		return articles;
+	}
+
+
+	private boolean isSingleTagOrSectionQuery(SearchQuery query) {
 		int count = 0;
 		if (query.getSections() != null) {
 			count = count + query.getSections().size();
@@ -59,23 +110,7 @@ public class RssDataSource implements GuardianDataSource {
 		if (query.getTags() != null) {
 			count = count + query.getTags().size();
 		}
-		
-		boolean isSingleTagOrSectionQuery = count <= 1;
-		if (isSingleTagOrSectionQuery) {
-			String callUrl = buildQueryUrl(query);
-		
-			log.info("Fetching articles from: " + callUrl);
-			final String content = httpFetcher.fetchContent(callUrl, "UTF-8");		
-			if (content != null) {
-				return extractArticlesFromRss(content);			
-			} else {
-				log.warn("Failed to fetch content from: " + callUrl);		
-			}
-			
-		} else {
-			return populateFavouriteArticles(query.getSections(), query.getTags(), query.getPageSize());
-		}
-		return null;
+		return count <= 1;
 	}
 
 
@@ -102,10 +137,12 @@ public class RssDataSource implements GuardianDataSource {
 				SyndEntry item = entries.get(i);
 				Article article = rssEntryConvertor.entryToArticle(item, sections);
 				if (article != null && article.getSection() != null) {					
-					decorateArticleWithShortUrlIfAvailable(article);					
 					articles.add(article);
 				}
 			}
+			
+						
+			// TODO only add short urls after trimming to size.
 			return articles;
 			
 		} catch (IllegalArgumentException e) {
