@@ -156,7 +156,14 @@ public class RssDataSource implements GuardianDataSource {
 
 	private void decorateArticleWithShortUrlIfAvailable(Article article) {
 		if (article.getId() != null) {
-			article.setShortUrl(shortUrlDao.getShortUrlFor(article.getId()));
+			String shortUrlFor = shortUrlDao.getShortUrlFor(article.getId());
+			if (shortUrlFor != null) {
+				article.setShortUrl(shortUrlFor);
+			
+			} else if (article.getWebUrl() != null) {
+				article.setShortUrl(article.getWebUrl());
+			}
+		
 		}
 	}
 	
