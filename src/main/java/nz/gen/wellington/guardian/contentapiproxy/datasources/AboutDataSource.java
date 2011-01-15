@@ -5,14 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
-import com.sun.syndication.feed.atom.Content;
-import com.sun.syndication.feed.atom.Entry;
+
+import com.sun.syndication.feed.module.mediarss.MediaEntryModuleImpl;
+import com.sun.syndication.feed.module.mediarss.MediaModule;
+import com.sun.syndication.feed.module.mediarss.types.MediaContent;
+import com.sun.syndication.feed.module.mediarss.types.Metadata;
+import com.sun.syndication.feed.module.mediarss.types.UrlReference;
+import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
@@ -20,7 +26,7 @@ import com.sun.syndication.io.SyndFeedInput;
 
 public class AboutDataSource {
 	
-	private static final String ABOUT_RSS_FEED = "http://eelpieconsulting.co.uk/category/development/guardian-lite/feed/atom/";
+	private static final String ABOUT_RSS_FEED = "http://eelpieconsulting.co.uk/category/development/guardian-lite/feed";
 	
 	private static Logger log = Logger.getLogger(AboutDataSource.class);
 	
@@ -46,9 +52,7 @@ public class AboutDataSource {
 				SyndFeedInput input = new SyndFeedInput();
 				input.setPreserveWireFeed(true);				
 				SyndFeed feed = input.build(reader);
-				
-				description = feed.getDescription();
-				
+								
 				List<Article> articles = new ArrayList<Article>();
 				
 				@SuppressWarnings("unchecked")
@@ -78,14 +82,45 @@ public class AboutDataSource {
 		article.setHeadline(HtmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(new DateTime(item.getPublishedDate()));
 		
-		Entry atomEntry = (Entry) item.getWireEntry();
-		article.setStandfirst(HtmlCleaner.stripHtml(atomEntry.getSummary().getValue()));
+		article.setStandfirst(HtmlCleaner.stripHtml(item.getDescription().getValue()));
 	
-		Content body = (Content) atomEntry.getContents().get(0);
-		article.setDescription(HtmlCleaner.stripHtml(body.getValue()));
+		if (item.getContents().size() > 0) {
+	           SyndContent content = (SyndContent) item.getContents().get(0);
+	           article.setDescription(HtmlCleaner.stripHtml(content.getValue()));
+		}
+		
+		processMediaElements(item, article);
 		return article;
 	}
+	
+		
+	private void processMediaElements(SyndEntry item, Article article) {
 
+		MediaEntryModuleImpl mediaModule = (MediaEntryModuleImpl) item.getModule(MediaModule.URI);
+		if (mediaModule != null) {
+
+			log.info("Found media module");
+			MediaContent[] mediaContents = mediaModule.getMediaContents();
+			if (mediaContents.length > 0) {
+				MediaContent mediaContent = mediaContents[0];
+
+				log.info(mediaContent);
+				UrlReference reference = (UrlReference) mediaContent.getReference();
+				final String trailImageUrl = reference.getUrl().toExternalForm();
+				log.info("Found trail image: " + trailImageUrl);
+				article.setThumbnailUrl(trailImageUrl);
+
+				for (int i = 0; i < mediaContents.length; i++) {
+					mediaContent = mediaContents[i];
+					reference = (UrlReference) mediaContent.getReference();
+					Metadata metadata = mediaContent.getMetadata();
+					MediaElement picture = new MediaElement("picture",reference.getUrl().toExternalForm(), metadata.getDescription());
+					article.addMediaElement(picture);
+				}
+			}
+		}
+
+	}
 
 	public String getDescription() {
 		return description;
