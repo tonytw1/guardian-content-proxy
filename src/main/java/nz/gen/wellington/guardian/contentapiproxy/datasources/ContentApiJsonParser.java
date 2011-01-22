@@ -69,13 +69,20 @@ public class ContentApiJsonParser {
 		article.setPubDate(new DateTime(parseDate(getJsonStringIfPresent(content, "webPublicationDate"))));
 		article.setWebUrl(getJsonStringIfPresent(content, "webUrl"));
 		
+		Section section = new Section(
+				getJsonStringIfPresent(content, "sectionId"), 
+				getJsonStringIfPresent(content, "sectionName"));
+		article.setSection(section);
+		
 		JSONObject fields = content.getJSONObject("fields");		
 		article.setHeadline(getJsonStringIfPresent(fields, "headline"));
 		article.setByline(getJsonStringIfPresent(fields, "byline"));		
 		article.setStandfirst(getJsonStringIfPresent(fields, "standfirst"));
 		article.setThumbnailUrl(getJsonStringIfPresent(fields, "thumbnail"));
 		article.setDescription(getJsonStringIfPresent(fields, "body"));
-		article.setShortUrl(getJsonStringIfPresent(fields, "shortUrl"));		
+		article.setShortUrl(getJsonStringIfPresent(fields, "shortUrl"));
+		
+		
 		return article;
 	}
 	
