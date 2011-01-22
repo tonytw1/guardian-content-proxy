@@ -30,9 +30,8 @@ public class ContentApiDataSource implements GuardianDataSource {
 		return null;
 	}
 
-	public Map<String, List<Refinement>> getSectionRefinements(String section) {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, List<Refinement>> getSectionRefinements(String sectionId) {
+		return contentApi.getSectionRefinements(sectionId);
 	}
 
 	public Map<String, Section> getSections() {
@@ -40,9 +39,8 @@ public class ContentApiDataSource implements GuardianDataSource {
 		return null;
 	}
 
-	public Map<String, List<Refinement>> getTagRefinements(String tag) {
-		// TODO Auto-generated method stub
-		return null;
+	public Map<String, List<Refinement>> getTagRefinements(String tagId) {
+		return contentApi.getTagRefinements(tagId);
 	}
 
 	public boolean isSupported(SearchQuery query) {
