@@ -12,9 +12,9 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource
 import nz.gen.wellington.guardian.contentapiproxy.datasources.HtmlCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
-import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
@@ -176,13 +176,12 @@ public class RssDataSource implements GuardianDataSource {
 		}
  		return sections;		
 	}
-	
-	
-	public Map<String, List<Tag>> getSectionRefinements(String sectionId) {
+		
+	public Map<String, List<Refinement>> getSectionRefinements(String sectionId) {
 		return contentApi.getSectionRefinements(sectionId);
 	}
 	
-	public Map<String, List<Tag>> getTagRefinements(String tagId) {
+	public Map<String, List<Refinement>> getTagRefinements(String tagId) {
 		return contentApi.getTagRefinements(tagId);
 	}
 

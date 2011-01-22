@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -96,7 +96,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 			return null;
 		}
 		
-		Map<String, List<Tag>> refinements = null;
+		Map<String, List<Refinement>> refinements = null;
 
 		final boolean isSectionQuery = query.getSections() != null && query.getSections().size() == 1;
 		if (isSectionQuery) {

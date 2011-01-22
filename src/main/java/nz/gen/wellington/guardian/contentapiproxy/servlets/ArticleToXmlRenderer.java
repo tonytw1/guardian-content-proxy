@@ -11,7 +11,9 @@ import javax.xml.stream.XMLStreamWriter;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.ContentChecksumCalculator;
 import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
+import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
+import nz.gen.wellington.guardian.contentapiproxy.model.TagRefinement;
 
 import org.apache.log4j.Logger;
 
@@ -31,7 +33,7 @@ public class ArticleToXmlRenderer {
 	}
 
 
-	public String outputXml(List<Article> articles, String description, Map<String, List<Tag>> refinements, boolean showAllFields) {
+	public String outputXml(List<Article> articles, String description, Map<String, List<Refinement>> refinements, boolean showAllFields) {
 		
 		XMLOutputFactory xof = XMLOutputFactory.newInstance();
 		StringWriter output = new StringWriter();
@@ -55,27 +57,7 @@ public class ArticleToXmlRenderer {
 			writer.writeEndElement();
 			
 			if (showAllFields) {
-				if (refinements != null && !refinements.isEmpty()) {
-					writer.writeStartElement("refinement-groups");
-										
-					for (String refinementType : refinements.keySet()) {					
-						writer.writeStartElement("refinement-group");
-						writer.writeAttribute("type", refinementType);
-				
-						writer.writeStartElement("refinements");
-						for (Tag tag : refinements.get(refinementType)) {
-							writer.writeStartElement("refinement");
-							writer.writeAttribute("id", tag.getId());
-							writer.writeAttribute("display-name", tag.getName());
-							//writer.writeAttribute("section-id", tag.getSection().getId());
-							writer.writeEndElement();
-						}
-						writer.writeEndElement();
-						writer.writeEndElement();
-					}
-					
-					writer.writeEndElement();						
-				}
+				writeRefinements(refinements, writer);
 			}
 				
 			writer.writeEndElement();
@@ -86,6 +68,37 @@ public class ArticleToXmlRenderer {
 			log.error(e.getMessage());
 		}
 		return null;
+	}
+
+
+	private void writeRefinements(Map<String, List<Refinement>> refinements,
+			XMLStreamWriter writer) throws XMLStreamException {
+		if (refinements != null && !refinements.isEmpty()) {
+			writer.writeStartElement("refinement-groups");
+								
+			for (String refinementType : refinements.keySet()) {					
+				writer.writeStartElement("refinement-group");
+				writer.writeAttribute("type", refinementType);
+		
+				writer.writeStartElement("refinements");
+				for (Refinement refinement : refinements.get(refinementType)) {
+					
+					if (refinement instanceof TagRefinement) {						
+						final Tag refinementTag = ((TagRefinement) refinement).getTag();						
+						writer.writeStartElement("refinement");
+						writer.writeAttribute("id", refinementTag.getId());
+						writer.writeAttribute("display-name", refinementTag.getName());
+						//writer.writeAttribute("section-id", tag.getSection().getId());
+						writer.writeEndElement();
+					}
+					
+				}
+				writer.writeEndElement();
+				writer.writeEndElement();
+			}
+			
+			writer.writeEndElement();						
+		}
 	}
 
 

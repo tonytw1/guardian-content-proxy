@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
+import nz.gen.wellington.guardian.contentapiproxy.model.TagRefinement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
@@ -33,7 +35,7 @@ public class ContentApi {
 	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiJsonParser contentApiJsonParser) {
 		this.httpFetcher = httpFetcher;
 		this.contentApiJsonParser = contentApiJsonParser;
-		this.contentApiUrlBuilder = new ContentApiUrlBuilder("");
+		this.contentApiUrlBuilder = new ContentApiUrlBuilder("3qyjrth68tdjqqh77sdc7ke8");
 	}
 	
 	public Map<String, Section> getSections() {
@@ -95,21 +97,21 @@ public class ContentApi {
 	}
 	
 	
-	public Map<String, List<Tag>> getSectionRefinements(String sectionId) {		
+	public Map<String, List<Refinement>> getSectionRefinements(String sectionId) {		
 		String callUrl = contentApiUrlBuilder.buildSectionRefinementQueryUrl(sectionId);
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
 	}
 	
 	
-	public Map<String, List<Tag>> getTagRefinements(String tagId) {		
+	public Map<String, List<Refinement>> getTagRefinements(String tagId) {		
 		String callUrl = contentApiUrlBuilder.buildTagRefinementQueryUrl(tagId);
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
 	}
 
 	
-	private Map<String, List<Tag>> processRefinements(String callUrl) {
+	private Map<String, List<Refinement>> processRefinements(String callUrl) {
 		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
 		if (content == null) {
 			log.warn("Failed to fetch url: " + callUrl);
@@ -122,7 +124,8 @@ public class ContentApi {
 			JSONObject response = json.getJSONObject("response");
 				
 			if (json != null && contentApiJsonParser.isResponseOk(json)) {
-				Map<String, List<Tag>> refinements = new HashMap<String, List<Tag>>();
+				Map<String, List<Refinement>> refinements = new HashMap<String, List<Refinement>>();
+				
 				if (response.has("refinementGroups")) {
 					JSONArray refinementGroups = response.getJSONArray("refinementGroups");
 					for (int i = 0; i < refinementGroups.length(); i++) {
@@ -132,18 +135,20 @@ public class ContentApi {
 						boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(type);
 						if (isPermittedRefinementType) {
 							
-							List<Tag> tags = refinements.get(type);
-							if (tags == null) {
-								tags = new ArrayList<Tag>();
-								refinements.put(type, tags);
+							List<Refinement> tagRefinements = refinements.get(type);
+							if (tagRefinements == null) {
+								tagRefinements = new ArrayList<Refinement>();
+								refinements.put(type, tagRefinements);
 							}
 							
 							JSONArray refinementsJSON = refinementGroup.getJSONArray("refinements");
 							for (int j = 0; j < refinementsJSON.length(); j++) {
 								JSONObject refinement = refinementsJSON.getJSONObject(j);
-								tags.add(
-									new Tag(refinement.getString("displayName"), refinement.getString("id"), null, type)
-									);									
+								tagRefinements.add(
+										new TagRefinement(
+											new Tag(refinement.getString("displayName"), refinement.getString("id"), null, type)
+										)
+									);						
 							}
 						}
 						
