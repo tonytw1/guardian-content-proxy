@@ -9,6 +9,7 @@ import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
+import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 import nz.gen.wellington.guardian.contentapiproxy.model.TagRefinement;
@@ -23,6 +24,8 @@ import com.google.inject.Inject;
 
 public class ContentApi {
 	
+	private static final String API_KEY = "";
+
 	private static Logger log = Logger.getLogger(ContentApi.class);
 	
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section"};
@@ -35,8 +38,56 @@ public class ContentApi {
 	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiJsonParser contentApiJsonParser) {
 		this.httpFetcher = httpFetcher;
 		this.contentApiJsonParser = contentApiJsonParser;
-		this.contentApiUrlBuilder = new ContentApiUrlBuilder("3qyjrth68tdjqqh77sdc7ke8");
+		this.contentApiUrlBuilder = new ContentApiUrlBuilder(API_KEY);
 	}
+	
+	
+	public List<Article> getArticles(SearchQuery query) {
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(ContentApiUrlBuilder.API_HOST, API_KEY);
+		
+		urlBuilder.setFormat("json");
+		urlBuilder.setShowAll(query.isShowAllFields());
+		
+		if (query.getFromDate() != null) {
+			urlBuilder.setFromDate(query.getFromDate().toString("yyyy-MM-dd"));
+		}
+		if (query.getToDate() != null) {
+			urlBuilder.setToDate(query.getToDate().toString("yyyy-MM-dd"));
+		}
+
+		urlBuilder.setPageSize(query.getPageSize());
+		
+		if (query.getSections() != null && !query.getSections().isEmpty()) {
+			for (String sectionId : query.getSections()) {
+				urlBuilder.addSection(sectionId);			
+			}
+		}
+		
+		if (query.getTags() != null && !query.getTags().isEmpty()) {
+			for (String tagId : query.getTags()) {
+				urlBuilder.addTag(tagId);	
+			}
+		}
+		
+		final String callUrl = urlBuilder.toSearchQueryUrl();
+		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		if (content != null) {				
+			try {
+				JSONObject json = new JSONObject(content);
+				if (json != null && contentApiJsonParser.isResponseOk(json)) {						
+					return contentApiJsonParser.extractContentItems(json);
+				}
+					
+			} catch (JSONException e) {
+				log.info("JSON error while processing call url: " + callUrl);
+				log.info(e);
+				return null;
+			}				
+		}		
+		return null;
+	}
+	
+	
 	
 	public Map<String, Section> getSections() {
 		log.info("Fetching section list from free tier content api");

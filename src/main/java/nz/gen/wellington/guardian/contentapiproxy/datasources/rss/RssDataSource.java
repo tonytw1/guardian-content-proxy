@@ -55,6 +55,11 @@ public class RssDataSource implements GuardianDataSource {
 	}
 	
 	
+	public boolean isSupported(SearchQuery query) {
+		return !query.hasDateRefinement();
+	}
+
+
 	public List<Article> getArticles(SearchQuery query) {		
 		boolean isSingleTagOrSectionQuery = isSingleTagOrSectionQuery(query);
 		

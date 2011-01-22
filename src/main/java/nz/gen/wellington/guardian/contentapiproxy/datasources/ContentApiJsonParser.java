@@ -2,7 +2,9 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -42,11 +44,26 @@ public class ContentApiJsonParser {
 		}
 		return sections;
 	}
-
+	
+	public List<Article> extractContentItems(JSONObject json) throws JSONException {
+		JSONObject jsonResponse = json.getJSONObject("response");
+		JSONArray results = jsonResponse.getJSONArray("results");
+		
+		List<Article> articles = new ArrayList<Article>();
+		for (int i = 0; i < results.length(); i++) {
+			JSONObject content = results.getJSONObject(i);
+			articles.add(parseContentItem(content));
+		}
+		return articles;
+	}
+	
 	public Article extractContentItem(JSONObject json) throws JSONException {
 		JSONObject jsonResponse = json.getJSONObject("response");
-		JSONObject content = jsonResponse.getJSONObject("content");
-		
+		JSONObject content = jsonResponse.getJSONObject("content");		
+		return parseContentItem(content);
+	}
+
+	private Article parseContentItem(JSONObject content) throws JSONException {
 		Article article = new Article();
 		article.setId(getJsonStringIfPresent(content, "id"));
 		article.setPubDate(new DateTime(parseDate(getJsonStringIfPresent(content, "webPublicationDate"))));

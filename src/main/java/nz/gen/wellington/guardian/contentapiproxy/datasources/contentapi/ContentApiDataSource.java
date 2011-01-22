@@ -1,135 +1,52 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-
-import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
-
-import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
+import java.util.Map;
 
 import com.google.inject.Inject;
 
-@Deprecated
-public class ContentApiDataSource {
-	
-	private static Logger log = Logger.getLogger(ContentApiDataSource.class);
-	
-	protected static final String API_HOST = "http://content.guardianapis.com";
-	protected static final String API_KEY = "";	// TODO A real api key would be required for this class to work
-	private CachingHttpFetcher httpFetcher;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
+import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
+import nz.gen.wellington.guardian.contentapiproxy.model.Section;
+
+public class ContentApiDataSource implements GuardianDataSource {
+
+	private ContentApi contentApi;
 	
 	@Inject
-	public ContentApiDataSource(CachingHttpFetcher httpFetcher) {
-		this.httpFetcher = httpFetcher;
+	public ContentApiDataSource(ContentApi contentApi) {
+		this.contentApi = contentApi;
 	}
-	
-	public String getContent(SearchQuery query) {	
-		String callUrl = buildApiSearchQueryUrl(query);
-		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");		
-		if (content != null) {		
-				
-			try {
-				JSONObject json = new JSONObject(content);
-				if (json != null && isResponseOk(json)) {						
-					JSONObject jsonResponse = json.getJSONObject("response");
-					JSONArray results = jsonResponse.getJSONArray("results");
-					populateMediaElements(results);	// TODO only attempt this is the key supports it.							
-					return new JsonToXmlTranscoder().jsonToXml(json);
-				}
-				
-			} catch (JSONException e) {
-				log.info("JSON error while processing call url: " + callUrl);		
-				return null;
-			}
-		}
+
+	public List<Article> getArticles(SearchQuery query) {
+		return contentApi.getArticles(query);
+	}
+
+	public String getDescription() {
+		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	
-	// TODO this really wants to use a builder pattern.
-	private String buildApiSearchQueryUrl(SearchQuery query) {
-		StringBuilder queryUrl;
-		try {
-			queryUrl = new StringBuilder(API_HOST + "/search?api-key=" + URLEncoder.encode(API_KEY, "UTF-8"));
-			queryUrl.append("&format=json");
-			
-			if (query.getTags() != null && query.getTags().size() == 0) {
-				queryUrl.append("&tag=" + URLEncoder.encode(query.getTags().get(0), "UTF-8"));
-			}
-			
-			if (query.getSections() != null && query.getSections().size() == 0) {
-				queryUrl.append("&section=" + URLEncoder.encode(query.getSections().get(0), "UTF-8"));
-			}
-			
-			if (query.isShowAllFields()) {
-				queryUrl.append("&show-fields=all");
-			}
-			
-			if (query.isShowAllTags()) {
-				queryUrl.append("&show-tags=all");
-			}
-			
-			if (query.getPageSize() != null) {
-				queryUrl.append("&page-size=" + query.getPageSize());			
-			}
-			
-			return queryUrl.toString();
-		} catch (UnsupportedEncodingException e) {
-			return null;
-		}
-	}
-	
 
+	public Map<String, List<Refinement>> getSectionRefinements(String section) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map<String, Section> getSections() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map<String, List<Refinement>> getTagRefinements(String tag) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean isSupported(SearchQuery query) {
+		return true;
+	}
 		
-	void populateMediaElements(JSONArray results) throws JSONException {
-		for (int i = 0; i < results.length(); i++) {
-			JSONObject result = results.getJSONObject(i);
-			final String id = result.getString("id");
-			final String apiUrl = buildApiContentQueryUrl(id, API_KEY);
-
-			final String content = httpFetcher.fetchContent(apiUrl, "UTF-8");
-			if (content != null) {
-				JSONObject json = new JSONObject(content);
-				if (json != null && isResponseOk(json)) {
-
-					JSONObject response = json.getJSONObject("response");
-					JSONObject jsonContent = response.getJSONObject("content");
-
-					if (jsonContent.has("mediaAssets")) {
-						JSONArray mediaAssets = jsonContent.getJSONArray("mediaAssets");
-						result.put("mediaAssets", mediaAssets);
-					}
-				}
-			}
-		}
-	}
-	
-	
-	private String buildApiContentQueryUrl(String id, String apikey) {
-		try {
-			StringBuilder queryUrl = new StringBuilder(API_HOST + "/" + id);
-			queryUrl.append("?api-key=" + URLEncoder.encode(apikey, "UTF-8"));
-			queryUrl.append("&format=json");
-			queryUrl.append("&show-media=all");		
-			return queryUrl.toString();
-		} catch (UnsupportedEncodingException e) {
-			return null;
-		}
-	}
-	
-		
-	boolean isResponseOk(JSONObject json) {
-		try {
-			JSONObject response = json.getJSONObject("response");
-			String status = response.getString("status");
-			return status != null && status.equals("ok");
-		} catch (JSONException e) {
-			return false;
-		}
-	}
-	
 }

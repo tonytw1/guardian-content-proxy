@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 
 import org.joda.time.DateTime;
 
+@Deprecated
 public class ContentApiUrlBuilder {
 	
 	public static final String API_HOST = "http://content.guardianapis.com";

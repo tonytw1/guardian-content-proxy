@@ -12,6 +12,7 @@ import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.ContentChecksumCalculator;
 import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
+import nz.gen.wellington.guardian.contentapiproxy.model.SectionDateRefinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 import nz.gen.wellington.guardian.contentapiproxy.model.TagRefinement;
 
@@ -92,6 +93,18 @@ public class ArticleToXmlRenderer {
 						writer.writeEndElement();
 					}
 					
+					if (refinement instanceof SectionDateRefinement) {
+						SectionDateRefinement sectionDateRefinement = (SectionDateRefinement) refinement;						
+						writer.writeStartElement("refinement");
+						writer.writeAttribute("display-name", sectionDateRefinement.getDisplayName());						
+						String refinedUrl = "http://guardian-lite.appspot.com/search&format=xml" +  
+							"&from-date=" + sectionDateRefinement.getFromDate().toString("yyyy-MM-dd") +
+							"&to-date=" + sectionDateRefinement.getToDate().toString("yyyy-MM-dd") +
+							"&section=" + sectionDateRefinement.getSectionId();	// TODO Hack
+						
+						writer.writeAttribute("refined-url", refinedUrl);						
+						writer.writeEndElement();
+					}
 				}
 				writer.writeEndElement();
 				writer.writeEndElement();

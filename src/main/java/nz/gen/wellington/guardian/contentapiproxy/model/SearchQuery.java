@@ -3,6 +3,8 @@ package nz.gen.wellington.guardian.contentapiproxy.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 public class SearchQuery {
 
 	private List<String> tags;
@@ -10,6 +12,8 @@ public class SearchQuery {
 	private boolean showAllFields;	
 	private boolean showAllTags;
 	private Integer pageSize;
+	private DateTime fromDate;
+	private DateTime toDate;
 	
 	public SearchQuery() {
 		sections = new ArrayList<String>();
@@ -62,6 +66,26 @@ public class SearchQuery {
 
 	public void addTag(String tagId) {
 		this.tags.add(tagId);
+	}
+
+	public boolean hasDateRefinement() {
+		return fromDate != null || toDate != null;
+	}
+
+	public DateTime getFromDate() {
+		return fromDate;
+	}
+
+	public void setFromDate(DateTime fromDate) {
+		this.fromDate = fromDate;
+	}
+
+	public DateTime getToDate() {
+		return toDate;
+	}
+
+	public void setToDate(DateTime toDate) {
+		this.toDate = toDate;
 	}
 	
 }
