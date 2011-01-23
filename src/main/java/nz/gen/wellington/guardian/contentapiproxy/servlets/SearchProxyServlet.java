@@ -70,7 +70,6 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 						if (output != null) {
 							cacheContent(queryCacheKey, output);
 						}
-
 					}
 
 					if (output != null) {
@@ -107,7 +106,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 			
 			String sectionId = query.getSections().get(0);
 			refinements = datasource.getSectionRefinements(sectionId);
-			refinements.put("date", generateDateRefinementsForSection(refinements, sectionId));
+			refinements.put("date", generateDateRefinementsForSection(sectionId, query.getFromDate()));
 			
 		} else if (query.getTags() != null && query.getTags().size() == 1) {
 			refinements = datasource.getTagRefinements(query.getTags().get(0));
@@ -118,16 +117,16 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 		return articleToXmlRenderer.outputXml(articles, datasource.getDescription(), refinements, query.isShowAllFields());
 	}
 
-	private List<Refinement> generateDateRefinementsForSection(
-			Map<String, List<Refinement>> refinements, String sectionId) {
+	private List<Refinement> generateDateRefinementsForSection(String sectionId, DateTime fromDateTime) {
 		// TODO create date refinements here.
-		DateTime refinementBaseDate = new DateTime();
-		
-		List<Refinement> dateRefinements = new ArrayList<Refinement>();
-		
-		dateRefinements.add(new SectionDateRefinement(sectionId, refinementBaseDate.toString("d MMM yyyy"), refinementBaseDate, refinementBaseDate));
-		dateRefinements.add(new SectionDateRefinement(sectionId, refinementBaseDate.minusDays(1).toString("d MMM yyyy"), refinementBaseDate.minusDays(1), refinementBaseDate.minusDays(1)));
-		dateRefinements.add(new SectionDateRefinement(sectionId, refinementBaseDate.minusDays(2).toString("d MMM yyyy"), refinementBaseDate.minusDays(2), refinementBaseDate.minusDays(2)));
+		DateTime refinementBaseDate = new DateTime();		
+		List<Refinement> dateRefinements = new ArrayList<Refinement>();		
+		for (int i = 0; i <= 7; i++) {
+			DateTime refinementDate = refinementBaseDate.minusDays(i);
+			if (refinementDate.isBeforeNow()) {
+				dateRefinements.add(new SectionDateRefinement(sectionId, refinementDate.toString("d MMM yyyy"), refinementDate, refinementDate));			
+			}
+		}
 		
 		return dateRefinements;
 	}
