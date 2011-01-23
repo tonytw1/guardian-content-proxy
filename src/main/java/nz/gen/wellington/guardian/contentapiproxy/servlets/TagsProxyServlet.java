@@ -2,8 +2,11 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 
 import javax.servlet.http.HttpServletRequest;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApiUrlBuilder;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
+
+import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -12,6 +15,8 @@ import com.google.inject.Singleton;
 @Singleton
 public class TagsProxyServlet extends UrlBasedCachedRequest {
 	
+	static Logger log = Logger.getLogger(TagsProxyServlet.class);
+
 	private CachingHttpFetcher httpFetcher;
 	
 	@Inject
@@ -21,7 +26,7 @@ public class TagsProxyServlet extends UrlBasedCachedRequest {
 	}
 	
 	protected String getContent(HttpServletRequest request) {
-		final String queryUrl = ContentApiUrlBuilder.API_HOST + request.getRequestURI() + "?" + request.getQueryString();
+		final String queryUrl = ContentApiUrlBuilder.API_HOST + request.getRequestURI() + "?" + request.getQueryString() + "&api-key=" + ContentApi.API_KEY;
 		log.info("Tag query url is: " + queryUrl);
 		return httpFetcher.fetchContent(queryUrl, "UTF-8");
 	}
