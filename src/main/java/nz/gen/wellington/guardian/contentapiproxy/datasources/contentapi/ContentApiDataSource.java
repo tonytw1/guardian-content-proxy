@@ -3,18 +3,15 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.Inject;
-
+import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 
-public class ContentApiDataSource implements GuardianDataSource {
+import com.google.inject.Inject;
 
-	private ContentApi contentApi;
+public class ContentApiDataSource extends AbstractGuardianDataSource {
 	
 	@Inject
 	public ContentApiDataSource(ContentApi contentApi) {
@@ -33,12 +30,7 @@ public class ContentApiDataSource implements GuardianDataSource {
 	public Map<String, List<Refinement>> getSectionRefinements(String sectionId) {
 		return contentApi.getSectionRefinements(sectionId);
 	}
-
-	public Map<String, Section> getSections() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 	public Map<String, List<Refinement>> getTagRefinements(String tagId) {
 		return contentApi.getTagRefinements(tagId);
 	}

@@ -5,14 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.HtmlCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
-import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
@@ -25,19 +22,15 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
-public class RssDataSource implements GuardianDataSource {
+public class RssDataSource extends AbstractGuardianDataSource {
 
 	private static Logger log = Logger.getLogger(RssDataSource.class);
 	
 	private static final String API_HOST = "http://www.guardian.co.uk";
 	private static final int DEFAULT_PAGE_SIZE = 10;
 	
-	// TODO push section filtering to it's own class
-	private List<String> badSectionNames = Arrays.asList("community", "crosswords", "extra", "help", "info", "local", "theguardian", "theobserver", "news", "weather");
-	
 	private CachingHttpFetcher httpFetcher;
 	private RssEntryToArticleConvertor rssEntryConvertor;
-	private ContentApi contentApi;
 	private String description;
 	private DescriptionFilter descriptionFilter;
 	private ShortUrlDAO shortUrlDao;
@@ -86,7 +79,12 @@ public class RssDataSource implements GuardianDataSource {
 		decorateArticlesWithShortUrls(articles);
 		return articles;
 	}
-
+	
+	
+	public String getDescription() {
+		return descriptionFilter.filterOutMeaninglessDescriptions(description);
+	}
+	
 
 	private void decorateArticlesWithShortUrls(List<Article> articles) {
 		log.info("Decorating " + articles.size() + " articles with short urls");
@@ -171,52 +169,6 @@ public class RssDataSource implements GuardianDataSource {
 		
 		}
 	}
-	
-	
-	public Map<String, Section> getSections() {		
-		Map<String, Section> sections = contentApi.getSections();
-		if (sections != null) {
-			sections = stripHtmlFromSectionNames(sections);
-			sections = removeBadSections(sections);			
-		}
- 		return sections;		
-	}
-		
-	public Map<String, List<Refinement>> getSectionRefinements(String sectionId) {
-		return contentApi.getSectionRefinements(sectionId);
-	}
-	
-	public Map<String, List<Refinement>> getTagRefinements(String tagId) {
-		return contentApi.getTagRefinements(tagId);
-	}
-
-	public String getDescription() {
-		return descriptionFilter.filterOutMeaninglessDescriptions(description);
-	}
-	
-	
-	private Map<String, Section> stripHtmlFromSectionNames(Map<String, Section> sections) {
-		Map<String, Section> cleanedSections = new TreeMap<String, Section>();						
-		for (String sectionName : sections.keySet()) {
-			Section section = sections.get(sectionName);
-			section.setName(HtmlCleaner.stripHtml(section.getName()));
-			cleanedSections.put(section.getId(), section);
-		}
-		return cleanedSections;
-	}
-	
-	
-	private Map<String, Section> removeBadSections(Map<String, Section> sections) {
-		Map<String, Section> allowedSections = new TreeMap<String, Section>();						
-		for (String sectionIds : sections.keySet()) {
-			if (!badSectionNames.contains(sectionIds)) {
-				Section section = sections.get(sectionIds);
-				allowedSections.put(section.getId(), section);				
-			}
-		}
-		return allowedSections;
-	}
-
 	
 	@Deprecated
 	private String buildQueryUrl(SearchQuery query) {
