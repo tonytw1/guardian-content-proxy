@@ -8,6 +8,7 @@ import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
@@ -41,13 +42,14 @@ public class RssDataSource extends AbstractGuardianDataSource {
 
 		
 	@Inject
-	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ShortUrlDAO shortUrlDao, ArticleSectionSorter articleSectionSorter) {
+	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ShortUrlDAO shortUrlDao, ArticleSectionSorter articleSectionSorter, SectionCleaner sectionCleaner) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
 		this.contentApi = contentApi;
 		this.descriptionFilter = descriptionFilter;
 		this.shortUrlDao = shortUrlDao;
 		this.articleSectionSorter = articleSectionSorter;
+		this.sectionCleaner = sectionCleaner;
 	}
 	
 	
