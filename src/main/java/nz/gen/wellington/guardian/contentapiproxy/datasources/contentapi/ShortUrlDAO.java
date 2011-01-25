@@ -11,7 +11,7 @@ import com.google.inject.Inject;
 
 public class ShortUrlDAO {
 
-	private static final int SHORT_URL_TTL = 60 * 60 * 24;
+	private static final int SHORT_URL_TTL = 60 * 60 * 24 * 5;
 	private static final int SHORT_URL_MISS_TTL = 60 * 60;
 	private static final String CACHE_PREFIX = "SHORTURL:";
 
