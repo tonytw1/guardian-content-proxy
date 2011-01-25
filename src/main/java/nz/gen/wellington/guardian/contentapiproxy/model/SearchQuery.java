@@ -87,5 +87,20 @@ public class SearchQuery {
 	public void setToDate(DateTime toDate) {
 		this.toDate = toDate;
 	}
+
+	public boolean isSectionQuery() {
+		return getSections() != null && getSections().size() == 1;
+	}
+	
+	public boolean isSingleTagOrSectionQuery() {
+		int count = 0;
+		if (getSections() != null) {
+			count = count + getSections().size();
+		}
+		if (getTags() != null) {
+			count = count + getTags().size();
+		}
+		return count <= 1;
+	}
 	
 }

@@ -10,11 +10,14 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDa
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
+import nz.gen.wellington.guardian.contentapiproxy.model.SectionDateRefinement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -53,11 +56,9 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 
 
-	public List<Article> getArticles(SearchQuery query) {		
-		boolean isSingleTagOrSectionQuery = isSingleTagOrSectionQuery(query);
-		
+	public List<Article> getArticles(SearchQuery query) {
 		List<Article> articles = null;
-		if (isSingleTagOrSectionQuery) {
+		if (query.isSingleTagOrSectionQuery()) {
 			String callUrl = buildQueryUrl(query);
 			log.info("Fetching articles from: " + callUrl);
 			final String content = httpFetcher.fetchContent(callUrl, "UTF-8");		
@@ -81,6 +82,19 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 	
 	
+	@Override
+	public Map<String, List<Refinement>> getRefinements(SearchQuery query) {
+		Map<String, List<Refinement>> refinements = super.getRefinements(query);
+		if (refinements != null) {
+			if (query.isSectionQuery()) {			
+				String sectionId = query.getSections().get(0);
+				refinements.put("date", generateDateRefinementsForSection(sectionId, query.getFromDate()));
+			}
+		}
+		return refinements;
+	}
+
+
 	public String getDescription() {
 		return descriptionFilter.filterOutMeaninglessDescriptions(description);
 	}
@@ -103,20 +117,8 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		}
 		return articles;
 	}
-
-
-	private boolean isSingleTagOrSectionQuery(SearchQuery query) {
-		int count = 0;
-		if (query.getSections() != null) {
-			count = count + query.getSections().size();
-		}
-		if (query.getTags() != null) {
-			count = count + query.getTags().size();
-		}
-		return count <= 1;
-	}
-
-
+	
+	
 	private List<Article> extractArticlesFromRss(final String content) {
 		SyndFeedInput input = new SyndFeedInput();		
 		try {
@@ -215,6 +217,20 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		}
 		
 		return combined;
+	}
+	
+	
+	private List<Refinement> generateDateRefinementsForSection(String sectionId, DateTime fromDateTime) {
+		// TODO create date refinements here.
+		DateTime refinementBaseDate = new DateTime();		
+		List<Refinement> dateRefinements = new ArrayList<Refinement>();		
+		for (int i = 0; i <= 7; i++) {
+			DateTime refinementDate = refinementBaseDate.minusDays(i);
+			if (refinementDate.isBeforeNow()) {
+				dateRefinements.add(new SectionDateRefinement(sectionId, refinementDate.toString("d MMM yyyy"), refinementDate, refinementDate));			
+			}
+		}		
+		return dateRefinements;
 	}
 	
 	

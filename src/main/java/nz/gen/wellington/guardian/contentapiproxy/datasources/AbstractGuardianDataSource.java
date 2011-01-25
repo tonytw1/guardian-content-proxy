@@ -1,17 +1,13 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.joda.time.DateTime;
-
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.model.Section;
-import nz.gen.wellington.guardian.contentapiproxy.model.SectionDateRefinement;
 
 public abstract class AbstractGuardianDataSource implements GuardianDataSource {
 	
@@ -31,14 +27,10 @@ public abstract class AbstractGuardianDataSource implements GuardianDataSource {
  		return sections;		
 	}
 	
-		
-	public Map<String, List<Refinement>> getRefinements(SearchQuery query) {		
-		final boolean isSectionQuery = query.getSections() != null && query.getSections().size() == 1;
-		if (isSectionQuery) {
-			
+	public Map<String, List<Refinement>> getRefinements(SearchQuery query) {
+		if (query.isSectionQuery()) {			
 			String sectionId = query.getSections().get(0);
-			Map<String, List<Refinement>> refinements = getSectionRefinements(sectionId);
-			refinements.put("date", generateDateRefinementsForSection(sectionId, query.getFromDate()));
+			return getSectionRefinements(sectionId);
 			
 		} else if (query.getTags() != null && query.getTags().size() == 1) {
 			return getTagRefinements(query.getTags().get(0));
@@ -47,11 +39,11 @@ public abstract class AbstractGuardianDataSource implements GuardianDataSource {
 	}
 	
 	
-	public Map<String, List<Refinement>> getSectionRefinements(String sectionId) {
+	private Map<String, List<Refinement>> getSectionRefinements(String sectionId) {
 		return contentApi.getSectionRefinements(sectionId);
 	}
 	
-	public Map<String, List<Refinement>> getTagRefinements(String tagId) {
+	private Map<String, List<Refinement>> getTagRefinements(String tagId) {
 		return contentApi.getTagRefinements(tagId);
 	}
 	
@@ -76,22 +68,6 @@ public abstract class AbstractGuardianDataSource implements GuardianDataSource {
 			}
 		}
 		return allowedSections;
-	}
-	
-		
-	// TODO this should be on the RSS datasource
-	private List<Refinement> generateDateRefinementsForSection(String sectionId, DateTime fromDateTime) {
-		// TODO create date refinements here.
-		DateTime refinementBaseDate = new DateTime();		
-		List<Refinement> dateRefinements = new ArrayList<Refinement>();		
-		for (int i = 0; i <= 7; i++) {
-			DateTime refinementDate = refinementBaseDate.minusDays(i);
-			if (refinementDate.isBeforeNow()) {
-				dateRefinements.add(new SectionDateRefinement(sectionId, refinementDate.toString("d MMM yyyy"), refinementDate, refinementDate));			
-			}
-		}
-		
-		return dateRefinements;
 	}
 	
 }
