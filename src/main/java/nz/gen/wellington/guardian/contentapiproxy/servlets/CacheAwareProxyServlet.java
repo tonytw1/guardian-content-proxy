@@ -11,7 +11,7 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 
 public abstract class CacheAwareProxyServlet extends HttpServlet {
 	
-	static Logger log = Logger.getLogger(SearchProxyServlet.class);
+	static Logger log = Logger.getLogger(CacheAwareProxyServlet.class);
 	
 	private static final long serialVersionUID = 1320784761324501050L;
 	private static final int OUTGOING_TTL = 300;
