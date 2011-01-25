@@ -88,8 +88,12 @@ public class SearchQuery {
 		this.toDate = toDate;
 	}
 
-	public boolean isSectionQuery() {
+	public boolean isSingleSectionQuery() {
 		return getSections() != null && getSections().size() == 1;
+	}
+	
+	public boolean isSingleTagQuery() {
+		return getTags() != null && getTags().size() == 1;
 	}
 	
 	public boolean isSingleTagOrSectionQuery() {

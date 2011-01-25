@@ -86,7 +86,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	public Map<String, List<Refinement>> getRefinements(SearchQuery query) {
 		Map<String, List<Refinement>> refinements = super.getRefinements(query);
 		if (refinements != null) {
-			if (query.isSectionQuery()) {			
+			if (query.isSingleSectionQuery()) {			
 				String sectionId = query.getSections().get(0);
 				refinements.put("date", generateDateRefinementsForSection(sectionId, query.getFromDate()));
 			}
