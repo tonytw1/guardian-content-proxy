@@ -3,6 +3,8 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,13 +17,26 @@ public class RequestQueryParser {
 
 	static Logger log = Logger.getLogger(RequestQueryParser.class);
 	
+	private Pattern complexTagParameterPattern = Pattern.compile("\\((.*?)\\).*?");
+	
 	public SearchQuery getSearchQueryFromRequest(HttpServletRequest request) {
 		SearchQuery query = new SearchQuery();
 		if (request.getParameter("section") != null) {
-			extractIds(request.getParameter("section"), query);
+			extractOrSeperatedTagsIds(query, request.getParameter("section"));
 		}
-		if (request.getParameter("tag") != null) {
-			extractIds(request.getParameter("tag"), query);
+		
+		final String tagParameter = request.getParameter("tag");
+		if (tagParameter != null) {
+			
+			if (isCompoundTagQuery(tagParameter)) {
+				log.info(tagParameter + " is a compound tag query");
+				final String leftMostTagGroup = extractLeftMostTagGroupFromComplexTagQuery(tagParameter);
+				log.info("Leftmost tag group is: " + leftMostTagGroup);
+				extractOrSeperatedTagsIds(query, leftMostTagGroup);
+				
+			} else {
+				extractOrSeperatedTagsIds(query, tagParameter);
+			}
 		}
 		
 		if (request.getParameter("page-size") != null) {
@@ -60,7 +75,22 @@ public class RequestQueryParser {
 		return query;
 	}
 	
-	private void extractIds(String parameter, SearchQuery query) {
+
+	
+	private boolean isCompoundTagQuery(String tagParameter) {
+		return complexTagParameterPattern.matcher(tagParameter).matches();
+		
+	}
+	
+	private String extractLeftMostTagGroupFromComplexTagQuery(String tagParameter) {
+		 Matcher matcher = complexTagParameterPattern.matcher(tagParameter);
+		 if (matcher.matches()) {
+			 return matcher.group(1);
+		 }
+		 return null;
+	}
+
+	private void extractOrSeperatedTagsIds(SearchQuery query, String parameter) {
 		parameter = URLDecoder.decode(parameter);
 		log.info("Parameter: " + parameter);
 		String[] fields = parameter.split("\\|");
