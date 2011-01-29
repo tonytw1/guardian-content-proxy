@@ -1,5 +1,7 @@
 package nz.gen.wellington.guardian.contentapiproxy.utils;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
+
 import org.apache.log4j.Logger;
 
 import com.google.appengine.api.memcache.Expiration;
@@ -23,7 +25,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 	}
 
 	
-	public String fetchContent(String url, String charEncoding) {
+	public String fetchContent(String url, String charEncoding) throws HttpForbiddenException {
 		log.info("Called for url '" + url);
 
 		final String content = fetchFromCache(url);

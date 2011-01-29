@@ -74,8 +74,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 					}
 
 					if (output != null) {
-						log.info("Outputing content: " + output.length()
-								+ " characters");
+						log.info("Outputing content: " + output.length() + " characters");
 						response.setStatus(HttpServletResponse.SC_OK);
 						response.setContentType("text/xml");
 						response.setCharacterEncoding("UTF-8");

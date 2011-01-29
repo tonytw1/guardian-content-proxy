@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
@@ -24,7 +25,7 @@ import com.google.inject.Inject;
 
 public class ContentApi {
 	
-	private static final String API_KEY = "";
+	public static final String API_KEY = "";
 
 	private static Logger log = Logger.getLogger(ContentApi.class);
 	
@@ -70,7 +71,8 @@ public class ContentApi {
 		}
 		
 		final String callUrl = urlBuilder.toSearchQueryUrl();
-		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
+		
 		if (content != null) {				
 			try {
 				JSONObject json = new JSONObject(content);
@@ -88,12 +90,11 @@ public class ContentApi {
 	}
 	
 	
-	
 	public Map<String, Section> getSections() {
 		log.info("Fetching section list from free tier content api");
 		try {
 			final String callUrl = contentApiUrlBuilder.buildApiSectionsQueryUrl();
-			final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
+			final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
 			if (content != null) {
 				
 				try {
@@ -117,7 +118,7 @@ public class ContentApi {
 	}
 	
 	
-	public Article getArticle(String contentId) {
+	public Article getArticle(String contentId) throws HttpForbiddenException {
 		log.info("Fetching content item: " + contentId);
 		final String callUrl = contentApiUrlBuilder.buildApiContentItemUrl(contentId);
 		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
@@ -138,7 +139,7 @@ public class ContentApi {
 	}
 	
 	
-	public String getShortUrlFor(String contentId) {
+	public String getShortUrlFor(String contentId) throws HttpForbiddenException {
 		log.info("Fetching short url for: " + contentId);
 		Article article = this.getArticle(contentId);	
 		if (article != null) {
@@ -163,7 +164,7 @@ public class ContentApi {
 
 	
 	private Map<String, List<Refinement>> processRefinements(String callUrl) {
-		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
 		if (content == null) {
 			log.warn("Failed to fetch url: " + callUrl);
 			return null;
@@ -212,6 +213,16 @@ public class ContentApi {
 		}
 		
 		return null;
+	}
+	
+	private String getContentFromUrlSuppressingHttpExceptions(final String callUrl) {
+		String content;
+		try {
+			content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		} catch (HttpForbiddenException e1) {
+			return null;			
+		}
+		return content;
 	}
 	
 }

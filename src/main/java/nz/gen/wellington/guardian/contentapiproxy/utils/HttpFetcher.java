@@ -10,6 +10,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
+
 import org.apache.log4j.Logger;
 
 import com.google.appengine.api.urlfetch.HTTPRequest;
@@ -23,7 +25,7 @@ public abstract class HttpFetcher {
 	private final Logger log = Logger.getLogger(HttpFetcher.class);
 
 	
-	public String fetchContent(String pageURL, String pageCharacterEncoding) {
+	public String fetchContent(String pageURL, String pageCharacterEncoding) throws HttpForbiddenException {
 		try {
 			StringBuilder output = new StringBuilder();
 			URL url = new URL(pageURL);
@@ -33,6 +35,10 @@ public abstract class HttpFetcher {
             
 			log.info("Http fetching: " + url);
             HTTPResponse result = urlFetchService.fetch(httpRequest);
+            if (result.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
+            	throw new HttpForbiddenException();
+            }
+            
             if (result.getResponseCode() == HttpURLConnection.HTTP_OK) {
             	return readResponseBody(pageCharacterEncoding, output, result);           	
 

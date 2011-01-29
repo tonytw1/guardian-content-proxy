@@ -32,7 +32,7 @@ public class ShortUrlDAO {
 	}
 
 
-	public String getShortUrlFor(String contentId) {
+	public String getShortUrlFor(String contentId) throws HttpForbiddenException {
 		String shortUrl = (String) cache.get(getCacheKeyFor(contentId));
 		if (cache.contains(getCacheKeyFor(contentId))) {
 			return shortUrl;

@@ -9,6 +9,7 @@ import java.util.Map;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
@@ -63,7 +64,13 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		if (query.isSingleTagOrSectionQuery()) {
 			String callUrl = buildQueryUrl(query);
 			log.info("Fetching articles from: " + callUrl);
-			final String content = httpFetcher.fetchContent(callUrl, "UTF-8");		
+			String content;
+			try {
+				content = httpFetcher.fetchContent(callUrl, "UTF-8");
+			} catch (HttpForbiddenException e) {
+				return null;
+			}
+			
 			if (content != null) {
 				articles = extractArticlesFromRss(content);			
 			} else {
@@ -105,7 +112,11 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	private void decorateArticlesWithShortUrls(List<Article> articles) {
 		log.info("Decorating " + articles.size() + " articles with short urls");
 		for (Article article : articles) {
-			decorateArticleWithShortUrlIfAvailable(article);		
+			try {
+				decorateArticleWithShortUrlIfAvailable(article);
+			} catch (HttpForbiddenException e) {
+				log.warn("Aborting short url decoration as we received a forbidden error from the api");
+			}
 		}
 	}
 
@@ -161,7 +172,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 
 
-	private void decorateArticleWithShortUrlIfAvailable(Article article) {
+	private void decorateArticleWithShortUrlIfAvailable(Article article) throws HttpForbiddenException {
 		if (article.getId() != null) {
 			String shortUrlFor = shortUrlDao.getShortUrlFor(article.getId());
 			if (shortUrlFor != null) {

@@ -4,6 +4,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
@@ -43,7 +44,12 @@ public class AboutDataSource {
 		final String callUrl = ABOUT_RSS_FEED;
 		
 		log.info("Fetching articles from: " + callUrl);
-		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		String content;
+		try {
+			content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		} catch (HttpForbiddenException e1) {
+			return null;
+		}
 		
 		if (content != null) {		
 			StringReader reader = new StringReader(content);
