@@ -60,7 +60,15 @@ public class RssDataSource extends AbstractGuardianDataSource {
 
 
 	public List<Article> getArticles(SearchQuery query) {
-		List<Article> articles = null;
+		List<Article> articles = fetchArticlesForQuery(query);			
+		articles = sortAndTrimArticleList(query, articles);		
+		decorateArticlesWithShortUrls(articles);
+		return articles;
+	}
+	
+	
+	private List<Article> fetchArticlesForQuery(SearchQuery query) {
+		List<Article> articles = new ArrayList<Article>();
 		if (query.isSingleTagOrSectionQuery()) {
 			String callUrl = buildQueryUrl(query);
 			log.info("Fetching articles from: " + callUrl);
@@ -79,18 +87,14 @@ public class RssDataSource extends AbstractGuardianDataSource {
 			
 		} else {
 			articles =  populateFavouriteArticles(query.getSections(), query.getTags(), query.getPageSize());
-		}
-		
+		}		
 		if (articles == null) {
 			return null;
 		}
-				
-		articles = sortAndTrimArticleList(query, articles);		
-		decorateArticlesWithShortUrls(articles);
 		return articles;
 	}
-	
-	
+
+
 	@Override
 	public Map<String, List<Refinement>> getRefinements(SearchQuery query) {
 		Map<String, List<Refinement>> refinements = super.getRefinements(query);
@@ -218,14 +222,14 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		for (String favouriteSection : favouriteSections) {
 			SearchQuery query = new SearchQuery();
 			query.setSections(Arrays.asList(favouriteSection));
-			List<Article> articles = this.getArticles(query);					
+			List<Article> articles = this.fetchArticlesForQuery(query);					
 			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
 		}
 		
 		for (String favouriteTag : favouriteTags) {
 			SearchQuery query = new SearchQuery();
 			query.setTags(Arrays.asList(favouriteTag));
-			List<Article> articles = this.getArticles(query);					
+			List<Article> articles = this.fetchArticlesForQuery(query);					
 			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
 		}
 		
