@@ -168,20 +168,18 @@ public class ArticleToXmlRenderer {
 	private void writeMediaElement(XMLStreamWriter writer, MediaElement mediaElement) throws XMLStreamException {
 		writer.writeStartElement("asset");
 		writer.writeAttribute("type", mediaElement.getType());
-		
-		if (mediaElement.getWidth() != null) {
-			writer.writeAttribute("width", mediaElement.getWidth().toString());
-		}
-		if (mediaElement.getHeight() != null) {
-			writer.writeAttribute("height", mediaElement.getHeight().toString());
-		}
-		
 		writer.writeAttribute("file", mediaElement.getFile());
 		 
 		writer.writeStartElement("fields");
+		if (mediaElement.getWidth() != null) {
+			writeFieldElement(writer, "width", mediaElement.getWidth().toString());
+		}
+		if (mediaElement.getHeight() != null) {
+			writeFieldElement(writer, "height", mediaElement.getHeight().toString());
+		}
 		writeFieldElement(writer, "caption", mediaElement.getCaption());
 		writer.writeEndElement();
-
+		
 		writer.writeEndElement();
 	}
 
