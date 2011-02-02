@@ -156,20 +156,33 @@ public class ArticleToXmlRenderer {
 		 if (!article.getMediaElements().isEmpty()) {
 			 writer.writeStartElement("mediaAssets");
 			 for (MediaElement mediaElement : article.getMediaElements()) {
-				 writer.writeStartElement("asset");
-				 writer.writeAttribute("type", mediaElement.getType());
-				 writer.writeAttribute("file", mediaElement.getFile());
-				 
-				 writer.writeStartElement("fields");
-				 writeFieldElement(writer, "caption", mediaElement.getCaption());
-				 writer.writeEndElement();
-
-				 writer.writeEndElement();
+				 writeMediaElement(writer, mediaElement);
 			 }			 
 			 writer.writeEndElement();
 		 }
 		 		 
          writer.writeEndElement();
+	}
+
+
+	private void writeMediaElement(XMLStreamWriter writer, MediaElement mediaElement) throws XMLStreamException {
+		writer.writeStartElement("asset");
+		writer.writeAttribute("type", mediaElement.getType());
+		
+		if (mediaElement.getWidth() != null) {
+			writer.writeAttribute("width", mediaElement.getWidth().toString());
+		}
+		if (mediaElement.getHeight() != null) {
+			writer.writeAttribute("height", mediaElement.getHeight().toString());
+		}
+		
+		writer.writeAttribute("file", mediaElement.getFile());
+		 
+		writer.writeStartElement("fields");
+		writeFieldElement(writer, "caption", mediaElement.getCaption());
+		writer.writeEndElement();
+
+		writer.writeEndElement();
 	}
 
 	private void writeFieldElement(XMLStreamWriter writer, String fieldname, String value) throws XMLStreamException {

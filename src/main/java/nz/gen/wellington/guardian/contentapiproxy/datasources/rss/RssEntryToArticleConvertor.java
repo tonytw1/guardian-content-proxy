@@ -81,11 +81,13 @@ public class RssEntryToArticleConvertor {
 	        	 
 	        	 for (int i = 0; i < mediaContents.length; i++) {
 	        		 mediaContent = mediaContents[i];
-	        		 if (mediaContent.getType() != null && mediaContent.getType().startsWith("image")) {
+	        		 
+	        		 final boolean mediaElementIsPicture = mediaContent.getType() != null && mediaContent.getType().startsWith("image");
+	        		 if (mediaElementIsPicture) {
 	        			 UrlReference reference = (UrlReference) mediaContent.getReference();
 		        		 Metadata metadata = mediaContent.getMetadata();
 	        			 if (mediaContent.getWidth() == 460) {
-	        				 MediaElement picture = new MediaElement("picture", reference.getUrl().toExternalForm(), metadata.getDescription());
+	        				 MediaElement picture = new MediaElement("picture", mediaContent.getWidth(), mediaContent.getHeight(), reference.getUrl().toExternalForm(), metadata.getDescription());
 	        				 article.addMediaElement(picture);
 	        			 }	
 	        		 }

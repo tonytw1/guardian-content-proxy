@@ -120,7 +120,8 @@ public class AboutDataSource {
 					mediaContent = mediaContents[i];
 					reference = (UrlReference) mediaContent.getReference();
 					Metadata metadata = mediaContent.getMetadata();
-					MediaElement picture = new MediaElement("picture",reference.getUrl().toExternalForm(), metadata.getDescription());
+					// TODO does word press provide image size attributes?
+					MediaElement picture = new MediaElement("picture",null, null, reference.getUrl().toExternalForm(), metadata.getDescription());
 					article.addMediaElement(picture);
 				}
 			}
