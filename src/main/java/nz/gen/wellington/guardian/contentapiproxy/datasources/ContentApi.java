@@ -29,7 +29,7 @@ public class ContentApi {
 
 	private static Logger log = Logger.getLogger(ContentApi.class);
 	
-	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section"};
+	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type"};
 	
 	protected ContentApiUrlBuilder contentApiUrlBuilder;
 	private CachingHttpFetcher httpFetcher;
