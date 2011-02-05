@@ -106,5 +106,18 @@ public class SearchQuery {
 		}
 		return count <= 1;
 	}
+
+	public boolean isTopStoriesQuery() {
+		if (getTags() != null) {
+			for (String tag : getTags()) {
+				System.out.println(tag);
+				if (!tag.matches("type/.*?")) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 	
 }

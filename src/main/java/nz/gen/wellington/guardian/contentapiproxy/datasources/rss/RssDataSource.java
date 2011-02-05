@@ -69,7 +69,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	
 	private List<Article> fetchArticlesForQuery(SearchQuery query) {
 		List<Article> articles = new ArrayList<Article>();
-		if (query.isSingleTagOrSectionQuery()) {
+		if (query.isSingleTagOrSectionQuery() || query.isTopStoriesQuery()) {
 			String callUrl = buildQueryUrl(query);
 			log.info("Fetching articles from: " + callUrl);
 			String content;
