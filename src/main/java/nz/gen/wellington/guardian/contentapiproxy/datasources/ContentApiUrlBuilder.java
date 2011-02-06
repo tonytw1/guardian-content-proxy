@@ -32,8 +32,7 @@ public class ContentApiUrlBuilder {
 	
 	public String buildSectionRefinementQueryUrl(String sectionId) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST + "/search");
-		queryUrl.append("?tag=type%2Farticle|type%2Fgallery");
-		queryUrl.append("&section=" + sectionId);
+		queryUrl.append("?tag=(type%2Farticle%7Ctype%2Fgallery)," + sectionId + "/" + sectionId);
 		queryUrl.append("&page-size=1");
 		queryUrl.append("&show-refinements=all");
 		queryUrl.append("&format=json");

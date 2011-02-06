@@ -17,7 +17,7 @@ public class RequestQueryParser {
 
 	static Logger log = Logger.getLogger(RequestQueryParser.class);
 	
-	private Pattern complexTagParameterPattern = Pattern.compile("\\((.*?)\\).*?");
+	private Pattern complexTagParameterPattern = Pattern.compile("\\((.*?)\\),\\((.*?)\\)");
 	
 	public SearchQuery getSearchQueryFromRequest(HttpServletRequest request) {
 		SearchQuery query = new SearchQuery();
@@ -31,8 +31,15 @@ public class RequestQueryParser {
 			if (isCompoundTagQuery(tagParameter)) {
 				log.info(tagParameter + " is a compound tag query");
 				final String leftMostTagGroup = extractLeftMostTagGroupFromComplexTagQuery(tagParameter);
+				final String rightMostTagGroup = extractRightMostTagGroupFromComplexTagQuery(tagParameter);
+
 				log.info("Leftmost tag group is: " + leftMostTagGroup);
 				extractOrSeperatedTagsIds(query, leftMostTagGroup);
+				
+				log.info("Rightmore tag group is: " + rightMostTagGroup);
+				if (rightMostTagGroup != null && rightMostTagGroup.equals("type/gallery")) {
+					query.setCombinerTag(rightMostTagGroup);
+				}
 				
 			} else {
 				extractOrSeperatedTagsIds(query, tagParameter);
@@ -75,8 +82,6 @@ public class RequestQueryParser {
 		return query;
 	}
 	
-
-	
 	private boolean isCompoundTagQuery(String tagParameter) {
 		return complexTagParameterPattern.matcher(tagParameter).matches();
 		
@@ -89,9 +94,21 @@ public class RequestQueryParser {
 		 }
 		 return null;
 	}
+	
+	
+	private String extractRightMostTagGroupFromComplexTagQuery(String tagParameter) {
+		 Matcher matcher = complexTagParameterPattern.matcher(tagParameter);
+		 if (matcher.matches()) {
+			 return matcher.group(2);
+		 }
+		 return null;
+	}
 
 	private void extractOrSeperatedTagsIds(SearchQuery query, String parameter) {
 		parameter = URLDecoder.decode(parameter);
+		parameter = parameter.replaceAll("\\(", "");	// TODO
+		parameter = parameter.replaceAll("\\)", "");
+
 		log.info("Parameter: " + parameter);
 		String[] fields = parameter.split("\\|");
 		List<String> asList = Arrays.asList(fields);

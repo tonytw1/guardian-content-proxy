@@ -34,7 +34,7 @@ public class RssEntryToArticleConvertor {
 	public Article entryToArticle(SyndEntry item, Map<String, Section> sections) {
 		
 		DCModule dcModule = (DCModule) item.getModule("http://purl.org/dc/elements/1.1/");
-		if (dcModule == null || dcModule.getType() == null || !dcModule.getType().equals("Article")) {
+		if (dcModule == null || dcModule.getType() == null || !(dcModule.getType().equals("Article") || dcModule.getType().equals("Gallery"))) {
 			return null;
 		}
 		
@@ -55,6 +55,11 @@ public class RssEntryToArticleConvertor {
 		processBody(description, article, sections);
 		
 		processMediaElements(item, article);
+		
+		
+		if (dcModule.getType().equals("Gallery")) {
+			article.addTag(new Tag("Gallery", "type/gallery", null, "type"));
+		}
 				
 		if (article.getPubDate() != null && article.getSection() != null) {
 			return article;
@@ -67,7 +72,7 @@ public class RssEntryToArticleConvertor {
 		MediaEntryModuleImpl mediaModule = (MediaEntryModuleImpl) item.getModule(MediaModule.URI);
         if (mediaModule != null) {
         
-	         log.debug("Found media module");        
+	         log.info("Found media module");        
 	         MediaContent[] mediaContents = mediaModule.getMediaContents();
 	         if (mediaContents.length > 0) {
 	        	 MediaContent mediaContent = mediaContents[0];
@@ -86,10 +91,8 @@ public class RssEntryToArticleConvertor {
 	        		 if (mediaElementIsPicture) {
 	        			 UrlReference reference = (UrlReference) mediaContent.getReference();
 		        		 Metadata metadata = mediaContent.getMetadata();
-	        			 if (mediaContent.getWidth() == 460) {
-	        				 MediaElement picture = new MediaElement("picture", mediaContent.getWidth(), mediaContent.getHeight(), reference.getUrl().toExternalForm(), metadata.getDescription());
-	        				 article.addMediaElement(picture);
-	        			 }	
+	        			 MediaElement picture = new MediaElement("picture", mediaContent.getWidth(), mediaContent.getHeight(), reference.getUrl().toExternalForm(), metadata.getDescription());
+	        			 article.addMediaElement(picture);
 	        		 }
 	        	 }
 	         }

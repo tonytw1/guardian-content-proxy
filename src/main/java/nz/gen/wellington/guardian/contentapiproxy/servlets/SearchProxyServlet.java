@@ -98,6 +98,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 			return null;
 		}
 		
+		log.info("Getting refinements");
 		Map<String, List<Refinement>> refinements = datasource.getRefinements(query);		
 		return articleToXmlRenderer.outputXml(articles, datasource.getDescription(), refinements, query.isShowAllFields());
 	}

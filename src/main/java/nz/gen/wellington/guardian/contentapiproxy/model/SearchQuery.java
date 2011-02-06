@@ -5,10 +5,13 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import com.sun.tools.javac.resources.compiler;
+
 public class SearchQuery {
 
 	private List<String> tags;
 	private List<String> sections;
+	private String combinerTag;
 	private boolean showAllFields;	
 	private boolean showAllTags;
 	private Integer pageSize;
@@ -120,4 +123,16 @@ public class SearchQuery {
 		return false;
 	}
 	
+	public boolean isTagCombinerQuery() {
+		return combinerTag != null;
+	}
+
+	public String getCombinerTag() {
+		return combinerTag;
+	}
+
+	public void setCombinerTag(String combinerTag) {
+		this.combinerTag = combinerTag;
+	}
+		
 }

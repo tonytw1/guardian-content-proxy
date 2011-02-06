@@ -178,6 +178,7 @@ public class ArticleToXmlRenderer {
 			writeFieldElement(writer, "height", mediaElement.getHeight().toString());
 		}
 		writeFieldElement(writer, "caption", mediaElement.getCaption());
+		writeFieldElement(writer, "thumbnail", mediaElement.getFile());
 		writer.writeEndElement();
 		
 		writer.writeEndElement();

@@ -62,14 +62,14 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	public List<Article> getArticles(SearchQuery query) {
 		List<Article> articles = fetchArticlesForQuery(query);			
 		articles = sortAndTrimArticleList(query, articles);		
-		decorateArticlesWithShortUrls(articles);
+		//decorateArticlesWithShortUrls(articles);
 		return articles;
 	}
 	
 	
 	private List<Article> fetchArticlesForQuery(SearchQuery query) {
 		List<Article> articles = new ArrayList<Article>();
-		if (query.isSingleTagOrSectionQuery() || query.isTopStoriesQuery()) {
+		if (query.isSingleTagOrSectionQuery() || query.isTopStoriesQuery() || query.isTagCombinerQuery()) {
 			String callUrl = buildQueryUrl(query);
 			log.info("Fetching articles from: " + callUrl);
 			String content;
@@ -93,13 +93,13 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		}
 		return articles;
 	}
-
-
+	
 	@Override
 	public Map<String, List<Refinement>> getRefinements(SearchQuery query) {
+		log.info("Getting refinements");
 		Map<String, List<Refinement>> refinements = super.getRefinements(query);
 		if (refinements != null) {
-			if (query.isSingleSectionQuery()) {			
+			if (query.isSingleSectionQuery() || query.isTagCombinerQuery()) {			
 				String sectionId = query.getSections().get(0);
 				refinements.put("date", generateDateRefinementsForSection(sectionId, query.getFromDate()));
 			}
@@ -158,7 +158,8 @@ public class RssDataSource extends AbstractGuardianDataSource {
 			for (int i = 0; i < entries.size(); i++) {
 				SyndEntry item = entries.get(i);
 				Article article = rssEntryConvertor.entryToArticle(item, sections);
-				if (article != null && article.getSection() != null) {					
+				
+				if (article != null && article.getSection() != null) {
 					articles.add(article);
 				}
 			}
@@ -193,7 +194,12 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	private String buildQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST);
 		if (query.getSections() != null && query.getSections().size() == 1) {
-			queryUrl.append("/" + query.getSections().get(0));
+			if (query.isTagCombinerQuery()) {
+				queryUrl.append("/" + query.getSections().get(0) + "+content/gallery");
+
+			} else {
+				queryUrl.append("/" + query.getSections().get(0));
+			}
 		}
 		if (query.getTags() != null && query.getTags().size() == 1) {
 			queryUrl.append("/" + query.getTags().get(0));
@@ -203,8 +209,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 	
 	
-	// TODO reduce visibilty when favourites servlet is depreciated.
-	public List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags, int size) {
+	private List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags, int size) {
 		log.info("Fetching favourites: " + favouriteSections + ", " + favouriteTags);
 		List<Article> combined = new ArrayList<Article>();
 		
