@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Section;
 
 import org.apache.log4j.Logger;
@@ -22,7 +22,7 @@ public class ArticleSectionSorter {
 
 		SortedMap<DateTime, Article> sorted = new TreeMap<DateTime, Article>();
 		for (Article article : articles) {
-			sorted.put(article.getPubDate(), article);
+			sorted.put(new DateTime(article.getPubDate()), article);
 		}
 		
 		SortedMap<DateTime, Article> trimmed = trim(sorted, 15);
@@ -44,7 +44,7 @@ public class ArticleSectionSorter {
 		for (int i = 0; i < limit; i++) {
 			Article article = sorted.get(sorted.lastKey());
 			sorted.remove(article.getPubDate());
-			trimmed.put(article.getPubDate(), article);
+			trimmed.put(new DateTime(article.getPubDate()), article);
 		}
 		return trimmed;
 	}

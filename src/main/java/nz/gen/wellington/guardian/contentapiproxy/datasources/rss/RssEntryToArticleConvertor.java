@@ -3,8 +3,8 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources.rss;
 import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.HtmlCleaner;
-import nz.gen.wellington.guardian.contentapiproxy.model.Article;
-import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
+import nz.gen.wellington.guardian.model.Article;
+import nz.gen.wellington.guardian.model.MediaElement;
 import nz.gen.wellington.guardian.model.Section;
 import nz.gen.wellington.guardian.model.Tag;
 
@@ -44,7 +44,7 @@ public class RssEntryToArticleConvertor {
 			article.setWebUrl(item.getLink());			
 		}
 		article.setHeadline(HtmlCleaner.stripHtml(item.getTitle()));
-		article.setPubDate(new DateTime(item.getPublishedDate()));
+		article.setPubDate(item.getPublishedDate());
 		article.setByline(HtmlCleaner.stripHtml(item.getAuthor()));
 
 		if (dcModule != null) {
@@ -91,7 +91,7 @@ public class RssEntryToArticleConvertor {
 	        		 if (mediaElementIsPicture) {
 	        			 UrlReference reference = (UrlReference) mediaContent.getReference();
 		        		 Metadata metadata = mediaContent.getMetadata();
-	        			 MediaElement picture = new MediaElement("picture", mediaContent.getWidth(), mediaContent.getHeight(), reference.getUrl().toExternalForm(), metadata.getDescription());
+	        			 MediaElement picture = new MediaElement("picture", reference.getUrl().toExternalForm(), metadata.getDescription(), mediaContent.getWidth(), mediaContent.getHeight());
 	        			 article.addMediaElement(picture);
 	        		 }
 	        	 }

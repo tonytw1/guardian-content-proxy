@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Section;
 
 import com.sun.syndication.feed.synd.SyndEntry;

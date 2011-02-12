@@ -5,8 +5,8 @@ import java.util.List;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
-import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
+import nz.gen.wellington.guardian.model.Article;
 
 import com.google.inject.Inject;
 
@@ -30,5 +30,5 @@ public class ContentApiDataSource extends AbstractGuardianDataSource {
 	public boolean isSupported(SearchQuery query) {
 		return true;
 	}
-		
+	
 }

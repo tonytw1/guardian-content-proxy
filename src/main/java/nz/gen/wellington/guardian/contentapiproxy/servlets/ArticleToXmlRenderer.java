@@ -8,15 +8,16 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.ContentChecksumCalculator;
-import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SectionDateRefinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.TagRefinement;
+import nz.gen.wellington.guardian.model.Article;
+import nz.gen.wellington.guardian.model.MediaElement;
 import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
 
@@ -122,7 +123,7 @@ public class ArticleToXmlRenderer {
 
 		 if (article.getSection() != null) writer.writeAttribute("section-id", article.getSection().getId());		 
 		 if (article.getPubDate() != null) {
-			 writer.writeAttribute("web-publication-date", article.getPubDate().toString(DATE_TIME_FORMAT));
+			 writer.writeAttribute("web-publication-date", new DateTime(article.getPubDate()).toString(DATE_TIME_FORMAT));
 		 }
 		 writer.writeStartElement("fields");
 		 if (article.getShortUrl() != null) {

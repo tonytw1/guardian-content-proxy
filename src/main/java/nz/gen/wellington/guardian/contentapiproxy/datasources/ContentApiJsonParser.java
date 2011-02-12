@@ -8,11 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Section;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,7 +65,7 @@ public class ContentApiJsonParser {
 	private Article parseContentItem(JSONObject content) throws JSONException {
 		Article article = new Article();
 		article.setId(getJsonStringIfPresent(content, "id"));
-		article.setPubDate(new DateTime(parseDate(getJsonStringIfPresent(content, "webPublicationDate"))));
+		article.setPubDate(parseDate(getJsonStringIfPresent(content, "webPublicationDate")));
 		article.setWebUrl(getJsonStringIfPresent(content, "webUrl"));
 		
 		Section section = new Section(

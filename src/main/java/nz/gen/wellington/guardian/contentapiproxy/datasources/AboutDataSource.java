@@ -5,15 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
-import nz.gen.wellington.guardian.contentapiproxy.model.Article;
-import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
+import nz.gen.wellington.guardian.model.Article;
+import nz.gen.wellington.guardian.model.MediaElement;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
-
 import com.sun.syndication.feed.module.mediarss.MediaEntryModuleImpl;
 import com.sun.syndication.feed.module.mediarss.MediaModule;
 import com.sun.syndication.feed.module.mediarss.types.MediaContent;
@@ -86,7 +84,7 @@ public class AboutDataSource {
 	private Article entryToArticle(SyndEntry item) {
 		Article article = new Article();
 		article.setHeadline(HtmlCleaner.stripHtml(item.getTitle()));
-		article.setPubDate(new DateTime(item.getPublishedDate()));
+		article.setPubDate(item.getPublishedDate());
 		
 		article.setStandfirst(HtmlCleaner.stripHtml(item.getDescription().getValue()));
 	
@@ -121,7 +119,7 @@ public class AboutDataSource {
 					reference = (UrlReference) mediaContent.getReference();
 					Metadata metadata = mediaContent.getMetadata();
 					// TODO does word press provide image size attributes?
-					MediaElement picture = new MediaElement("picture",null, null, reference.getUrl().toExternalForm(), metadata.getDescription());
+					MediaElement picture = new MediaElement("picture", reference.getUrl().toExternalForm(), metadata.getDescription(), null, null);
 					article.addMediaElement(picture);
 				}
 			}

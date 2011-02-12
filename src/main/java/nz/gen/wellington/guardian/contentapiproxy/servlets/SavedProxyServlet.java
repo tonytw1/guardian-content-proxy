@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SavedContentDataSource;
-import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.model.Article;
 
 import org.apache.commons.codec.digest.DigestUtils;
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
-import nz.gen.wellington.guardian.contentapiproxy.model.Article;
+import nz.gen.wellington.guardian.model.Article;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -42,7 +42,7 @@ public class SavedContentDataSource {
 		Article missingArticle = new Article();
 		missingArticle.setId(articleId);
 		missingArticle.setHeadline("Missing article");
-		missingArticle.setPubDate(new DateTime().toDateTime());
+		missingArticle.setPubDate(new DateTime().toDate());
 		missingArticle.setStandfirst("This article could not be retrieved. It may no longer be available. (" + articleId + ")");
 		return missingArticle;
 	}

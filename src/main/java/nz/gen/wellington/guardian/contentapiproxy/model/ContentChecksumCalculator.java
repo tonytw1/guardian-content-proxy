@@ -2,7 +2,10 @@ package nz.gen.wellington.guardian.contentapiproxy.model;
 
 import java.util.List;
 
+import nz.gen.wellington.guardian.model.Article;
+
 import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTime;
 
 public class ContentChecksumCalculator {
 	
@@ -10,8 +13,8 @@ public class ContentChecksumCalculator {
 		StringBuilder hashContent = new StringBuilder();
 		for (Article article : articles) {
 			hashContent.append(article.getHeadline());
-			if (article.getPubDateString() != null) {
-				hashContent.append(article.getPubDateString().toString());
+			if (article.getPubDate() != null) {
+				hashContent.append(new DateTime(article.getPubDate()).toString());
 			}
 		}
 		return DigestUtils.md5Hex(hashContent.toString());
