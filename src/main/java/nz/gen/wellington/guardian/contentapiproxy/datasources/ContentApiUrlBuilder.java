@@ -56,7 +56,7 @@ public class ContentApiUrlBuilder {
 	}
 	
 	private void appendApiKey(StringBuilder queryUrl) {
-		if (apiKey != null) {
+		if (apiKey != null && !apiKey.trim().isEmpty()) {
 			queryUrl.append("&api-key=" + apiKey);
 		}
 	}
