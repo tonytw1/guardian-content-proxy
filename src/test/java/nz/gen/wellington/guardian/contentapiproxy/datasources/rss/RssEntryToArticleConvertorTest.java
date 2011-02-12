@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import nz.gen.wellington.guardian.contentapi.cleaning.HtmlCleaner;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Section;
 
@@ -30,7 +31,7 @@ public class RssEntryToArticleConvertorTest extends TestCase {
 		
 		SyndFeedInput input = new SyndFeedInput();
 		feed = input.build(new StringReader(content));
-		convertor = new RssEntryToArticleConvertor();
+		convertor = new RssEntryToArticleConvertor(new HtmlCleaner());
 		sections = new HashMap<String, Section>();
 		sections.put("poltics", new Section("politics", "Politics"));
 	}

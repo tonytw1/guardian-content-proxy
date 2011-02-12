@@ -4,6 +4,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import nz.gen.wellington.guardian.contentapi.cleaning.HtmlCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 import nz.gen.wellington.guardian.model.Article;
@@ -30,12 +31,14 @@ public class AboutDataSource {
 	private static Logger log = Logger.getLogger(AboutDataSource.class);
 	
 	private CachingHttpFetcher httpFetcher;
-	private String description;
-	
+	private HtmlCleaner htmlCleaner;	
+	private String description;	
 	
 	@Inject
-	public AboutDataSource(CachingHttpFetcher httpFetcher) {
+	public AboutDataSource(CachingHttpFetcher httpFetcher, HtmlCleaner htmlCleaner) {
 		this.httpFetcher = httpFetcher;
+		this.htmlCleaner = htmlCleaner;
+		this.description = null;
 	}
 		
 	public List<Article> getArticles() {
@@ -83,35 +86,32 @@ public class AboutDataSource {
 	
 	private Article entryToArticle(SyndEntry item) {
 		Article article = new Article();
-		article.setHeadline(HtmlCleaner.stripHtml(item.getTitle()));
+		article.setHeadline(htmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(item.getPublishedDate());
 		
-		article.setStandfirst(HtmlCleaner.stripHtml(item.getDescription().getValue()));
+		article.setStandfirst(htmlCleaner.stripHtml(item.getDescription().getValue()));
 	
 		if (item.getContents().size() > 0) {
 	           SyndContent content = (SyndContent) item.getContents().get(0);
-	           article.setDescription(HtmlCleaner.stripHtml(content.getValue()));
+	           article.setDescription(htmlCleaner.stripHtml(content.getValue()));
 		}
 		
 		processMediaElements(item, article);
 		return article;
 	}
-	
-		
+			
 	private void processMediaElements(SyndEntry item, Article article) {
 
 		MediaEntryModuleImpl mediaModule = (MediaEntryModuleImpl) item.getModule(MediaModule.URI);
 		if (mediaModule != null) {
 
-			log.info("Found media module");
+			log.debug("Found media module");
 			MediaContent[] mediaContents = mediaModule.getMediaContents();
 			if (mediaContents.length > 0) {
 				MediaContent mediaContent = mediaContents[0];
-
-				log.info(mediaContent);
 				UrlReference reference = (UrlReference) mediaContent.getReference();
 				final String trailImageUrl = reference.getUrl().toExternalForm();
-				log.info("Found trail image: " + trailImageUrl);
+				log.debug("Found trail image: " + trailImageUrl);
 				article.setThumbnailUrl(trailImageUrl);
 
 				for (int i = 0; i < mediaContents.length; i++) {

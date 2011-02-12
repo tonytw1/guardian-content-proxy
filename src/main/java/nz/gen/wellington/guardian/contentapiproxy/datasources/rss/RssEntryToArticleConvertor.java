@@ -2,7 +2,7 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources.rss;
 
 import java.util.Map;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.HtmlCleaner;
+import nz.gen.wellington.guardian.contentapi.cleaning.HtmlCleaner;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.MediaElement;
 import nz.gen.wellington.guardian.model.Section;
@@ -18,6 +18,7 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import org.joda.time.DateTime;
 
+import com.google.inject.Inject;
 import com.sun.syndication.feed.module.DCModule;
 import com.sun.syndication.feed.module.mediarss.MediaEntryModuleImpl;
 import com.sun.syndication.feed.module.mediarss.MediaModule;
@@ -28,8 +29,16 @@ import com.sun.syndication.feed.synd.SyndEntry;
 
 public class RssEntryToArticleConvertor {
 
-	private static final String URL_PREFIX = "http://www.guardian.co.uk/";
 	private static Logger log = Logger.getLogger(RssEntryToArticleConvertor.class);
+	
+	private static final String URL_PREFIX = "http://www.guardian.co.uk/";
+	
+	private HtmlCleaner htmlCleaner;
+	
+	@Inject
+	public RssEntryToArticleConvertor(HtmlCleaner htmlCleaner) {
+		this.htmlCleaner = htmlCleaner;
+	}
 	
 	public Article entryToArticle(SyndEntry item, Map<String, Section> sections) {
 		
@@ -43,9 +52,9 @@ public class RssEntryToArticleConvertor {
 			article.setId(item.getLink().replace(URL_PREFIX, ""));
 			article.setWebUrl(item.getLink());			
 		}
-		article.setHeadline(HtmlCleaner.stripHtml(item.getTitle()));
+		article.setHeadline(htmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(item.getPublishedDate());
-		article.setByline(HtmlCleaner.stripHtml(item.getAuthor()));
+		article.setByline(htmlCleaner.stripHtml(item.getAuthor()));
 
 		if (dcModule != null) {
 			setSectionFromDCSubject(dcModule, article, sections);
@@ -120,7 +129,7 @@ public class RssEntryToArticleConvertor {
 		NodeList list = parser.extractAllNodesThatMatch(standfirstFilter);
 		if (list.size() > 0) {
 			final String standfirst = list.elementAt(0).toHtml();
-			article.setStandfirst(HtmlCleaner.stripHtml(standfirst));
+			article.setStandfirst(htmlCleaner.stripHtml(standfirst));
 			description.replace(standfirst, "");
 		}
 		
@@ -144,7 +153,7 @@ public class RssEntryToArticleConvertor {
 		}
 		
 		body.append("<p>&copy; Guardian News & Media Limited " + new DateTime().toString("yyyy") + "</p>");
-		article.setDescription(HtmlCleaner.stripHtml(body.toString()));
+		article.setDescription(htmlCleaner.stripHtml(body.toString()));
 	}
 
 

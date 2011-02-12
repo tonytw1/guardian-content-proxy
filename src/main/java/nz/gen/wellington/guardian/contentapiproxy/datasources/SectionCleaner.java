@@ -5,12 +5,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.google.inject.Inject;
+
+import nz.gen.wellington.guardian.contentapi.cleaning.HtmlCleaner;
 import nz.gen.wellington.guardian.model.Section;
 
 public class SectionCleaner {
 	
 	private List<String> BAD_SECTIONS_IDS = Arrays.asList("community", "crosswords", "extra", "help", "info", "local", "theguardian", "theobserver", "news", "weather");
-			
+
+	private HtmlCleaner htmlCleaner;
+	
+	@Inject
+	public SectionCleaner(HtmlCleaner htmlCleaner) {
+		this.htmlCleaner = htmlCleaner;
+	}
+
 	public Map<String, Section> cleanSections(Map<String, Section> sections) {
 		if (sections != null) {
 			sections = removeBadSections(sections);
@@ -23,7 +33,7 @@ public class SectionCleaner {
 		Map<String, Section> cleanedSections = new TreeMap<String, Section>();						
 		for (String sectionName : sections.keySet()) {
 			Section section = sections.get(sectionName);
-			section.setName(HtmlCleaner.stripHtml(section.getName()));
+			section.setName(htmlCleaner.stripHtml(section.getName()));
 			cleanedSections.put(section.getId(), section);
 		}
 		return cleanedSections;

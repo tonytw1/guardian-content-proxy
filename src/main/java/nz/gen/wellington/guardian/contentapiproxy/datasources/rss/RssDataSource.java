@@ -40,8 +40,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	private DescriptionFilter descriptionFilter;
 	private ShortUrlDAO shortUrlDao;
 	private ArticleSectionSorter articleSectionSorter;
-
-		
+	
 	@Inject
 	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ShortUrlDAO shortUrlDao, ArticleSectionSorter articleSectionSorter, SectionCleaner sectionCleaner) {
 		this.httpFetcher = httpFetcher;
