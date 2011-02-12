@@ -72,7 +72,7 @@ public class RssEntryToArticleConvertor {
 		MediaEntryModuleImpl mediaModule = (MediaEntryModuleImpl) item.getModule(MediaModule.URI);
         if (mediaModule != null) {
         
-	         log.info("Found media module");        
+	         log.debug("Found media module");        
 	         MediaContent[] mediaContents = mediaModule.getMediaContents();
 	         if (mediaContents.length > 0) {
 	        	 MediaContent mediaContent = mediaContents[0];

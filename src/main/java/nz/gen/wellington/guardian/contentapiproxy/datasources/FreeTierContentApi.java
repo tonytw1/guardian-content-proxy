@@ -9,7 +9,6 @@ public class FreeTierContentApi extends ContentApi {
 	@Inject
 	public FreeTierContentApi(CachingHttpFetcher httpFetcher, ContentApiJsonParser contentApiJsonParser) {
 		super(httpFetcher, contentApiJsonParser);
-		contentApiUrlBuilder = new ContentApiUrlBuilder(null);
 	}
 	
 }

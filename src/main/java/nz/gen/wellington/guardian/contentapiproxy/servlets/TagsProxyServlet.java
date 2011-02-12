@@ -3,7 +3,6 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 import javax.servlet.http.HttpServletRequest;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApiUrlBuilder;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
@@ -27,7 +26,7 @@ public class TagsProxyServlet extends UrlBasedCachedRequest {
 	}
 	
 	protected String getContent(HttpServletRequest request) {
-		final String queryUrl = ContentApiUrlBuilder.API_HOST + request.getRequestURI() + "?" + request.getQueryString() + "&api-key=" + ContentApi.API_KEY;
+		final String queryUrl = ContentApi.API_HOST + request.getRequestURI() + "?" + request.getQueryString() + "&api-key=" + ContentApi.API_KEY;
 		log.info("Tag query url is: " + queryUrl);
 		try {
 			return httpFetcher.fetchContent(queryUrl, "UTF-8");

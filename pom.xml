@@ -38,6 +38,13 @@
   		<type>jar</type>
   	</dependency>
   	
+   	<dependency>
+  		<groupId>nz.gen.wellington.guardian</groupId>
+  		<artifactId>guardian-contentapi-tools</artifactId>
+  		<version>0.0.1</version>
+  		<type>jar</type>
+  	</dependency>
+  	
   	<dependency>
   		<groupId>log4j</groupId>
   		<artifactId>log4j</artifactId>

@@ -1,12 +1,12 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nz.gen.wellington.guardian.contentapi.ContentApiStyleUrlBuilder;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
@@ -25,13 +25,13 @@ import com.google.inject.Inject;
 
 public class ContentApi {
 	
+	public static final String API_HOST = "http://content.guardianapis.com";
 	public static final String API_KEY = "";
 
 	private static Logger log = Logger.getLogger(ContentApi.class);
 	
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type"};
 	
-	protected ContentApiUrlBuilder contentApiUrlBuilder;
 	private CachingHttpFetcher httpFetcher;
 	private ContentApiJsonParser contentApiJsonParser;
 	
@@ -39,12 +39,11 @@ public class ContentApi {
 	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiJsonParser contentApiJsonParser) {
 		this.httpFetcher = httpFetcher;
 		this.contentApiJsonParser = contentApiJsonParser;
-		this.contentApiUrlBuilder = new ContentApiUrlBuilder(API_KEY);
 	}
 	
 	
 	public List<Article> getArticles(SearchQuery query) {
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(ContentApiUrlBuilder.API_HOST, API_KEY);
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
 		
 		urlBuilder.setFormat("json");
 		urlBuilder.setShowAll(query.isShowAllFields());
@@ -58,15 +57,16 @@ public class ContentApi {
 
 		urlBuilder.setPageSize(query.getPageSize());
 		
+		// TODO do the clients really use section queries anymore?
 		if (query.getSections() != null && !query.getSections().isEmpty()) {
 			for (String sectionId : query.getSections()) {
-				urlBuilder.addSection(sectionId);			
+				urlBuilder.addSection(new Section(sectionId, sectionId));	// TODO Hmmmm		
 			}
 		}
 		
 		if (query.getTags() != null && !query.getTags().isEmpty()) {
 			for (String tagId : query.getTags()) {
-				urlBuilder.addTag(tagId);	
+				urlBuilder.addTag(new Tag(null, tagId, null, null));	// TODO Hmmmm
 			}
 		}
 		
@@ -92,35 +92,36 @@ public class ContentApi {
 	
 	public Map<String, Section> getSections() {
 		log.info("Fetching section list from free tier content api");
-		try {
-			final String callUrl = contentApiUrlBuilder.buildApiSectionsQueryUrl();
-			final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
-			if (content != null) {
-				
-				try {
-					JSONObject json = new JSONObject(content);
-					if (json != null && contentApiJsonParser.isResponseOk(json)) {						
-						Map<String, Section> sections = contentApiJsonParser.extractSections(json);					
-						log.info("Found " + sections.size() + " good sections");
-						return sections;
-					}
-					
-				} catch (JSONException e) {
-					log.info("JSON error while processing call url: " + callUrl);		
-					return null;
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
+		urlBuilder.setFormat("json");
+		final String callUrl = urlBuilder.toSectionsQueryUrl();
+		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
+		if (content != null) {
+
+			try {
+				JSONObject json = new JSONObject(content);
+				if (json != null && contentApiJsonParser.isResponseOk(json)) {
+					Map<String, Section> sections = contentApiJsonParser.extractSections(json);
+					log.info("Found " + sections.size() + " good sections");
+					return sections;
 				}
-				
+
+			} catch (JSONException e) {
+				log.info("JSON error while processing call url: " + callUrl);
+				return null;
 			}
-			
-		} catch (UnsupportedEncodingException e) {
+
 		}
-		return null;		
+		return null;
 	}
 	
 	
 	public Article getArticle(String contentId) throws HttpForbiddenException {
 		log.info("Fetching content item: " + contentId);
-		final String callUrl = contentApiUrlBuilder.buildApiContentItemUrl(contentId);
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
+		urlBuilder.setContentId(contentId);
+		urlBuilder.setFormat("json");
+		final String callUrl = urlBuilder.toContentItemUrl();
 		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
 		if (content != null) {				
 			try {
@@ -149,15 +150,28 @@ public class ContentApi {
 	}
 	
 	
-	public Map<String, List<Refinement>> getSectionRefinements(String sectionId) {		
-		String callUrl = contentApiUrlBuilder.buildSectionRefinementQueryUrl(sectionId);
+	@Deprecated	// TODO use a section tag query instead?
+	public Map<String, List<Refinement>> getSectionRefinements(String sectionId) {
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
+		urlBuilder.addSection(new Section(sectionId, sectionId));
+		urlBuilder.setShowAll(false);
+		urlBuilder.setShowRefinements(true);
+		urlBuilder.setFormat("json");
+		// TODO no need to pull tags as part of this query.
+		urlBuilder.setPageSize(1);		
+		String callUrl = urlBuilder.toSearchQueryUrl();
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
 	}
 	
 	
-	public Map<String, List<Refinement>> getTagRefinements(String tagId) {		
-		String callUrl = contentApiUrlBuilder.buildTagRefinementQueryUrl(tagId);
+	public Map<String, List<Refinement>> getTagRefinements(String tagId) {	// TODO pass in the tag
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
+		urlBuilder.addTag(new Tag(null, tagId, null, null));
+		urlBuilder.setShowAll(false);
+		urlBuilder.setShowRefinements(true);
+		urlBuilder.setFormat("json");
+		final String callUrl = urlBuilder.toSearchQueryUrl();		
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
 	}
