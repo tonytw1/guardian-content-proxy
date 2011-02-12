@@ -135,7 +135,7 @@ public class ContentApi {
 		return null;		
 	}
 	
-	
+	@Deprecated // TODO query for whole tags rather than interating over single records.
 	public String getShortUrlFor(String contentId) throws HttpForbiddenException {
 		log.info("Fetching short url for: " + contentId);
 		Article article = this.getArticle(contentId);	
@@ -144,22 +144,6 @@ public class ContentApi {
 		}
 		return null;
 	}
-	
-	
-	@Deprecated	// TODO use a section tag query instead?
-	public Map<String, List<Refinement>> getSectionRefinements(String sectionId) {
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
-		urlBuilder.addSection(new Section(sectionId, sectionId));
-		urlBuilder.setShowAll(false);
-		urlBuilder.setShowRefinements(true);
-		urlBuilder.setFormat("json");
-		// TODO no need to pull tags as part of this query.
-		urlBuilder.setPageSize(1);		
-		String callUrl = urlBuilder.toSearchQueryUrl();
-		log.info("Fetching from: " + callUrl);
-		return processRefinements(callUrl);
-	}
-	
 	
 	public Map<String, List<Refinement>> getTagRefinements(String tagId) {	// TODO pass in the tag
 		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);

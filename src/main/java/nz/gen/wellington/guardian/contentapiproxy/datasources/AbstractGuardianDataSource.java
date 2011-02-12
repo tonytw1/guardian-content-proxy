@@ -20,16 +20,12 @@ public abstract class AbstractGuardianDataSource implements GuardianDataSource {
 	public Map<String, List<Refinement>> getRefinements(SearchQuery query) {
 		if (query.isSingleSectionQuery()) {			
 			String sectionId = query.getSections().get(0);
-			return getSectionRefinements(sectionId);
+			return getTagRefinements(sectionId + "/" + sectionId);
 			
 		} else if (query.isSingleTagQuery()) {
 			return getTagRefinements(query.getTags().get(0));
 		}
 		return null;
-	}
-	
-	private Map<String, List<Refinement>> getSectionRefinements(String sectionId) {
-		return contentApi.getSectionRefinements(sectionId);
 	}
 	
 	private Map<String, List<Refinement>> getTagRefinements(String tagId) {
