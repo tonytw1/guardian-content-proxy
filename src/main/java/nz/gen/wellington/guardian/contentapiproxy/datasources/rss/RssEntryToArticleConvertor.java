@@ -5,8 +5,8 @@ import java.util.Map;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.HtmlCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
-import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
+import nz.gen.wellington.guardian.model.Section;
+import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
 import org.htmlparser.Node;
@@ -165,12 +165,13 @@ public class RssEntryToArticleConvertor {
 				id = id.replace(URL_PREFIX, "");
 
 				final String sectionId = id.split("/")[0];
+				final String tagName = href.toPlainTextString();
 				if (sectionId.equals("profile")) {
-					article.addTag(new Tag(href.toPlainTextString(), id, null, "contributor"));
+					article.addTag(new Tag(tagName, id, null, "contributor"));
 
 				} else {
 					Section section = sections.get(sectionId);
-					article.addTag(new Tag(href.toPlainTextString(), id, section, "keyword"));
+					article.addTag(new Tag(tagName, id, section, "keyword"));
 				}
 			}
 		}
@@ -188,12 +189,14 @@ public class RssEntryToArticleConvertor {
 				id = id.replace(URL_PREFIX, "");
 
 				String sectionId = id.split("/")[0];
+				final String tagName = href.toPlainTextString();
+				
 				if (sectionId.equals("profile")) {
-					article.addTag(new Tag(href.toPlainTextString(), id, null, "contributor"));
+					article.addTag(new Tag(tagName, id, null, "contributor"));
 
 				} else {
 					Section section = sections.get(sectionId);
-					article.addTag(new Tag(href.toPlainTextString(), id, section, "keyword"));
+					article.addTag(new Tag(tagName, id, section, "keyword"));
 				}
 			}
 		}

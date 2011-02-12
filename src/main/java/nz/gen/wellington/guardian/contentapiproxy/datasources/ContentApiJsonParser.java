@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
+import nz.gen.wellington.guardian.model.Section;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;

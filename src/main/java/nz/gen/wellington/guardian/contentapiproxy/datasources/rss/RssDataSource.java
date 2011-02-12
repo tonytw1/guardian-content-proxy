@@ -14,9 +14,9 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUr
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
 import nz.gen.wellington.guardian.contentapiproxy.model.SectionDateRefinement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
+import nz.gen.wellington.guardian.model.Section;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;

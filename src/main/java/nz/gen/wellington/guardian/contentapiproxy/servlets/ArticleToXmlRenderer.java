@@ -13,8 +13,8 @@ import nz.gen.wellington.guardian.contentapiproxy.model.ContentChecksumCalculato
 import nz.gen.wellington.guardian.contentapiproxy.model.MediaElement;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SectionDateRefinement;
-import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 import nz.gen.wellington.guardian.contentapiproxy.model.TagRefinement;
+import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
 

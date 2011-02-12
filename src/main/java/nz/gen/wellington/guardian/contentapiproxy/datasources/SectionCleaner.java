@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
+import nz.gen.wellington.guardian.model.Section;
 
 public class SectionCleaner {
 	

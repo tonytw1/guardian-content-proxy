@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
+import nz.gen.wellington.guardian.model.Section;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;

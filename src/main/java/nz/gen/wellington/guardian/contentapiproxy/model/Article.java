@@ -5,8 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import nz.gen.wellington.guardian.model.Section;
+import nz.gen.wellington.guardian.model.Tag;
+
 import org.joda.time.DateTime;
 
+@Deprecated
 public class Article implements Serializable {
 
 	private static final long serialVersionUID = 5L;

@@ -11,10 +11,10 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpFor
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
-import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 import nz.gen.wellington.guardian.contentapiproxy.model.TagRefinement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
+import nz.gen.wellington.guardian.model.Section;
+import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;

@@ -2,7 +2,7 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 
 import java.util.Map;
 
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
+import nz.gen.wellington.guardian.model.Section;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

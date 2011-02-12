@@ -3,11 +3,8 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 import java.util.HashMap;
 import java.util.Map;
 
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
-
-import org.junit.Test;
-
 import junit.framework.TestCase;
+import nz.gen.wellington.guardian.model.Section;
 
 public class SectionsToJSONRendererTest extends TestCase {
 	

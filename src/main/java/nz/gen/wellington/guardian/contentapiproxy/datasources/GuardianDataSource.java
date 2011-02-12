@@ -6,7 +6,7 @@ import java.util.Map;
 import nz.gen.wellington.guardian.contentapiproxy.model.Article;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.contentapiproxy.model.Section;
+import nz.gen.wellington.guardian.model.Section;
 
 public interface GuardianDataSource {
 	
