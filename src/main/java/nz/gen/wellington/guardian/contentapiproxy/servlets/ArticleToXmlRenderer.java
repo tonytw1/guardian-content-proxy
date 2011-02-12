@@ -1,6 +1,8 @@
 package nz.gen.wellington.guardian.contentapiproxy.servlets;
 
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -28,13 +30,14 @@ public class ArticleToXmlRenderer {
 	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
 	private ContentChecksumCalculator contentCheckSumCalculator;
+	private String serverName;
 	
 	@Inject
 	public ArticleToXmlRenderer(ContentChecksumCalculator contentCheckSumCalculator) {
 		this.contentCheckSumCalculator = contentCheckSumCalculator;
+		this.serverName = "3.guardian-lite.appspot.com";	// TODO how can you inject this?
 	}
-
-
+	
 	public String outputXml(List<Article> articles, String description, Map<String, List<Refinement>> refinements, boolean showAllFields) {
 		
 		XMLOutputFactory xof = XMLOutputFactory.newInstance();
@@ -179,10 +182,19 @@ public class ArticleToXmlRenderer {
 			writeFieldElement(writer, "height", mediaElement.getHeight().toString());
 		}
 		writeFieldElement(writer, "caption", mediaElement.getCaption());
-		writeFieldElement(writer, "thumbnail", mediaElement.getFile());
+		writeFieldElement(writer, "thumbnail", "http://" + serverName + "/thumb?file=" + encodeValue(mediaElement.getFile()));		
 		writer.writeEndElement();
 		
 		writer.writeEndElement();
+	}
+
+
+	private String encodeValue(String value) {
+		try {
+			return URLEncoder.encode(value, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return value;
+		}
 	}
 
 	private void writeFieldElement(XMLStreamWriter writer, String fieldname, String value) throws XMLStreamException {
