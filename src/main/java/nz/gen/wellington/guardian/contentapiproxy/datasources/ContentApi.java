@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nz.gen.wellington.guardian.contentapi.parsing.ContentApiStyleJSONParser;
 import nz.gen.wellington.guardian.contentapi.urls.ContentApiStyleUrlBuilder;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
@@ -33,10 +34,10 @@ public class ContentApi {
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type"};
 	
 	private CachingHttpFetcher httpFetcher;
-	private ContentApiJsonParser contentApiJsonParser;
+	private ContentApiStyleJSONParser contentApiJsonParser;
 	
 	@Inject
-	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiJsonParser contentApiJsonParser) {
+	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiStyleJSONParser contentApiJsonParser) {
 		this.httpFetcher = httpFetcher;
 		this.contentApiJsonParser = contentApiJsonParser;
 	}
@@ -97,20 +98,15 @@ public class ContentApi {
 		final String callUrl = urlBuilder.toSectionsQueryUrl();
 		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
 		if (content != null) {
-
-			try {
-				JSONObject json = new JSONObject(content);
-				if (json != null && contentApiJsonParser.isResponseOk(json)) {
-					Map<String, Section> sections = contentApiJsonParser.extractSections(json);
-					log.info("Found " + sections.size() + " good sections");
-					return sections;
-				}
-
-			} catch (JSONException e) {
-				log.info("JSON error while processing call url: " + callUrl);
-				return null;
-			}
-
+			
+			List<Section> sections = contentApiJsonParser.parseSectionsRequestResponse(content);
+			log.info("Found " + sections.size() + " good sections");
+			
+			Map<String, Section> sectionsMap = new HashMap<String, Section>();
+			for (Section section : sections) {
+				sectionsMap.put(section.getId(), section);
+			}				
+			return sectionsMap;
 		}
 		return null;
 	}
