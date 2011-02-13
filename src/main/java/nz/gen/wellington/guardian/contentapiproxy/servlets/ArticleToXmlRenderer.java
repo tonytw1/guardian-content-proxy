@@ -11,11 +11,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.ContentChecksumCalculator;
-import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
-import nz.gen.wellington.guardian.contentapiproxy.model.SectionDateRefinement;
-import nz.gen.wellington.guardian.contentapiproxy.model.TagRefinement;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.MediaElement;
+import nz.gen.wellington.guardian.model.Refinement;
 import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
@@ -35,7 +33,7 @@ public class ArticleToXmlRenderer {
 	@Inject
 	public ArticleToXmlRenderer(ContentChecksumCalculator contentCheckSumCalculator) {
 		this.contentCheckSumCalculator = contentCheckSumCalculator;
-		this.serverName = "3.guardian-lite.appspot.com";	// TODO how can you inject this?
+		this.serverName = "4.guardian-lite.appspot.com";	// TODO how can you inject this?
 	}
 	
 	public String outputXml(List<Article> articles, String description, Map<String, List<Refinement>> refinements, boolean showAllFields) {
@@ -76,8 +74,7 @@ public class ArticleToXmlRenderer {
 	}
 
 
-	private void writeRefinements(Map<String, List<Refinement>> refinements,
-			XMLStreamWriter writer) throws XMLStreamException {
+	private void writeRefinements(Map<String, List<Refinement>> refinements, XMLStreamWriter writer) throws XMLStreamException {
 		if (refinements != null && !refinements.isEmpty()) {
 			writer.writeStartElement("refinement-groups");
 								
@@ -87,33 +84,16 @@ public class ArticleToXmlRenderer {
 		
 				writer.writeStartElement("refinements");
 				for (Refinement refinement : refinements.get(refinementType)) {
-					
-					if (refinement instanceof TagRefinement) {						
-						final Tag refinementTag = ((TagRefinement) refinement).getTag();						
-						writer.writeStartElement("refinement");
-						writer.writeAttribute("id", refinementTag.getId());
-						writer.writeAttribute("display-name", refinementTag.getName());
-						//writer.writeAttribute("section-id", tag.getSection().getId());
-						writer.writeEndElement();
-					}
-					
-					if (refinement instanceof SectionDateRefinement) {
-						SectionDateRefinement sectionDateRefinement = (SectionDateRefinement) refinement;						
-						writer.writeStartElement("refinement");
-						writer.writeAttribute("display-name", sectionDateRefinement.getDisplayName());						
-						String refinedUrl = "http://guardian-lite.appspot.com/search&format=xml" +  
-							"&from-date=" + sectionDateRefinement.getFromDate().toString("yyyy-MM-dd") +
-							"&to-date=" + sectionDateRefinement.getToDate().toString("yyyy-MM-dd") +
-							"&section=" + sectionDateRefinement.getTag().getId();
-						
-						writer.writeAttribute("refined-url", refinedUrl);						
-						writer.writeEndElement();
-					}
+					writer.writeStartElement("refinement");
+					writer.writeAttribute("id", refinement.getId());
+					writer.writeAttribute("type", refinement.getType());
+					writer.writeAttribute("display-name", refinement.getDisplayName());
+					writer.writeAttribute("refined-url", refinement.getRefinedUrl());						
+					writer.writeEndElement();
 				}
 				writer.writeEndElement();
 				writer.writeEndElement();
-			}
-			
+			}			
 			writer.writeEndElement();						
 		}
 	}

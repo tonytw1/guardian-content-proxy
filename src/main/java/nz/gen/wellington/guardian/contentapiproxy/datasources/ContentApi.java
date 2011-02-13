@@ -9,11 +9,10 @@ import java.util.Map;
 import nz.gen.wellington.guardian.contentapi.parsing.ContentApiStyleJSONParser;
 import nz.gen.wellington.guardian.contentapi.urls.ContentApiStyleUrlBuilder;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
-import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.contentapiproxy.model.TagRefinement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 import nz.gen.wellington.guardian.model.Article;
+import nz.gen.wellington.guardian.model.Refinement;
 import nz.gen.wellington.guardian.model.Section;
 import nz.gen.wellington.guardian.model.Tag;
 
@@ -32,7 +31,7 @@ public class ContentApi {
 
 	private static Logger log = Logger.getLogger(ContentApi.class);
 	
-	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type"};
+	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type", "date"};
 	
 	private CachingHttpFetcher httpFetcher;
 	private ContentApiStyleJSONParser contentApiJsonParser;
@@ -139,13 +138,18 @@ public class ContentApi {
 		return null;
 	}
 	
-	public Map<String, List<Refinement>> getTagRefinements(Tag tag) {
+	public Map<String, List<Refinement>> getTagRefinements(Tag tag, DateTime fromDate, DateTime toDate) {
 		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
 		urlBuilder.addTag(tag);
 		urlBuilder.setShowAll(false);
 		urlBuilder.setShowRefinements(true);
-		urlBuilder.setFromDate(new DateTime().minusWeeks(2).toString("YYYY-MM-dd"));
-		urlBuilder.setFormat("json");		
+		if (fromDate != null) {
+			urlBuilder.setFromDate(fromDate.toString("YYYY-MM-dd"));
+		}
+		if (toDate != null) {
+			urlBuilder.setFromDate(toDate.toString("YYYY-MM-dd"));
+		}
+		urlBuilder.setFormat("json");	
 		final String callUrl = urlBuilder.toSearchQueryUrl();		
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
@@ -187,10 +191,12 @@ public class ContentApi {
 							for (int j = 0; j < refinementsJSON.length(); j++) {
 								JSONObject refinement = refinementsJSON.getJSONObject(j);
 								tagRefinements.add(
-										new TagRefinement(
-											new Tag(refinement.getString("displayName"), refinement.getString("id"), null, type)
-										)
-									);						
+										new Refinement(type, 
+												refinement.getString("id"), 
+												refinement.getString("displayName"), 
+												refinement.getString("refinedUrl"),
+												refinement.getInt("count"))
+								);
 							}
 						}
 						

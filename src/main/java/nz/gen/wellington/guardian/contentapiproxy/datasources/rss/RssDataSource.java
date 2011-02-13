@@ -11,16 +11,13 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
-import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.contentapiproxy.model.SectionDateRefinement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Section;
 import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -94,20 +91,6 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		return articles;
 	}
 	
-	@Override
-	public Map<String, List<Refinement>> getRefinements(SearchQuery query) {
-		log.info("Getting refinements");
-		Map<String, List<Refinement>> refinements = super.getRefinements(query);
-		if (refinements != null) {
-			if (query.isSingleTagOrSectionQuery() || query.isTagCombinerQuery()) {			
-				Tag tag = query.getTags().get(0);
-				refinements.put("date", generateDateRefinementsForTag(tag, query.getFromDate()));
-			}
-		}
-		return refinements;
-	}
-
-
 	public String getDescription() {
 		return descriptionFilter.filterOutMeaninglessDescriptions(description);
 	}
@@ -268,17 +251,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 	
 	
-	private List<Refinement> generateDateRefinementsForTag(Tag tag, DateTime fromDateTime) {
-		DateTime refinementBaseDate = new DateTime();		
-		List<Refinement> dateRefinements = new ArrayList<Refinement>();		
-		for (int i = 0; i <= 7; i++) {
-			DateTime refinementDate = refinementBaseDate.minusDays(i);
-			if (refinementDate.isBeforeNow()) {
-				dateRefinements.add(new SectionDateRefinement(tag, refinementDate.toString("d MMM yyyy"), refinementDate, refinementDate));			
-			}
-		}		
-		return dateRefinements;
-	}
+	
 	
 	
 	private void putLatestThreeStoriesOntoList(List<Article> combined, List<Article> articles, int number) {

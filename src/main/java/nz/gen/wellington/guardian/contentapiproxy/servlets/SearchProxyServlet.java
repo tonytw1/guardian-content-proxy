@@ -10,12 +10,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.DateRefinementImprover;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ContentApiDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
-import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.model.Article;
+import nz.gen.wellington.guardian.model.Refinement;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
@@ -27,21 +28,22 @@ import com.google.inject.Singleton;
 @Singleton
 public class SearchProxyServlet extends CacheAwareProxyServlet {
 	
-	static Logger log = Logger.getLogger(SearchProxyServlet.class);
+	private static Logger log = Logger.getLogger(SearchProxyServlet.class);
 		
 	private GuardianDataSource rssDataSource;
 	private GuardianDataSource contentApiDataSource;
 	private RequestQueryParser requestQueryParser;
-
 	private ArticleToXmlRenderer articleToXmlRenderer;
+	private DateRefinementImprover dateRefinementImprover;
 	
 	@Inject
-	public SearchProxyServlet(RssDataSource rssDataSource, ContentApiDataSource contentApiDataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser) {
+	public SearchProxyServlet(RssDataSource rssDataSource, ContentApiDataSource contentApiDataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser, DateRefinementImprover dateRefinementImprover) {
 		super();
 		this.rssDataSource = rssDataSource;
 		this.contentApiDataSource = contentApiDataSource;
 		this.articleToXmlRenderer = articleToXmlRenderer;
 		this.requestQueryParser = requestQueryParser;
+		this.dateRefinementImprover = dateRefinementImprover;
 	}
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -93,13 +95,25 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 
 	
 	private String getContent(SearchQuery query, GuardianDataSource datasource) {
+		log.info("getting content for query: " + query.toString());
 		List<Article> articles = datasource.getArticles(query);
 		if (articles == null) {
 			return null;
 		}
 		
 		log.info("Getting refinements");
-		Map<String, List<Refinement>> refinements = datasource.getRefinements(query);		
+		Map<String, List<Refinement>> refinements = datasource.getRefinements(query);
+		
+		if (refinements != null) {
+			refinements.remove("date");
+			if (query.isSingleTagOrSectionQuery()) {
+				List<Refinement> dateRefinements = dateRefinementImprover.generateDateRefinementsForTag(query);
+				if (dateRefinements != null) {
+					refinements.put("date", dateRefinements);
+				}
+			}
+		}
+		
 		return articleToXmlRenderer.outputXml(articles, datasource.getDescription(), refinements, query.isShowAllFields());
 	}
 	

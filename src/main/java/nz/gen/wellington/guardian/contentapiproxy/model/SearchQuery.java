@@ -3,7 +3,6 @@ package nz.gen.wellington.guardian.contentapiproxy.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import nz.gen.wellington.guardian.model.Section;
 import nz.gen.wellington.guardian.model.Tag;
 
 import org.joda.time.DateTime;
@@ -20,6 +19,8 @@ public class SearchQuery {
 	
 	public SearchQuery() {
 		tags = new ArrayList<Tag>();
+		fromDate = null;
+		toDate = null;
 	}
 
 	public List<Tag> getTags() {
@@ -87,8 +88,7 @@ public class SearchQuery {
 	}
 	
 	public boolean isSingleTagOrSectionQuery() {
-		int count = getTags().size();
-		return count <= 1;
+		return tags !=null && getTags().size() == 1;
 	}
 
 	public boolean isTopStoriesQuery() {
@@ -114,5 +114,13 @@ public class SearchQuery {
 	public void setCombinerTag(String combinerTag) {
 		this.combinerTag = combinerTag;
 	}
-		
+
+	@Override
+	public String toString() {
+		return "SearchQuery [tags=" + tags + ", combinerTag=" + combinerTag
+				+ ", showAllFields=" + showAllFields + ", showAllTags="
+				+ showAllTags + ", pageSize=" + pageSize + ", fromDate="
+				+ fromDate + ", toDate=" + toDate + "]";
+	}
+	
 }
