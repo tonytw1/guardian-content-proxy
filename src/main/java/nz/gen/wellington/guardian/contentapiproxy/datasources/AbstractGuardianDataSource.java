@@ -6,6 +6,7 @@ import java.util.Map;
 import nz.gen.wellington.guardian.contentapiproxy.model.Refinement;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.model.Section;
+import nz.gen.wellington.guardian.model.Tag;
 
 public abstract class AbstractGuardianDataSource implements GuardianDataSource {
 	
@@ -18,18 +19,14 @@ public abstract class AbstractGuardianDataSource implements GuardianDataSource {
 	}
 	
 	public Map<String, List<Refinement>> getRefinements(SearchQuery query) {
-		if (query.isSingleSectionQuery()) {			
-			String sectionId = query.getSections().get(0);
-			return getTagRefinements(sectionId + "/" + sectionId);
-			
-		} else if (query.isSingleTagQuery()) {
+		if (query.isSingleTagQuery()) {
 			return getTagRefinements(query.getTags().get(0));
 		}
 		return null;
 	}
 	
-	private Map<String, List<Refinement>> getTagRefinements(String tagId) {
-		return contentApi.getTagRefinements(tagId);
+	private Map<String, List<Refinement>> getTagRefinements(Tag tag) {
+		return contentApi.getTagRefinements(tag);
 	}
 	
 }

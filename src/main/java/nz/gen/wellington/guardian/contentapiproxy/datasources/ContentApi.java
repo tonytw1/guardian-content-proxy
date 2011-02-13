@@ -18,6 +18,7 @@ import nz.gen.wellington.guardian.model.Section;
 import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,16 +59,9 @@ public class ContentApi {
 
 		urlBuilder.setPageSize(query.getPageSize());
 		
-		// TODO do the clients really use section queries anymore?
-		if (query.getSections() != null && !query.getSections().isEmpty()) {
-			for (String sectionId : query.getSections()) {
-				urlBuilder.addSection(new Section(sectionId, sectionId));	// TODO Hmmmm		
-			}
-		}
-		
 		if (query.getTags() != null && !query.getTags().isEmpty()) {
-			for (String tagId : query.getTags()) {
-				urlBuilder.addTag(new Tag(null, tagId, null, null));	// TODO Hmmmm
+			for (Tag tag : query.getTags()) {
+				urlBuilder.addTag(tag);
 			}
 		}
 		
@@ -145,18 +139,20 @@ public class ContentApi {
 		return null;
 	}
 	
-	public Map<String, List<Refinement>> getTagRefinements(String tagId) {	// TODO pass in the tag
+	public Map<String, List<Refinement>> getTagRefinements(Tag tag) {
 		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
-		urlBuilder.addTag(new Tag(null, tagId, null, null));
+		urlBuilder.addTag(tag);
 		urlBuilder.setShowAll(false);
 		urlBuilder.setShowRefinements(true);
-		urlBuilder.setFormat("json");
+		urlBuilder.setFromDate(new DateTime().minusWeeks(2).toString("YYYY-MM-dd"));
+		urlBuilder.setFormat("json");		
 		final String callUrl = urlBuilder.toSearchQueryUrl();		
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl);
 	}
 
 	
+	// TODO Push refinements parsing to the shared class.
 	private Map<String, List<Refinement>> processRefinements(String callUrl) {
 		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
 		if (content == null) {

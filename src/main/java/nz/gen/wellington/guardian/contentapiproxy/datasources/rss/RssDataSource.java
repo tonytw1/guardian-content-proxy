@@ -17,6 +17,7 @@ import nz.gen.wellington.guardian.contentapiproxy.model.SectionDateRefinement;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Section;
+import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -85,7 +86,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 			}
 			
 		} else {
-			articles =  populateFavouriteArticles(query.getSections(), query.getTags(), query.getPageSize());
+			articles = populateFavouriteArticles(query.getTags(), query.getPageSize());
 		}		
 		if (articles == null) {
 			return null;
@@ -98,9 +99,9 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		log.info("Getting refinements");
 		Map<String, List<Refinement>> refinements = super.getRefinements(query);
 		if (refinements != null) {
-			if (query.isSingleSectionQuery() || query.isTagCombinerQuery()) {			
-				String sectionId = query.getSections().get(0);
-				refinements.put("date", generateDateRefinementsForSection(sectionId, query.getFromDate()));
+			if (query.isSingleTagOrSectionQuery() || query.isTagCombinerQuery()) {			
+				Tag tag = query.getTags().get(0);
+				refinements.put("date", generateDateRefinementsForTag(tag, query.getFromDate()));
 			}
 		}
 		return refinements;
@@ -189,31 +190,65 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		}
 	}
 	
-	@Deprecated
 	private String buildQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST);
-		if (query.getSections() != null && query.getSections().size() == 1) {
-			if (query.isTagCombinerQuery()) {
-				queryUrl.append("/" + query.getSections().get(0) + "+content/gallery");
+		log.info("Building query for: " + query.getTags().toString());
+		if (query.isSingleTagQuery()) {
+			log.info("A");
 
+			if (query.isTagCombinerQuery()) {
+				queryUrl.append("/" + query.getTags().get(0).getId() + "+content/gallery");
 			} else {
-				queryUrl.append("/" + query.getSections().get(0));
+				log.info("B");
+
+				Tag tag = query.getTags().get(0);
+				
+				String[] splits = tag.getId().split("/");
+				log.info(splits[0]);
+				log.info(splits[1]);
+
+				
+				boolean tagisSectionKeyword = splits[0].equals(splits[1]);
+				if (tagisSectionKeyword) {
+									
+					
+					log.info("C");
+
+					queryUrl.append("/" + tag.getId().split("/")[0]);
+				} else {
+					log.info("D");
+					queryUrl.append("/" + tag.getId());
+				}				
 			}
+			queryUrl.append("/rss");
+			return queryUrl.toString();
 		}
+		
 		if (query.getTags() != null && query.getTags().size() == 1) {
-			queryUrl.append("/" + query.getTags().get(0));
+			log.info("E");
+
+			Tag tag = query.getTags().get(0);
+			if (tag.isSectionKeyword()) {
+				log.info("F");
+
+				queryUrl.append("/" + tag.getId().split("/")[0]);
+			} else {
+				log.info("G");
+
+				queryUrl.append("/" + tag.getId().split("/")[0]);
+			}
 		}
 		queryUrl.append("/rss");
 		return queryUrl.toString();
 	}
 	
 	
-	private List<Article> populateFavouriteArticles(List<String> favouriteSections, List<String> favouriteTags, int size) {
-		log.info("Fetching favourites: " + favouriteSections + ", " + favouriteTags);
+	private List<Article> populateFavouriteArticles(List<Tag> favouriteTags, int size) {
+		log.info("Fetching favourites: " + favouriteTags);
 		List<Article> combined = new ArrayList<Article>();
 		
 		int numberFromEachFavourite = 3;
-		int numberOfFavourites = favouriteSections.size() + favouriteTags.size();
+		int numberOfFavourites = favouriteTags.size();
 		if (!(numberOfFavourites > 0)) {
 			return combined;
 		}
@@ -223,32 +258,23 @@ public class RssDataSource extends AbstractGuardianDataSource {
 			numberFromEachFavourite=3;
 		}
 		
-		for (String favouriteSection : favouriteSections) {
-			SearchQuery query = new SearchQuery();
-			query.setSections(Arrays.asList(favouriteSection));
-			List<Article> articles = this.fetchArticlesForQuery(query);					
-			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
-		}
-		
-		for (String favouriteTag : favouriteTags) {
+		for (Tag favouriteTag : favouriteTags) {
 			SearchQuery query = new SearchQuery();
 			query.setTags(Arrays.asList(favouriteTag));
 			List<Article> articles = this.fetchArticlesForQuery(query);					
 			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
-		}
-		
+		}		
 		return combined;
 	}
 	
 	
-	private List<Refinement> generateDateRefinementsForSection(String sectionId, DateTime fromDateTime) {
-		// TODO create date refinements here.
+	private List<Refinement> generateDateRefinementsForTag(Tag tag, DateTime fromDateTime) {
 		DateTime refinementBaseDate = new DateTime();		
 		List<Refinement> dateRefinements = new ArrayList<Refinement>();		
 		for (int i = 0; i <= 7; i++) {
 			DateTime refinementDate = refinementBaseDate.minusDays(i);
 			if (refinementDate.isBeforeNow()) {
-				dateRefinements.add(new SectionDateRefinement(sectionId, refinementDate.toString("d MMM yyyy"), refinementDate, refinementDate));			
+				dateRefinements.add(new SectionDateRefinement(tag, refinementDate.toString("d MMM yyyy"), refinementDate, refinementDate));			
 			}
 		}		
 		return dateRefinements;

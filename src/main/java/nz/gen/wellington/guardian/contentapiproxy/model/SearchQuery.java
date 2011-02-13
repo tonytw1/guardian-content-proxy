@@ -3,14 +3,14 @@ package nz.gen.wellington.guardian.contentapiproxy.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joda.time.DateTime;
+import nz.gen.wellington.guardian.model.Section;
+import nz.gen.wellington.guardian.model.Tag;
 
-import com.sun.tools.javac.resources.compiler;
+import org.joda.time.DateTime;
 
 public class SearchQuery {
 
-	private List<String> tags;
-	private List<String> sections;
+	private List<Tag> tags;
 	private String combinerTag;
 	private boolean showAllFields;	
 	private boolean showAllTags;
@@ -19,26 +19,17 @@ public class SearchQuery {
 	private DateTime toDate;
 	
 	public SearchQuery() {
-		sections = new ArrayList<String>();
-		tags = new ArrayList<String>();
+		tags = new ArrayList<Tag>();
 	}
 
-	public List<String> getTags() {
+	public List<Tag> getTags() {
 		return tags;
 	}
 
-	public void setTags(List<String> tags) {
+	public void setTags(List<Tag> tags) {
 		this.tags = tags;
 	}
 	
-	public List<String> getSections() {
-		return sections;
-	}
-
-	public void setSections(List<String> sections) {
-		this.sections = sections;
-	}
-
 	public boolean isShowAllFields() {
 		return showAllFields;
 	}
@@ -62,13 +53,9 @@ public class SearchQuery {
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
 	}
-
-	public void addSection(String sectionId) {
-		this.sections.add(sectionId);
-	}
-
-	public void addTag(String tagId) {
-		this.tags.add(tagId);
+	
+	public void addTag(Tag tag) {
+		this.tags.add(tag);
 	}
 
 	public boolean hasDateRefinement() {
@@ -92,7 +79,7 @@ public class SearchQuery {
 	}
 
 	public boolean isSingleSectionQuery() {
-		return getSections() != null && getSections().size() == 1;
+		return isSingleTagQuery() && tags.get(0).isSectionKeyword();
 	}
 	
 	public boolean isSingleTagQuery() {
@@ -100,21 +87,14 @@ public class SearchQuery {
 	}
 	
 	public boolean isSingleTagOrSectionQuery() {
-		int count = 0;
-		if (getSections() != null) {
-			count = count + getSections().size();
-		}
-		if (getTags() != null) {
-			count = count + getTags().size();
-		}
+		int count = getTags().size();
 		return count <= 1;
 	}
 
 	public boolean isTopStoriesQuery() {
 		if (getTags() != null) {
-			for (String tag : getTags()) {
-				System.out.println(tag);
-				if (!tag.matches("type/.*?")) {
+			for (Tag tag : getTags()) {
+				if (!tag.isContentTypeTag()) {
 					return false;
 				}
 			}

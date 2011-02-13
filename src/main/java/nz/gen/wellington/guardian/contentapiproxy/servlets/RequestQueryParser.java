@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
+import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
@@ -114,22 +115,9 @@ public class RequestQueryParser {
 		List<String> asList = Arrays.asList(fields);
 		log.info(asList);
 		for (String field : asList) {
-			log.info("Field: " + field);
-
-			String[] sectionAndTagIds = field.split("/");
-			String sectionId = sectionAndTagIds[0];
-			
-			if (sectionAndTagIds.length > 1) {
-				String tagId = sectionAndTagIds[1];
-				if (sectionId.equals(tagId)) {
-					query.addSection(sectionId);
-				} else {
-					query.addTag(field);
-				}
-				
-			} else {
-				query.addSection(sectionId);
-			}			
+			log.info("Field: " + field);			
+			Tag tag = new Tag(null, field, null, null);
+			query.addTag(tag);				
 		}
 	}
 	

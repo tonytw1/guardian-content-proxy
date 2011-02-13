@@ -104,7 +104,7 @@ public class ArticleToXmlRenderer {
 						String refinedUrl = "http://guardian-lite.appspot.com/search&format=xml" +  
 							"&from-date=" + sectionDateRefinement.getFromDate().toString("yyyy-MM-dd") +
 							"&to-date=" + sectionDateRefinement.getToDate().toString("yyyy-MM-dd") +
-							"&section=" + sectionDateRefinement.getSectionId();	// TODO Hack
+							"&section=" + sectionDateRefinement.getTag().getId();
 						
 						writer.writeAttribute("refined-url", refinedUrl);						
 						writer.writeEndElement();
