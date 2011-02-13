@@ -70,8 +70,8 @@ public class ContentApi {
 		if (content != null) {				
 			try {
 				JSONObject json = new JSONObject(content);
-				if (json != null && contentApiJsonParser.isResponseOk(json)) {						
-					return contentApiJsonParser.extractContentItems(json);
+				if (json != null && contentApiJsonParser.isResponseOk(json)) {
+					return contentApiJsonParser.extractContentItems(json, getSections());
 				}
 					
 			} catch (JSONException e) {
@@ -115,8 +115,8 @@ public class ContentApi {
 		if (content != null) {				
 			try {
 				JSONObject json = new JSONObject(content);
-				if (json != null && contentApiJsonParser.isResponseOk(json)) {						
-					return contentApiJsonParser.extractContentItem(json);
+				if (json != null && contentApiJsonParser.isResponseOk(json)) {			
+					return contentApiJsonParser.extractContentItem(json, getSections());
 				}
 					
 			} catch (JSONException e) {
