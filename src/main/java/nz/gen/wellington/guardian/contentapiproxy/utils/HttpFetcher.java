@@ -53,6 +53,37 @@ public abstract class HttpFetcher {
 		}
 		return null;
 	}
+	
+	
+	
+	public byte[] fetchBytes(String url) throws HttpForbiddenException {
+	
+		URLFetchService urlFetchService = (URLFetchService) URLFetchServiceFactory.getURLFetchService(); 
+		HTTPRequest httpRequest;
+		try {
+			httpRequest = new HTTPRequest(new URL(url));
+			HTTPResponse result = urlFetchService.fetch(httpRequest);
+		
+			if (result.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
+				throw new HttpForbiddenException();
+			}
+          
+			if (result.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				return result.getContent();
+
+			} else {
+				log.warn("Error response code was: " + result.getResponseCode());
+			}
+          
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return null;          
+	}
 
 
 	private String readResponseBody(String pageCharacterEncoding,
