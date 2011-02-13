@@ -1,6 +1,6 @@
-package nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi;
+package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.FreeTierContentApi;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 
 import org.apache.log4j.Logger;
 

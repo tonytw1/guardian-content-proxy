@@ -1,4 +1,4 @@
-package nz.gen.wellington.guardian.contentapiproxy.model;
+package nz.gen.wellington.guardian.contentapiproxy.utils;
 
 import java.util.List;
 

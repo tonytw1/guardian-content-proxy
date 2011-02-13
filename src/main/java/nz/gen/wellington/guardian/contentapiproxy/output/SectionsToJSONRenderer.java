@@ -1,4 +1,4 @@
-package nz.gen.wellington.guardian.contentapiproxy.servlets;
+package nz.gen.wellington.guardian.contentapiproxy.output;
 
 import java.util.Map;
 

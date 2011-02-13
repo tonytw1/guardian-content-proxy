@@ -11,13 +11,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SavedContentDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.output.ArticleToXmlRenderer;
 import nz.gen.wellington.guardian.model.Article;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 
 @SuppressWarnings("serial")
 @Singleton

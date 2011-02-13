@@ -15,6 +15,8 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ContentApiDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
+import nz.gen.wellington.guardian.contentapiproxy.output.ArticleToXmlRenderer;
+import nz.gen.wellington.guardian.contentapiproxy.requests.RequestQueryParser;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Refinement;
 

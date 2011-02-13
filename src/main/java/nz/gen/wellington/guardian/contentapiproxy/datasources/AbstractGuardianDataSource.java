@@ -12,8 +12,6 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 public abstract class AbstractGuardianDataSource implements GuardianDataSource {
-
-	private static Logger log = Logger.getLogger(AbstractGuardianDataSource.class);
 	
 	protected ContentApi contentApi;
 	protected SectionCleaner sectionCleaner;

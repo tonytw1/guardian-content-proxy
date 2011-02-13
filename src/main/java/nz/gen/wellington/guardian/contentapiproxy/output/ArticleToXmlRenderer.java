@@ -1,4 +1,4 @@
-package nz.gen.wellington.guardian.contentapiproxy.servlets;
+package nz.gen.wellington.guardian.contentapiproxy.output;
 
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -10,7 +10,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import nz.gen.wellington.guardian.contentapiproxy.model.ContentChecksumCalculator;
+import nz.gen.wellington.guardian.contentapiproxy.utils.ContentChecksumCalculator;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.MediaElement;
 import nz.gen.wellington.guardian.model.Refinement;

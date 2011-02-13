@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import nz.gen.wellington.guardian.contentapiproxy.output.SectionsToJSONRenderer;
 import nz.gen.wellington.guardian.model.Section;
 
 public class SectionsToJSONRendererTest extends TestCase {

@@ -9,8 +9,8 @@ import java.util.Map;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 import nz.gen.wellington.guardian.model.Article;
@@ -91,11 +91,13 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		return articles;
 	}
 	
+	// TODO this one's abit odd - should be part of the return for fetchArticles.
 	public String getDescription() {
 		return descriptionFilter.filterOutMeaninglessDescriptions(description);
 	}
 	
 
+	// TODO push to a service - should take the list of articles are the query.
 	private void decorateArticlesWithShortUrls(List<Article> articles) {
 		log.info("Decorating " + articles.size() + " articles with short urls");
 		for (Article article : articles) {
@@ -249,9 +251,6 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		}		
 		return combined;
 	}
-	
-	
-	
 	
 	
 	private void putLatestThreeStoriesOntoList(List<Article> combined, List<Article> articles, int number) {

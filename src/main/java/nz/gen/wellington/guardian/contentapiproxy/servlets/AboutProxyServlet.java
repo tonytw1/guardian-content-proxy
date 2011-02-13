@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AboutDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.output.ArticleToXmlRenderer;
 import nz.gen.wellington.guardian.model.Article;
 
 import org.apache.commons.codec.digest.DigestUtils;

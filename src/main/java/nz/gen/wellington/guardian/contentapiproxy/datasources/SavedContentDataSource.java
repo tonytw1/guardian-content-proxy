@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ShortUrlDAO;
 import nz.gen.wellington.guardian.model.Article;
 
 import org.apache.log4j.Logger;

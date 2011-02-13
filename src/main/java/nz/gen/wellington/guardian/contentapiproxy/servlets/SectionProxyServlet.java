@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.output.SectionsToJSONRenderer;
 import nz.gen.wellington.guardian.model.Section;
 
 import org.apache.commons.codec.digest.DigestUtils;
