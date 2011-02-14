@@ -1,6 +1,7 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +70,7 @@ public class DateRefinementImprover {
 			dayRefinements.add(dayRefinement);
 			day = day.plusDays(1);
 		}
+		Collections.reverse(dayRefinements);
 		return dayRefinements;
 	}
 
@@ -88,6 +90,7 @@ public class DateRefinementImprover {
 			monthRefinements.add(monthRefinement);
 			month = month.plusMonths(1);
 		}
+		Collections.reverse(monthRefinements);
 		return monthRefinements;
 	}
 	
