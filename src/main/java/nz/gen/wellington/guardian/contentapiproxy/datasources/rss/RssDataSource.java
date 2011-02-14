@@ -9,7 +9,7 @@ import java.util.Map;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.ShortUrlDAO;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.ShortUrlDecorator;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
@@ -36,20 +36,19 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	private RssEntryToArticleConvertor rssEntryConvertor;
 	private String description;
 	private DescriptionFilter descriptionFilter;
-	private ShortUrlDAO shortUrlDao;
 	private ArticleSectionSorter articleSectionSorter;
+	private ShortUrlDecorator shortUrlDecorator;	
 	
 	@Inject
-	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ShortUrlDAO shortUrlDao, ArticleSectionSorter articleSectionSorter, SectionCleaner sectionCleaner) {
+	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ArticleSectionSorter articleSectionSorter, SectionCleaner sectionCleaner, ShortUrlDecorator shortUrlDecorator) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
 		this.contentApi = contentApi;
 		this.descriptionFilter = descriptionFilter;
-		this.shortUrlDao = shortUrlDao;
 		this.articleSectionSorter = articleSectionSorter;
 		this.sectionCleaner = sectionCleaner;
+		this.shortUrlDecorator = shortUrlDecorator;
 	}
-	
 	
 	public boolean isSupported(SearchQuery query) {
 		return !query.hasDateRefinement();
@@ -58,8 +57,8 @@ public class RssDataSource extends AbstractGuardianDataSource {
 
 	public List<Article> getArticles(SearchQuery query) {
 		List<Article> articles = fetchArticlesForQuery(query);			
-		articles = sortAndTrimArticleList(query, articles);		
-		//decorateArticlesWithShortUrls(articles);
+		articles = sortAndTrimArticleList(query, articles);
+		shortUrlDecorator.decorateArticlesWithShortUrls(articles);
 		return articles;
 	}
 	
@@ -88,6 +87,8 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		if (articles == null) {
 			return null;
 		}
+		
+		
 		return articles;
 	}
 	
@@ -97,17 +98,6 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 	
 
-	// TODO push to a service - should take the list of articles are the query.
-	private void decorateArticlesWithShortUrls(List<Article> articles) {
-		log.info("Decorating " + articles.size() + " articles with short urls");
-		for (Article article : articles) {
-			try {
-				decorateArticleWithShortUrlIfAvailable(article);
-			} catch (HttpForbiddenException e) {
-				log.warn("Aborting short url decoration as we received a forbidden error from the api");
-			}
-		}
-	}
 
 
 	private List<Article> sortAndTrimArticleList(SearchQuery query, List<Article> articles) {
@@ -147,10 +137,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 				if (article != null && article.getSection() != null) {
 					articles.add(article);
 				}
-			}
-			
-						
-			// TODO only add short urls after trimming to size.
+			}			
 			return articles;
 			
 		} catch (IllegalArgumentException e) {
@@ -160,66 +147,38 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		}
 		return null;
 	}
-
-
-	private void decorateArticleWithShortUrlIfAvailable(Article article) throws HttpForbiddenException {
-		if (article.getId() != null) {
-			String shortUrlFor = shortUrlDao.getShortUrlFor(article.getId());
-			if (shortUrlFor != null) {
-				article.setShortUrl(shortUrlFor);
-			
-			} else if (article.getWebUrl() != null) {
-				article.setShortUrl(article.getWebUrl());
-			}
-		
-		}
-	}
+	
 	
 	private String buildQueryUrl(SearchQuery query) {
 		StringBuilder queryUrl = new StringBuilder(API_HOST);
-		log.info("Building query for: " + query.getTags().toString());
 		if (query.isSingleTagQuery()) {
-			log.info("A");
 
 			if (query.isTagCombinerQuery()) {
 				queryUrl.append("/" + query.getTags().get(0).getId() + "+content/gallery");
 			} else {
-				log.info("B");
 
 				Tag tag = query.getTags().get(0);
 				
 				String[] splits = tag.getId().split("/");
 				log.info(splits[0]);
 				log.info(splits[1]);
-
 				
 				boolean tagisSectionKeyword = splits[0].equals(splits[1]);
 				if (tagisSectionKeyword) {
-									
-					
-					log.info("C");
-
 					queryUrl.append("/" + tag.getId().split("/")[0]);
-				} else {
-					log.info("D");
+				} else {				
 					queryUrl.append("/" + tag.getId());
-				}				
+				}		
 			}
 			queryUrl.append("/rss");
 			return queryUrl.toString();
 		}
 		
 		if (query.getTags() != null && query.getTags().size() == 1) {
-			log.info("E");
-
 			Tag tag = query.getTags().get(0);
 			if (tag.isSectionKeyword()) {
-				log.info("F");
-
 				queryUrl.append("/" + tag.getId().split("/")[0]);
 			} else {
-				log.info("G");
-
 				queryUrl.append("/" + tag.getId().split("/")[0]);
 			}
 		}

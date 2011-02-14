@@ -97,7 +97,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 
 	
 	private String getContent(SearchQuery query, GuardianDataSource datasource) {
-		log.info("getting content for query: " + query.toString());
+		log.info("Getting content for query: " + query.toString());
 		List<Article> articles = datasource.getArticles(query);
 		if (articles == null) {
 			return null;
