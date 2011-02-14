@@ -59,7 +59,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	public ArticleBundle getArticles(SearchQuery query) {
 		List<Article> articles = fetchArticlesForQuery(query);			
 		articles = sortAndTrimArticleList(query, articles);
-		shortUrlDecorator.decorateArticlesWithShortUrls(articles);
+		//shortUrlDecorator.decorateArticlesWithShortUrls(articles);
 		return new ArticleBundle(articles,  descriptionFilter.filterOutMeaninglessDescriptions(description));
 	}
 	

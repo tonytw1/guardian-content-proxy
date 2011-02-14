@@ -48,17 +48,35 @@ public class DateRefinementImprover {
 		} else if (yearDateRefinementGiven) {
 			return createMonthDateRefinementsForTagAndYear(tag, fromDate);
 		} else if (monthDateRefinementGiven) {
-			return createDayDateRefinementsForTagAndYear(tag, fromDate);
+			return createWeekDateRefinementsForTagAndMonth(tag, fromDate);
+		} else {
+			return createDayDateRefinementsForTagAndWeek(tag, fromDate, toDate);
 		}
-		
-		return null;
 	}
+	
+	private List<Refinement> createWeekDateRefinementsForTagAndMonth(Tag tag, DateTime fromDate) {
+		DateTime week = new DateTime(fromDate);		
+		List<Refinement> weekRefinements = new ArrayList<Refinement>();
+		while (week.isBefore(fromDate.plusMonths(1))) {
+			String id = "date/weekof/" + week.toString("YYYY-MM-dd");			
+			final String refinedUrl = "http://4.guardian-lite.appspot.com/search&format=xml" +  
+				"&from-date=" + week.toString("yyyy-MM-dd") + 
+				"&to-date=" + week.plusWeeks(1).minusDays(1).toString("yyyy-MM-dd") +
+				"&tag=" + tag.getId();			
+			Refinement weekRefinement = new Refinement("date", id, "Week beginning " + week.toString("dd MMM YYYY"), refinedUrl, 1);
+			log.debug("Adding week refinement: " + weekRefinement.getDisplayName());
+			weekRefinements.add(weekRefinement);
+			week = week.plusWeeks(1);
+		}
+		Collections.reverse(weekRefinements);
+		return weekRefinements;
+	}
+	
 
-
-	private List<Refinement> createDayDateRefinementsForTagAndYear(Tag tag, DateTime fromDate) {
+	private List<Refinement> createDayDateRefinementsForTagAndWeek(Tag tag, DateTime fromDate, DateTime toDate) {
 		DateTime day = new DateTime(fromDate);
 		List<Refinement> dayRefinements = new ArrayList<Refinement>();
-		while (day.isBefore(fromDate.plusMonths(1))) {
+		while (!day.isAfter(toDate)) {
 			String id = "date/" + day.toString("YYYY-MM-dd");			
 			String refinedUrl = "http://4.guardian-lite.appspot.com/search&format=xml" +  
 				"&from-date=" + day.toString("yyyy-MM-dd") +
