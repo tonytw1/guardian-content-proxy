@@ -28,13 +28,15 @@ public class ContentApi {
 	
 	public static final String API_HOST = "http://content.guardianapis.com";
 	public static final String API_KEY = "";
+	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type", "date"};
 
 	private static Logger log = Logger.getLogger(ContentApi.class);
 	
-	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type", "date"};
 	
 	private CachingHttpFetcher httpFetcher;
 	private ContentApiStyleJSONParser contentApiJsonParser;
+
+	private Map<String, Section>  sectionsMap;
 	
 	@Inject
 	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiStyleJSONParser contentApiJsonParser) {
@@ -85,20 +87,24 @@ public class ContentApi {
 	
 	
 	public Map<String, Section> getSections() {
-		log.info("Fetching section list from free tier content api");
+		if (sectionsMap != null) {
+			return sectionsMap;	// TODO put into the cache proper, so that it has a finite TTL
+		}
+		
+		log.info("Fetching section list from content api");
 		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
 		urlBuilder.setFormat("json");
 		final String callUrl = urlBuilder.toSectionsQueryUrl();
 		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
-		if (content != null) {
-			
+		if (content != null) {			
 			List<Section> sections = contentApiJsonParser.parseSectionsRequestResponse(content);
 			log.info("Found " + sections.size() + " good sections");
 			
 			Map<String, Section> sectionsMap = new HashMap<String, Section>();
 			for (Section section : sections) {
 				sectionsMap.put(section.getId(), section);
-			}				
+			}
+			this.sectionsMap = sectionsMap;
 			return sectionsMap;
 		}
 		return null;
