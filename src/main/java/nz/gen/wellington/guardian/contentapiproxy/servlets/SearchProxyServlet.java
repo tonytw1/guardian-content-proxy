@@ -14,10 +14,10 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.DateRefinementImpr
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ContentApiDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.model.ArticleBundle;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.output.ArticleToXmlRenderer;
 import nz.gen.wellington.guardian.contentapiproxy.requests.RequestQueryParser;
-import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Refinement;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -98,8 +98,8 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	
 	private String getContent(SearchQuery query, GuardianDataSource datasource) {
 		log.info("Getting content for query: " + query.toString());
-		List<Article> articles = datasource.getArticles(query);
-		if (articles == null) {
+		ArticleBundle articleBundle = datasource.getArticles(query);
+		if (articleBundle == null || articleBundle.getArticles() == null) {
 			return null;
 		}
 		
@@ -116,7 +116,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 			}
 		}
 		
-		return articleToXmlRenderer.outputXml(articles, datasource.getDescription(), refinements, query.isShowAllFields());
+		return articleToXmlRenderer.outputXml(articleBundle.getArticles(), articleBundle.getDescription(), refinements, query.isShowAllFields());
 	}
 	
 }

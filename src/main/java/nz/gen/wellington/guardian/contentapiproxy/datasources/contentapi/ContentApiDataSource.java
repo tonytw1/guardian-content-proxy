@@ -1,12 +1,10 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi;
 
-import java.util.List;
-
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
+import nz.gen.wellington.guardian.contentapiproxy.model.ArticleBundle;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.model.Article;
 
 import com.google.inject.Inject;
 
@@ -18,13 +16,8 @@ public class ContentApiDataSource extends AbstractGuardianDataSource {
 		this.sectionCleaner = sectionCleaner;
 	}
 
-	public List<Article> getArticles(SearchQuery query) {
-		return contentApi.getArticles(query);
-	}
-
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+	public ArticleBundle getArticles(SearchQuery query) {
+		return new ArticleBundle(contentApi.getArticles(query));
 	}
 	
 	public boolean isSupported(SearchQuery query) {

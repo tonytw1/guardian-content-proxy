@@ -11,6 +11,7 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ShortUrlDecorator;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
+import nz.gen.wellington.guardian.contentapiproxy.model.ArticleBundle;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 import nz.gen.wellington.guardian.model.Article;
@@ -55,11 +56,11 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 
 
-	public List<Article> getArticles(SearchQuery query) {
+	public ArticleBundle getArticles(SearchQuery query) {
 		List<Article> articles = fetchArticlesForQuery(query);			
 		articles = sortAndTrimArticleList(query, articles);
 		shortUrlDecorator.decorateArticlesWithShortUrls(articles);
-		return articles;
+		return new ArticleBundle(articles,  descriptionFilter.filterOutMeaninglessDescriptions(description));
 	}
 	
 	
@@ -92,14 +93,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		return articles;
 	}
 	
-	// TODO this one's abit odd - should be part of the return for fetchArticles.
-	public String getDescription() {
-		return descriptionFilter.filterOutMeaninglessDescriptions(description);
-	}
 	
-
-
-
 	private List<Article> sortAndTrimArticleList(SearchQuery query, List<Article> articles) {
 		articles = articleSectionSorter.sort(articles);		
 		int pageSize = query.getPageSize() != null ? query.getPageSize() : DEFAULT_PAGE_SIZE;
@@ -116,7 +110,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		try {
 			SyndFeed feed = input.build(new StringReader(content));
 				
-			description = feed.getDescription();
+			description = feed.getDescription();	// TODO not thread safe
 			
 			List<Article> articles = new ArrayList<Article>();
 			

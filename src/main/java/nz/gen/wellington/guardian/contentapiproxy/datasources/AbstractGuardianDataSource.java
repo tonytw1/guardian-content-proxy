@@ -8,7 +8,6 @@ import nz.gen.wellington.guardian.model.Refinement;
 import nz.gen.wellington.guardian.model.Section;
 import nz.gen.wellington.guardian.model.Tag;
 
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 public abstract class AbstractGuardianDataSource implements GuardianDataSource {
