@@ -18,6 +18,7 @@ import nz.gen.wellington.guardian.contentapiproxy.model.Tag;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -79,6 +80,13 @@ public class RssDataSource implements GuardianDataSource {
 				
 		articles = sortAndTrimArticleList(query, articles);		
 		decorateArticlesWithShortUrls(articles);
+		
+		Article warning = new Article();
+		warning.setHeadline("Guardian Lite - You are using an out of date version");
+		warning.setStandfirst("You are using an out of date version of this application. The article feed may be turned off " +
+				"at some point in the future. Please consider updating to a more recent version using the Android Market.");
+		warning.setPubDate(new DateTime());
+		articles.add(0, warning);
 		return articles;
 	}
 
