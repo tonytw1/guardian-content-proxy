@@ -31,6 +31,7 @@ public class TagsProxyServlet extends UrlBasedCachedRequest {
 		try {
 			return httpFetcher.fetchContent(queryUrl, "UTF-8");
 		} catch (HttpForbiddenException e) {
+			log.info("HttpForbiddenException received while fetching: " + queryUrl);
 			return null;
 		}
 	}
