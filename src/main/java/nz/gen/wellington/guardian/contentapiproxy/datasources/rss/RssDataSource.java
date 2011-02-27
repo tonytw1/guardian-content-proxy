@@ -88,8 +88,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		if (articles == null) {
 			return null;
 		}
-		
-		
+				
 		return articles;
 	}
 	
@@ -105,7 +104,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 	
 	
-	private List<Article> extractArticlesFromRss(final String content) {
+	private List<Article> extractArticlesFromRss(final String content) {		// TODO return article bundle to make description handling thread safe
 		SyndFeedInput input = new SyndFeedInput();		
 		try {
 			SyndFeed feed = input.build(new StringReader(content));
@@ -129,9 +128,15 @@ public class RssDataSource extends AbstractGuardianDataSource {
 				Article article = rssEntryConvertor.entryToArticle(item, sections);
 				
 				if (article != null && article.getSection() != null) {
-					articles.add(article);
+					articles.add(article);					
+				} else {
+					if (article == null) {
+						log.warn("Ignoring feed item which gave null article: " + item.getTitle());
+					} else if (article.getSection() == null) {
+						log.warn("Ignoring feed item which gave article with null section: " + item.getTitle());
+					}
 				}
-			}			
+			}
 			return articles;
 			
 		} catch (IllegalArgumentException e) {
