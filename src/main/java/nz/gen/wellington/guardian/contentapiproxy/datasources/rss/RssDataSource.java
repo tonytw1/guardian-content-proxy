@@ -35,7 +35,6 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	
 	private CachingHttpFetcher httpFetcher;
 	private RssEntryToArticleConvertor rssEntryConvertor;
-	private String description;
 	private DescriptionFilter descriptionFilter;
 	private ArticleSectionSorter articleSectionSorter;
 	private ShortUrlDecorator shortUrlDecorator;	
@@ -57,15 +56,17 @@ public class RssDataSource extends AbstractGuardianDataSource {
 
 
 	public ArticleBundle getArticles(SearchQuery query) {
-		List<Article> articles = fetchArticlesForQuery(query);			
-		articles = sortAndTrimArticleList(query, articles);
-		//shortUrlDecorator.decorateArticlesWithShortUrls(articles);
-		return new ArticleBundle(articles,  descriptionFilter.filterOutMeaninglessDescriptions(description));
+		ArticleBundle rawArticleBundle = fetchArticlesForQuery(query);
+		if (rawArticleBundle != null) {
+			//shortUrlDecorator.decorateArticlesWithShortUrls(articles);
+			return new ArticleBundle(sortAndTrimArticleList(query, rawArticleBundle.getArticles()), rawArticleBundle.getDescription());
+		}
+		return null;
 	}
 	
 	
-	private List<Article> fetchArticlesForQuery(SearchQuery query) {
-		List<Article> articles = new ArrayList<Article>();
+	private ArticleBundle fetchArticlesForQuery(SearchQuery query) {
+		ArticleBundle articleBundle = null;
 		if (query.isSingleTagOrSectionQuery() || query.isTopStoriesQuery() || query.isTagCombinerQuery()) {
 			String callUrl = buildQueryUrl(query);
 			log.info("Fetching articles from: " + callUrl);
@@ -77,19 +78,15 @@ public class RssDataSource extends AbstractGuardianDataSource {
 			}
 			
 			if (content != null) {
-				articles = extractArticlesFromRss(content);			
+				articleBundle = extractArticlesFromRss(content);			
 			} else {
 				log.warn("Failed to fetch content from: " + callUrl);		
 			}
 			
 		} else {
-			articles = populateFavouriteArticles(query.getTags(), query.getPageSize());
-		}		
-		if (articles == null) {
-			return null;
-		}
-				
-		return articles;
+			articleBundle = populateFavouriteArticles(query.getTags(), query.getPageSize());
+		}				
+		return articleBundle;
 	}
 	
 	
@@ -104,15 +101,12 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 	
 	
-	private List<Article> extractArticlesFromRss(final String content) {		// TODO return article bundle to make description handling thread safe
+	private ArticleBundle extractArticlesFromRss(final String content) {		// TODO return article bundle to make description handling thread safe
 		SyndFeedInput input = new SyndFeedInput();		
 		try {
 			SyndFeed feed = input.build(new StringReader(content));
 				
-			description = feed.getDescription();	// TODO not thread safe
-			
-			List<Article> articles = new ArrayList<Article>();
-			
+						
 			@SuppressWarnings("unchecked")
 			List<SyndEntry> entries = feed.getEntries();
 			log.info("Found " + entries.size() + " content items");
@@ -123,6 +117,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 				return null;
 			}
 			
+			List<Article> articles = new ArrayList<Article>();
 			for (int i = 0; i < entries.size(); i++) {
 				SyndEntry item = entries.get(i);
 				Article article = rssEntryConvertor.entryToArticle(item, sections);
@@ -137,7 +132,9 @@ public class RssDataSource extends AbstractGuardianDataSource {
 					}
 				}
 			}
-			return articles;
+			
+			final String description = descriptionFilter.filterOutMeaninglessDescriptions(feed.getDescription());
+			return new ArticleBundle(articles, description);
 			
 		} catch (IllegalArgumentException e) {
 			log.error(e.getMessage());
@@ -186,14 +183,14 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 	
 	
-	private List<Article> populateFavouriteArticles(List<Tag> favouriteTags, int size) {
+	private ArticleBundle populateFavouriteArticles(List<Tag> favouriteTags, int size) {
 		log.info("Fetching favourites: " + favouriteTags);
 		List<Article> combined = new ArrayList<Article>();
 		
 		int numberFromEachFavourite = 3;
 		int numberOfFavourites = favouriteTags.size();
 		if (!(numberOfFavourites > 0)) {
-			return combined;
+			return null;
 		}
 				
 		numberFromEachFavourite = (size / numberOfFavourites) + 1;
@@ -204,10 +201,11 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		for (Tag favouriteTag : favouriteTags) {
 			SearchQuery query = new SearchQuery();
 			query.setTags(Arrays.asList(favouriteTag));
-			List<Article> articles = this.fetchArticlesForQuery(query);					
-			putLatestThreeStoriesOntoList(combined, articles, numberFromEachFavourite);
-		}		
-		return combined;
+			ArticleBundle favouriteTagsArticles = this.fetchArticlesForQuery(query);					
+			putLatestThreeStoriesOntoList(combined, favouriteTagsArticles.getArticles(), numberFromEachFavourite);
+		}
+		
+		return new ArticleBundle(combined);
 	}
 	
 	
