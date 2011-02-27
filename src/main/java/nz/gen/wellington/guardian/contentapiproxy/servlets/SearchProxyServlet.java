@@ -58,33 +58,23 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
             datasources.add(rssDataSource);
             datasources.add(contentApiDataSource);
             
+            final String queryCacheKey = getQueryCacheKey(request);
+            String output = cacheGet(queryCacheKey);
+            if (output != null) {
+            	log.info("Returning cached results for call url: " + queryCacheKey);
+            	outputResponse(response, output);
+            	return;
+            }
+            
+            
 			for (GuardianDataSource dataSource : datasources) {
 
 				if (dataSource.isSupported(query)) {
-
-					final String queryCacheKey = getQueryCacheKey(request);
-					String output = cacheGet(queryCacheKey);
+					log.info("Building result for call: " + queryCacheKey);
+					output = getContent(query, dataSource);
 					if (output != null) {
-						log.info("Returning cached results for call url: " + queryCacheKey);
-					}
-					
-					if (output == null) {
-						log.info("Building result for call: " + queryCacheKey);
-						output = getContent(query, dataSource);
-						if (output != null) {
-							cacheContent(queryCacheKey, output);
-						}
-					}
-
-					if (output != null) {
-						log.info("Outputing content: " + output.length() + " characters");
-						response.setStatus(HttpServletResponse.SC_OK);
-						response.setContentType("text/xml");
-						response.setCharacterEncoding("UTF-8");
-						response.addHeader("Etag", DigestUtils.md5Hex(output));
-						PrintWriter writer = response.getWriter();
-						writer.print(output);
-						writer.flush();
+						cacheContent(queryCacheKey, output);
+						outputResponse(response, output);
 						return;
 					}
 				}
@@ -92,6 +82,19 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 		}
 		
 		response.setStatus(HttpServletResponse.SC_NOT_FOUND);				
+		return;
+	}
+
+	private void outputResponse(HttpServletResponse response, String output)
+			throws IOException {
+		log.info("Outputing content: " + output.length() + " characters");
+		response.setStatus(HttpServletResponse.SC_OK);
+		response.setContentType("text/xml");
+		response.setCharacterEncoding("UTF-8");
+		response.addHeader("Etag", DigestUtils.md5Hex(output));
+		PrintWriter writer = response.getWriter();
+		writer.print(output);
+		writer.flush();
 		return;
 	}
 
