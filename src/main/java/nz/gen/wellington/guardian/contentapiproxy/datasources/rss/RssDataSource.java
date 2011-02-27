@@ -37,7 +37,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	private RssEntryToArticleConvertor rssEntryConvertor;
 	private DescriptionFilter descriptionFilter;
 	private ArticleSectionSorter articleSectionSorter;
-	private ShortUrlDecorator shortUrlDecorator;	
+	private ShortUrlDecorator shortUrlDecorator;
 	
 	@Inject
 	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ArticleSectionSorter articleSectionSorter, SectionCleaner sectionCleaner, ShortUrlDecorator shortUrlDecorator) {
@@ -122,14 +122,10 @@ public class RssDataSource extends AbstractGuardianDataSource {
 				SyndEntry item = entries.get(i);
 				Article article = rssEntryConvertor.entryToArticle(item, sections);
 				
-				if (article != null && article.getSection() != null) {
-					articles.add(article);					
+				if (article != null) {
+					articles.add(article);
 				} else {
-					if (article == null) {
-						log.warn("Ignoring feed item which gave null article: " + item.getTitle());
-					} else if (article.getSection() == null) {
-						log.warn("Ignoring feed item which gave article with null section: " + item.getTitle());
-					}
+					log.warn("Ignoring feed item which gave null article: " + item.getTitle());
 				}
 			}
 			
@@ -152,13 +148,8 @@ public class RssDataSource extends AbstractGuardianDataSource {
 			if (query.isTagCombinerQuery()) {
 				queryUrl.append("/" + query.getTags().get(0).getId() + "+content/gallery");
 			} else {
-
-				Tag tag = query.getTags().get(0);
-				
-				String[] splits = tag.getId().split("/");
-				log.info(splits[0]);
-				log.info(splits[1]);
-				
+				Tag tag = query.getTags().get(0);				
+				String[] splits = tag.getId().split("/");	
 				boolean tagisSectionKeyword = splits[0].equals(splits[1]);
 				if (tagisSectionKeyword) {
 					queryUrl.append("/" + tag.getId().split("/")[0]);

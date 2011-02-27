@@ -12,7 +12,7 @@ import nz.gen.wellington.guardian.model.Section;
 
 public class SectionCleaner {
 	
-	private List<String> BAD_SECTIONS_IDS = Arrays.asList("community", "crosswords", "extra", "help", "info", "local", "theguardian", "theobserver", "news", "weather");
+	private List<String> BAD_SECTIONS_IDS = Arrays.asList("community", "crosswords", "extra", "help", "info", "local", "news", "weather");
 
 	private HtmlCleaner htmlCleaner;
 	

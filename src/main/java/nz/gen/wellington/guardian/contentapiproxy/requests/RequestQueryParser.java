@@ -113,7 +113,6 @@ public class RequestQueryParser {
 		log.info("Parameter: " + parameter);
 		String[] fields = parameter.split("\\|");
 		List<String> asList = Arrays.asList(fields);
-		log.info(asList);
 		for (String field : asList) {
 			log.info("Field: " + field);			
 			Tag tag = new Tag(null, field, null, null);

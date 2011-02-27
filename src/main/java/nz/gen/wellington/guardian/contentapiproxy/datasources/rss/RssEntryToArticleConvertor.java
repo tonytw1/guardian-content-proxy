@@ -40,8 +40,7 @@ public class RssEntryToArticleConvertor {
 		this.htmlCleaner = htmlCleaner;
 	}
 	
-	public Article entryToArticle(SyndEntry item, Map<String, Section> sections) {
-		
+	public Article entryToArticle(SyndEntry item, Map<String, Section> sections) {		
 		DCModule dcModule = (DCModule) item.getModule("http://purl.org/dc/elements/1.1/");
 		if (dcModule == null || dcModule.getType() == null || !(dcModule.getType().equals("Article") || dcModule.getType().equals("Gallery"))) {
 			return null;
@@ -56,9 +55,7 @@ public class RssEntryToArticleConvertor {
 		article.setPubDate(item.getPublishedDate());
 		article.setByline(htmlCleaner.stripHtml(item.getAuthor()));
 
-		if (dcModule != null) {
-			setSectionFromDCSubject(dcModule, article, sections);
-		}
+		setSectionFromDCSubject(dcModule, article, sections);
 		
 		final String description = item.getDescription().getValue();
 		processBody(description, article, sections);
@@ -70,10 +67,16 @@ public class RssEntryToArticleConvertor {
 			article.addTag(new Tag("Gallery", "type/gallery", null, "type"));
 		}
 				
-		if (article.getPubDate() != null && article.getSection() != null) {
-			return article;
+		if (article.getPubDate() == null) {
+			log.warn("Dropping article with null publication date: " + item.getTitle());
+			return null;
 		}
-		return null;
+		
+		if (article.getSection() == null) {
+			log.warn("Dropping article with null section: " + item.getTitle());
+			return null;
+		}
+		return article;
 	}
 
 
@@ -215,25 +218,26 @@ public class RssEntryToArticleConvertor {
 
 	
 	private void setSectionFromDCSubject(DCModule dcModule, Article article, Map<String, Section> sections) {
-		String sectionName = dcModule.getSubject().getValue();
+		String sectionName = htmlCleaner.stripHtml(dcModule.getSubject().getValue());
+		log.debug("Looking for article section of name: " + sectionName);
 		article.setSection(getSectionByName(sections, sectionName));
 	}
-
-
+	
+	
 	private Section getSectionByName(Map<String, Section> sections, String sectionName) {
 		if (sections == null) {
+			log.warn("Could not resolve section as sections map is null");
 			return null;
 		}
+		
 		for (String sectionId : sections.keySet()) {
 			Section section = sections.get(sectionId);
-			if (section != null) {
-				if (section.getName().equals(sectionName)) {
-					return section;
-				}
-			} else {
-				log.warn("Article has an unknown section id: " + sectionId);
+			if (section.getName().equals(sectionName)) {
+				log.debug("Found section: " + section.getName() + " (" + section.getId() + ")");
+				return section;
 			}
 		}
+		log.warn("Article has an unknown section name: " + sectionName);
 		return null;
 	}
 	
