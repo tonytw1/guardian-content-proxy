@@ -63,8 +63,8 @@ public class DateRefinementImprover {
 			final String refinedUrl = "http://4.guardian-lite.appspot.com/search&format=xml" +  
 				"&from-date=" + week.toString("yyyy-MM-dd") + 
 				"&to-date=" + week.plusWeeks(1).minusDays(1).toString("yyyy-MM-dd") +
-				"&tag=" + tag.getId();			
-						
+				"&tag=" + tag.getId();
+			
 			int count = getRefinementCountForTagDateRange(query, week, week.plusWeeks(1));
 			if (count > 0) {
 				Refinement weekRefinement = createRefinementForWeek(week, id, refinedUrl, count);
@@ -76,9 +76,7 @@ public class DateRefinementImprover {
 		Collections.reverse(weekRefinements);
 		return weekRefinements;
 	}
-
 	
-
 	private List<Refinement> createDayDateRefinementsForTagAndWeek(SearchQuery query, Tag tag, DateTime fromDate, DateTime toDate) {
 		DateTime day = new DateTime(fromDate);
 		List<Refinement> dayRefinements = new ArrayList<Refinement>();
@@ -141,13 +139,12 @@ public class DateRefinementImprover {
 		return null;
 	}
 	
-	
 	private int getRefinementCountForTagDateRange(SearchQuery query, DateTime fromDate, DateTime toDate) {
-		query.setFromDate(fromDate);	// TODO do this on a copy!
-		query.setToDate(toDate);
-		return contentApi.getArticleCount(query);		
+		SearchQuery dateRefinementQuery = new SearchQuery(query);
+		dateRefinementQuery.setFromDate(fromDate);
+		dateRefinementQuery.setToDate(toDate);
+		return contentApi.getArticleCount(dateRefinementQuery);
 	}
-
 	
 	private Refinement createRefinementForMonth(DateTime month, String id, String refinedUrl, int count) {
 		return new Refinement("date", id, month.toString("MMM YYYY"), refinedUrl, count);

@@ -23,6 +23,16 @@ public class SearchQuery {
 		toDate = null;
 	}
 
+	public SearchQuery(SearchQuery query) {
+		this.tags = query.getTags();
+		this.combinerTag = query.getCombinerTag();
+		this.showAllFields = query.isShowAllFields();
+		this.showAllTags = query.isShowAllFields();
+		this.pageSize = query.getPageSize();
+		this.fromDate = query.getFromDate();
+		this.toDate = query.getToDate();
+	}
+	
 	public List<Tag> getTags() {
 		return tags;
 	}

@@ -64,8 +64,11 @@ public class ContentApi {
 	}
 	
 	
-	public int getArticleCount(SearchQuery query) {
-		final String content = getJSONContentForArticleQuery(query);
+	public int getArticleCount(SearchQuery query) {		
+		SearchQuery articleCountQuery = new SearchQuery(query);
+		articleCountQuery.setPageSize(1);
+		articleCountQuery.setShowAllFields(false);
+		final String content = getJSONContentForArticleQuery(articleCountQuery);
 		if (content != null) {				
 			try {
 				JSONObject json = new JSONObject(content);
