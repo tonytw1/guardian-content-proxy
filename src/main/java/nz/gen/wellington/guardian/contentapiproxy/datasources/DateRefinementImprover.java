@@ -65,7 +65,7 @@ public class DateRefinementImprover {
 				"&to-date=" + week.plusWeeks(1).minusDays(1).toString("yyyy-MM-dd") +
 				"&tag=" + tag.getId();			
 						
-			int count = getRefinementCountForTagDateRange(query, fromDate, fromDate.plusWeeks(1));
+			int count = getRefinementCountForTagDateRange(query, week, week.plusWeeks(1));
 			if (count > 0) {
 				Refinement weekRefinement = createRefinementForWeek(week, id, refinedUrl, count);
 				log.debug("Adding week refinement: " + weekRefinement.getDisplayName());
@@ -89,7 +89,7 @@ public class DateRefinementImprover {
 				"&to-date=" + day.toString("yyyy-MM-dd") + 
 				"&tag=" + tag.getId();
 
-			int count = getRefinementCountForTagDateRange(query, fromDate, toDate);
+			int count = getRefinementCountForTagDateRange(query, day, day);
 			if (count > 0) {
 				Refinement dayRefinement = createRefinementForDay(day, id, refinedUrl, count);
 				log.debug("Adding month refinement: " + dayRefinement.getDisplayName());
@@ -113,7 +113,7 @@ public class DateRefinementImprover {
 				"&to-date=" + month.plusMonths(1).minusDays(1).toString("yyyy-MM-dd") +
 				"&tag=" + tag.getId();
 			
-			int count = getRefinementCountForTagDateRange(query, fromDate, fromDate.plusMonths(1));
+			int count = getRefinementCountForTagDateRange(query, month, month.plusMonths(1));
 			if (count > 0) {
 				Refinement monthRefinement = createRefinementForMonth(month, id, refinedUrl, count);
 				log.debug("Adding month refinement: " + monthRefinement.getDisplayName());
@@ -145,11 +145,7 @@ public class DateRefinementImprover {
 	private int getRefinementCountForTagDateRange(SearchQuery query, DateTime fromDate, DateTime toDate) {
 		query.setFromDate(fromDate);	// TODO do this on a copy!
 		query.setToDate(toDate);
-		List<Article> articles = contentApi.getArticles(query);	// TODO need a count only query method.
-		if (articles != null) {
-			return articles.size();
-		}
-		return 0;
+		return contentApi.getArticleCount(query);		
 	}
 
 	
