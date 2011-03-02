@@ -45,9 +45,45 @@ public class ContentApi {
 	}
 	
 	
-	public List<Article> getArticles(SearchQuery query) {
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
-		
+	public List<Article> getArticles(SearchQuery query) {			
+		final String content = getJSONContentForArticleQuery(query);			
+		if (content != null) {				
+			try {
+				JSONObject json = new JSONObject(content);
+				if (json != null && contentApiJsonParser.isResponseOk(json)) {
+					return contentApiJsonParser.extractContentItems(json, getSections());
+				}
+					
+			} catch (JSONException e) {
+				log.info("JSON error while parsing response", e);
+				log.info(e);
+				return null;
+			}
+		}		
+		return null;
+	}
+	
+	
+	public int getArticleCount(SearchQuery query) {
+		final String content = getJSONContentForArticleQuery(query);			
+		if (content != null) {				
+			try {
+				JSONObject json = new JSONObject(content);
+				if (json != null && contentApiJsonParser.isResponseOk(json)) {
+					return contentApiJsonParser.extractContentItemsCount(json);
+				}					
+			} catch (JSONException e) {
+				log.info("JSON error while parsing response", e);
+				log.info(e);
+				return 0;
+			}
+		}
+		return 0;
+	}
+	
+	
+	private String getJSONContentForArticleQuery(SearchQuery query) {
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);		
 		urlBuilder.setFormat("json");
 		urlBuilder.setShowAll(query.isShowAllFields());
 		
@@ -57,7 +93,7 @@ public class ContentApi {
 		if (query.getToDate() != null) {
 			urlBuilder.setToDate(query.getToDate().toString("yyyy-MM-dd"));
 		}
-
+		
 		urlBuilder.setPageSize(query.getPageSize());
 		
 		if (query.getTags() != null && !query.getTags().isEmpty()) {
@@ -67,22 +103,7 @@ public class ContentApi {
 		}
 		
 		final String callUrl = urlBuilder.toSearchQueryUrl();
-		String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
-		
-		if (content != null) {				
-			try {
-				JSONObject json = new JSONObject(content);
-				if (json != null && contentApiJsonParser.isResponseOk(json)) {
-					return contentApiJsonParser.extractContentItems(json, getSections());
-				}
-					
-			} catch (JSONException e) {
-				log.info("JSON error while processing call url: " + callUrl);
-				log.info(e);
-				return null;
-			}				
-		}		
-		return null;
+		return getContentFromUrlSuppressingHttpExceptions(callUrl);
 	}
 	
 	

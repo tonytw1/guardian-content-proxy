@@ -110,6 +110,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 		Map<String, List<Refinement>> refinements = datasource.getRefinements(query);
 		
 		if (refinements != null) {
+			log.info("'Improving' the date refinements");
 			refinements.remove("date");
 			if (query.isSingleTagOrSectionQuery()) {
 				List<Refinement> dateRefinements = dateRefinementImprover.generateDateRefinementsForTag(query);

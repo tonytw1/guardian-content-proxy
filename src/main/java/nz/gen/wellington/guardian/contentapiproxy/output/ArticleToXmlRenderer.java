@@ -36,8 +36,7 @@ public class ArticleToXmlRenderer {
 		this.serverName = "4.guardian-lite.appspot.com";	// TODO how can you inject this?
 	}
 	
-	public String outputXml(List<Article> articles, String description, Map<String, List<Refinement>> refinements, boolean showAllFields) {
-		
+	public String outputXml(List<Article> articles, String description, Map<String, List<Refinement>> refinements, boolean showAllFields) {		
 		XMLOutputFactory xof = XMLOutputFactory.newInstance();
 		StringWriter output = new StringWriter();
 		XMLStreamWriter writer;
@@ -88,7 +87,8 @@ public class ArticleToXmlRenderer {
 					writer.writeAttribute("id", refinement.getId());
 					writer.writeAttribute("type", refinement.getType());
 					writer.writeAttribute("display-name", refinement.getDisplayName());
-					writer.writeAttribute("refined-url", refinement.getRefinedUrl());						
+					writer.writeAttribute("refined-url", refinement.getRefinedUrl());
+					writer.writeAttribute("count", Integer.toString(refinement.getCount()));
 					writer.writeEndElement();
 				}
 				writer.writeEndElement();

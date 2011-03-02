@@ -211,11 +211,9 @@ public class RssEntryToArticleConvertor {
 					article.addTag(new Tag(tagName, id, section, "keyword"));
 				}
 			}
-		}
-		
-		
+		}		
 	}
-
+	
 	
 	private void setSectionFromDCSubject(DCModule dcModule, Article article, Map<String, Section> sections) {
 		String sectionName = htmlCleaner.stripHtml(dcModule.getSubject().getValue());
