@@ -27,13 +27,20 @@ public class DateRefinementImprover {
 	}
 
 	public List<Refinement> generateDateRefinementsForTag(SearchQuery query) {
-		log.info("Generating date refinements for query: " + query.toString());
+		
+		int totalCountForCurrentQuery = contentApi.getArticleCount(query);	// TODO this call can probably be eliminated as we're making/have made the same query to retrieve the articles
+		log.info("Total content item count for current search query is: " + totalCountForCurrentQuery);
+		if (totalCountForCurrentQuery <= query.getPageSize()) {
+			log.info("Not generating additional date refinements as the client already has all available items in the current query");
+			return null;
+		}
 				
+		log.info("Generating date refinements for query: " + query.toString());		
 		Tag tag = query.getTags().get(0);
 		DateTime fromDate = query.getFromDate();
 		DateTime toDate = query.getToDate();
 		
-		boolean notDateRefinementGiven = fromDate == null && toDate == null;
+		boolean noDateRefinementGiven = fromDate == null && toDate == null;
 	
 		boolean yearDateRefinementGiven = fromDate != null && toDate != null && 
 			fromDate.getDayOfMonth() == 1 && fromDate.getMonthOfYear() == 1 && 
@@ -44,7 +51,7 @@ public class DateRefinementImprover {
 			fromDate.getMonthOfYear() == toDate.getMonthOfYear() &&
 			fromDate.getDayOfMonth() == 1 && toDate.getDayOfMonth() >= 28;
 			
-		if (notDateRefinementGiven) {
+		if (noDateRefinementGiven) {
 			return createYearDateRefinementsForTag(query, tag, fromDate, toDate);
 		} else if (yearDateRefinementGiven) {
 			return createMonthDateRefinementsForTagAndYear(query, tag, fromDate);
