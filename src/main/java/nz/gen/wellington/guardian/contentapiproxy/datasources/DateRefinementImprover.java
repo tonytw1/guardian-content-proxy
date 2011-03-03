@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
-import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Refinement;
 import nz.gen.wellington.guardian.model.Tag;
 
@@ -16,6 +15,12 @@ import org.joda.time.DateTime;
 import com.google.inject.Inject;
 
 public class DateRefinementImprover {
+
+	private static final String PROXY_URL_PREFIX = "http://4.guardian-lite.appspot.com";	// TODO This needs to be resolved from the hostname
+	private static final String API_MONTH_YEAR_DATE_FORMAT = "YYYY-MM";
+	private static final String API_DAY_DATE_FORMAT = "YYYY-MM-dd";
+	private static final String DAY_DATE_FORMAT = "d MMMM YYYY";
+	private static final String MONTH_YEAR_DATE_FORMAT = "MMMM YYYY";
 
 	private static Logger log = Logger.getLogger(DateRefinementImprover.class);
 
@@ -66,8 +71,8 @@ public class DateRefinementImprover {
 		DateTime week = new DateTime(fromDate);		
 		List<Refinement> weekRefinements = new ArrayList<Refinement>();
 		while (week.isBefore(fromDate.plusMonths(1))) {	// TODO overlaps with first week of next month
-			String id = "date/weekof/" + week.toString("YYYY-MM-dd");			
-			final String refinedUrl = "http://4.guardian-lite.appspot.com/search&format=xml" +  
+			String id = "date/weekof/" + week.toString(API_DAY_DATE_FORMAT);			
+			final String refinedUrl = PROXY_URL_PREFIX + "/search&format=xml" +  
 				"&from-date=" + week.toString("yyyy-MM-dd") + 
 				"&to-date=" + week.plusWeeks(1).minusDays(1).toString("yyyy-MM-dd") +
 				"&tag=" + tag.getId();
@@ -88,10 +93,10 @@ public class DateRefinementImprover {
 		DateTime day = new DateTime(fromDate);
 		List<Refinement> dayRefinements = new ArrayList<Refinement>();
 		while (!day.isAfter(toDate)) {
-			String id = "date/" + day.toString("YYYY-MM-dd");			
-			String refinedUrl = "http://4.guardian-lite.appspot.com/search&format=xml" +  
-				"&from-date=" + day.toString("yyyy-MM-dd") +
-				"&to-date=" + day.toString("yyyy-MM-dd") + 
+			String id = "date/" + day.toString(API_DAY_DATE_FORMAT);			
+			String refinedUrl = PROXY_URL_PREFIX + "/search&format=xml" +  	// TODO push to a function and then out of here?
+				"&from-date=" + day.toString(API_DAY_DATE_FORMAT) +
+				"&to-date=" + day.toString(API_DAY_DATE_FORMAT) + 
 				"&tag=" + tag.getId();
 
 			int count = getRefinementCountForTagDateRange(query, day, day);
@@ -112,10 +117,10 @@ public class DateRefinementImprover {
 		
 		List<Refinement> monthRefinements = new ArrayList<Refinement>();
 		while (month.isBefore(fromDate.plusYears(1))) {
-			String id = "date/" + month.toString("YYYY-MM");			
-			String refinedUrl = "http://4.guardian-lite.appspot.com/search&format=xml" +  
-				"&from-date=" + month.toString("yyyy-MM-dd") +
-				"&to-date=" + month.plusMonths(1).minusDays(1).toString("yyyy-MM-dd") +
+			String id = "date/" + month.toString(API_MONTH_YEAR_DATE_FORMAT);			
+			String refinedUrl = PROXY_URL_PREFIX + "/search&format=xml" +  
+				"&from-date=" + month.toString(API_DAY_DATE_FORMAT) +
+				"&to-date=" + month.plusMonths(1).minusDays(1).toString(API_DAY_DATE_FORMAT) +
 				"&tag=" + tag.getId();
 			
 			int count = getRefinementCountForTagDateRange(query, month, month.plusMonths(1));
@@ -154,13 +159,13 @@ public class DateRefinementImprover {
 	}
 	
 	private Refinement createRefinementForMonth(DateTime month, String id, String refinedUrl, int count) {
-		return new Refinement("date", id, month.toString("MMM YYYY"), refinedUrl, count);
+		return new Refinement("date", id, month.toString(MONTH_YEAR_DATE_FORMAT), refinedUrl, count);
 	}
 	private Refinement createRefinementForDay(DateTime day, String id, String refinedUrl, int count) {
-		return new Refinement("date", id, day.toString("d MMM YYYY"), refinedUrl, count);
+		return new Refinement("date", id, day.toString(DAY_DATE_FORMAT), refinedUrl, count);
 	}
 	private Refinement createRefinementForWeek(DateTime week, String id, final String refinedUrl, int count) {
-		return new Refinement("date", id, "Week beginning " + week.toString("dd MMM YYYY"), refinedUrl, count);
+		return new Refinement("date", id, "Week of " + week.toString(DAY_DATE_FORMAT), refinedUrl, count);
 	}
 
 }
