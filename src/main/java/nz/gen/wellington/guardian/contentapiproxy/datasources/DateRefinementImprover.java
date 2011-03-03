@@ -32,8 +32,7 @@ public class DateRefinementImprover {
 	}
 
 	public List<Refinement> generateDateRefinementsForTag(SearchQuery query) {
-		
-		int totalCountForCurrentQuery = contentApi.getArticleCount(query);	// TODO this call can probably be eliminated as we're making/have made the same query to retrieve the articles
+		int totalCountForCurrentQuery = contentApi.getArticleCount(query);
 		log.info("Total content item count for current search query is: " + totalCountForCurrentQuery);
 		if (totalCountForCurrentQuery <= query.getPageSize()) {
 			log.info("Not generating additional date refinements as the client already has all available items in the current query");
