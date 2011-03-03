@@ -23,7 +23,7 @@ public class DateRefinementImprover {
 	
 	@Inject
 	public DateRefinementImprover(ContentApi contentApi) {
-		this.contentApi = contentApi;
+		this.contentApi = contentApi;	// TODO these calls should be done with a keyless api instance
 	}
 
 	public List<Refinement> generateDateRefinementsForTag(SearchQuery query) {

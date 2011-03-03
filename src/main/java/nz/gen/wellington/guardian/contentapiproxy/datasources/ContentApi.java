@@ -32,7 +32,6 @@ public class ContentApi {
 
 	private static Logger log = Logger.getLogger(ContentApi.class);
 	
-	
 	private CachingHttpFetcher httpFetcher;
 	private ContentApiStyleJSONParser contentApiJsonParser;
 
@@ -53,7 +52,7 @@ public class ContentApi {
 				if (json != null && contentApiJsonParser.isResponseOk(json)) {
 					return contentApiJsonParser.extractContentItems(json, getSections());
 				}
-					
+				
 			} catch (JSONException e) {
 				log.info("JSON error while parsing response", e);
 				log.info(e);
@@ -82,31 +81,6 @@ public class ContentApi {
 			}
 		}
 		return 0;
-	}
-	
-	
-	private String getJSONContentForArticleQuery(SearchQuery query) {
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);		
-		urlBuilder.setFormat("json");
-		urlBuilder.setShowAll(query.isShowAllFields());
-		
-		if (query.getFromDate() != null) {
-			urlBuilder.setFromDate(query.getFromDate().toString("yyyy-MM-dd"));
-		}
-		if (query.getToDate() != null) {
-			urlBuilder.setToDate(query.getToDate().toString("yyyy-MM-dd"));
-		}
-		
-		urlBuilder.setPageSize(query.getPageSize());
-		
-		if (query.getTags() != null && !query.getTags().isEmpty()) {
-			for (Tag tag : query.getTags()) {
-				urlBuilder.addTag(tag);
-			}
-		}
-		
-		final String callUrl = urlBuilder.toSearchQueryUrl();
-		return getContentFromUrlSuppressingHttpExceptions(callUrl);
 	}
 	
 	
@@ -251,4 +225,29 @@ public class ContentApi {
 		return content;
 	}
 	
+	private String getJSONContentForArticleQuery(SearchQuery query) {
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);		
+		urlBuilder.setFormat("json");
+		urlBuilder.setShowAll(query.isShowAllFields());
+		
+		if (query.getFromDate() != null) {
+			urlBuilder.setFromDate(query.getFromDate().toString("yyyy-MM-dd"));
+		}
+		if (query.getToDate() != null) {
+			urlBuilder.setToDate(query.getToDate().toString("yyyy-MM-dd"));
+		}
+		
+		urlBuilder.setPageSize(query.getPageSize());
+		
+		if (query.getTags() != null && !query.getTags().isEmpty()) {
+			for (Tag tag : query.getTags()) {
+				urlBuilder.addTag(tag);
+			}
+		}
+		
+		final String callUrl = urlBuilder.toSearchQueryUrl();
+		return getContentFromUrlSuppressingHttpExceptions(callUrl);
+	}
+	
 }
+
