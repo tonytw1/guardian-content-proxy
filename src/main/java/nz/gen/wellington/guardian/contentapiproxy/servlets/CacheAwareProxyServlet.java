@@ -25,8 +25,12 @@ public abstract class CacheAwareProxyServlet extends HttpServlet {
 
 
 	protected void cacheContent(String queryCacheKey, String content) {
-		log.info("Caching results for call: " + queryCacheKey);
-		cache.put(queryCacheKey, content, Expiration.byDeltaSeconds(OUTGOING_TTL));
+		log.info("Caching results for call: " + queryCacheKey);		
+		try {
+			cache.put(queryCacheKey, content, Expiration.byDeltaSeconds(OUTGOING_TTL));
+		} catch (Exception e) {
+			log.warn("Failed to cache content for: " + queryCacheKey, e);
+		}
 	}
 	
 	
