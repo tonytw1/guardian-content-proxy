@@ -48,12 +48,12 @@ public class ArticleSectionSorter {
 		}
 		return trimmed;
 	}
-
 	
 	private void addArticlesForSection(SortedMap<Date, Article> topStories, LinkedList<Article> results, Section section) {
 		List<Article> sectionArticles = new ArrayList<Article>();
-		for (Article article : new LinkedList<Article>(topStories.values())) {
-			if (article.getSection().getId().equals(section.getId())) {
+		for (Article article : new LinkedList<Article>(topStories.values())) {					
+			final boolean articleIsForSection = (article.getSection() != null && article.getSection().getId().equals(section.getId())) || (article.getSection() == null && section == null);
+			if (articleIsForSection) {
 				sectionArticles.add(article);
 				topStories.remove(article.getPubDate());
 			}
