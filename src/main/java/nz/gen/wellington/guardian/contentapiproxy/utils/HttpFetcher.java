@@ -36,11 +36,12 @@ public abstract class HttpFetcher {
 			log.info("Http fetching: " + url);
             HTTPResponse result = urlFetchService.fetch(httpRequest);
             if (result.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-            	throw new HttpForbiddenException();
+            	final String errorMessage = readResponseBody(pageCharacterEncoding, result);            	
+            	throw new HttpForbiddenException(errorMessage);
             }
             
             if (result.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            	return readResponseBody(pageCharacterEncoding, output, result);           	
+            	return readResponseBody(pageCharacterEncoding, result);           	
 
             } else {
             	log.warn("Error response code was: " + result.getResponseCode());
@@ -65,8 +66,9 @@ public abstract class HttpFetcher {
 			HTTPResponse result = urlFetchService.fetch(httpRequest);
 		
 			if (result.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN) {
-				throw new HttpForbiddenException();
-			}
+				final String errorMessage = readResponseBody("UTF-8", result);
+            	throw new HttpForbiddenException(errorMessage);
+            }
           
 			if (result.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				return result.getContent();
@@ -86,14 +88,14 @@ public abstract class HttpFetcher {
 	}
 
 
-	private String readResponseBody(String pageCharacterEncoding,
-			StringBuilder output, HTTPResponse result)
-			throws UnsupportedEncodingException, IOException {
-		String line;
+	private String readResponseBody(String pageCharacterEncoding, HTTPResponse result) throws UnsupportedEncodingException, IOException {		
+		StringBuilder output = new StringBuilder();
 		
 		InputStream inputStream = new ByteArrayInputStream(result.getContent());
 		InputStreamReader input = new InputStreamReader(inputStream, pageCharacterEncoding);
 		BufferedReader reader = new BufferedReader(input);
+		
+		String line = "";
 		while ((line = reader.readLine()) != null) {
 			output.append(line);
 		}

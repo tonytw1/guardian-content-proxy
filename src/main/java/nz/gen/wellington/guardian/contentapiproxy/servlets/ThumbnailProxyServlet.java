@@ -82,7 +82,7 @@ public class ThumbnailProxyServlet extends HttpServlet{
 			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
-			
+		
 		resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}
 	

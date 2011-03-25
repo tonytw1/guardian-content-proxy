@@ -1,3 +1,4 @@
+
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ public class ContentApi {
 	
 	public static final String API_HOST = "http://content.guardianapis.com";
 	public static final String API_KEY = "";
+	private static final String OVER_RATE_WARNING = "over rate";	// TODO check exact wording.
+	
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type", "date"};
 
 	private static Logger log = Logger.getLogger(ContentApi.class);
@@ -215,16 +218,6 @@ public class ContentApi {
 		return null;
 	}
 	
-	private String getContentFromUrlSuppressingHttpExceptions(final String callUrl) {
-		String content;
-		try {
-			content = httpFetcher.fetchContent(callUrl, "UTF-8");
-		} catch (HttpForbiddenException e1) {
-			return null;			
-		}
-		return content;
-	}
-	
 	private String getJSONContentForArticleQuery(SearchQuery query) {
 		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);		
 		urlBuilder.setFormat("json");
@@ -249,5 +242,17 @@ public class ContentApi {
 		return getContentFromUrlSuppressingHttpExceptions(callUrl);
 	}
 	
+	private String getContentFromUrlSuppressingHttpExceptions(final String callUrl) {
+		String content;
+		try {
+			content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		} catch (HttpForbiddenException e) {			
+			if (e.getMessage().equals(OVER_RATE_WARNING)) {
+				// TODO Take the current key out of service.
+			}
+			return null;
+		}
+		return content;
+	}
+	
 }
-
