@@ -94,10 +94,11 @@ public class ContentApi {
 		}
 		
 		log.info("Fetching section list from content api");
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, contentApiKeyPool.getAvailableApiKey());
+		final String apiKey = contentApiKeyPool.getAvailableApiKey();
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, apiKey);
 		urlBuilder.setFormat("json");
 		final String callUrl = urlBuilder.toSectionsQueryUrl();
-		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
+		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl, apiKey);
 		if (content != null) {			
 			List<Section> sections = contentApiJsonParser.parseSectionsRequestResponse(content);
 			log.info("Found " + sections.size() + " good sections");
@@ -220,7 +221,8 @@ public class ContentApi {
 	}
 	
 	private String getJSONContentForArticleQuery(SearchQuery query) {
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, contentApiKeyPool.getAvailableApiKey());		
+		final String apiKey = contentApiKeyPool.getAvailableApiKey();
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, apiKey);		
 		urlBuilder.setFormat("json");
 		urlBuilder.setShowAll(query.isShowAllFields());
 		
@@ -240,16 +242,16 @@ public class ContentApi {
 		}
 		
 		final String callUrl = urlBuilder.toSearchQueryUrl();
-		return getContentFromUrlSuppressingHttpExceptions(callUrl);
+		return getContentFromUrlSuppressingHttpExceptions(callUrl, apiKey);
 	}
 	
-	private String getContentFromUrlSuppressingHttpExceptions(final String callUrl) {
+	private String getContentFromUrlSuppressingHttpExceptions(final String callUrl, String apiKey) {
 		String content;
 		try {
 			content = httpFetcher.fetchContent(callUrl, "UTF-8");
-		} catch (HttpForbiddenException e) {			
+		} catch (HttpForbiddenException e) {
 			if (e.getMessage().equals(OVER_RATE_WARNING)) {
-				// TODO Take the current key out of service.
+				contentApiKeyPool.markKeyAsBeenOverRate(apiKey);
 			}
 			return null;
 		}
