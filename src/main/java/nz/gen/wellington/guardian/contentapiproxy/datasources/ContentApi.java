@@ -148,7 +148,8 @@ public class ContentApi {
 	}
 	
 	public Map<String, List<Refinement>> getTagRefinements(Tag tag, DateTime fromDate, DateTime toDate) {
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, contentApiKeyPool.getAvailableApiKey());
+		final String apiKey = contentApiKeyPool.getAvailableApiKey();
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, apiKey);
 		urlBuilder.addTag(tag);
 		urlBuilder.setShowAll(false);
 		urlBuilder.setShowRefinements(true);
@@ -161,13 +162,13 @@ public class ContentApi {
 		urlBuilder.setFormat("json");	
 		final String callUrl = urlBuilder.toSearchQueryUrl();		
 		log.info("Fetching from: " + callUrl);
-		return processRefinements(callUrl);
+		return processRefinements(callUrl, apiKey);
 	}
 
 	
 	// TODO Push refinements parsing to the shared class.
-	private Map<String, List<Refinement>> processRefinements(String callUrl) {
-		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
+	private Map<String, List<Refinement>> processRefinements(String callUrl, String apiKey) {
+		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl, apiKey);
 		if (content == null) {
 			log.warn("Failed to fetch url: " + callUrl);
 			return null;
