@@ -28,7 +28,6 @@ import com.google.inject.Inject;
 public class ContentApi {
 	
 	public static final String API_HOST = "http://content.guardianapis.com";
-	public static final String API_KEY = "";
 	private static final String OVER_RATE_WARNING = "over rate";	// TODO check exact wording.
 	
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type", "date"};
@@ -37,13 +36,15 @@ public class ContentApi {
 	
 	private CachingHttpFetcher httpFetcher;
 	private ContentApiStyleJSONParser contentApiJsonParser;
+	private ContentApiKeyPool contentApiKeyPool;
 
 	private Map<String, Section>  sectionsMap;
 	
 	@Inject
-	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiStyleJSONParser contentApiJsonParser) {
+	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiStyleJSONParser contentApiJsonParser, ContentApiKeyPool contentApiKeyPool) {
 		this.httpFetcher = httpFetcher;
 		this.contentApiJsonParser = contentApiJsonParser;
+		this.contentApiKeyPool = contentApiKeyPool;
 	}
 	
 	
@@ -93,7 +94,7 @@ public class ContentApi {
 		}
 		
 		log.info("Fetching section list from content api");
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, contentApiKeyPool.getAvailableApiKey());
 		urlBuilder.setFormat("json");
 		final String callUrl = urlBuilder.toSectionsQueryUrl();
 		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl);
@@ -114,7 +115,7 @@ public class ContentApi {
 	
 	public Article getArticle(String contentId) throws HttpForbiddenException {
 		log.info("Fetching content item: " + contentId);
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, contentApiKeyPool.getAvailableApiKey());
 		urlBuilder.setContentId(contentId);
 		urlBuilder.setFormat("json");
 		final String callUrl = urlBuilder.toContentItemUrl();
@@ -146,7 +147,7 @@ public class ContentApi {
 	}
 	
 	public Map<String, List<Refinement>> getTagRefinements(Tag tag, DateTime fromDate, DateTime toDate) {
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, contentApiKeyPool.getAvailableApiKey());
 		urlBuilder.addTag(tag);
 		urlBuilder.setShowAll(false);
 		urlBuilder.setShowRefinements(true);
@@ -219,7 +220,7 @@ public class ContentApi {
 	}
 	
 	private String getJSONContentForArticleQuery(SearchQuery query) {
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, API_KEY);		
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, contentApiKeyPool.getAvailableApiKey());		
 		urlBuilder.setFormat("json");
 		urlBuilder.setShowAll(query.isShowAllFields());
 		

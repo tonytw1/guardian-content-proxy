@@ -8,8 +8,8 @@ import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 public class FreeTierContentApi extends ContentApi {
 
 	@Inject
-	public FreeTierContentApi(CachingHttpFetcher httpFetcher, ContentApiStyleJSONParser contentApiJsonParser) {
-		super(httpFetcher, contentApiJsonParser);
+	public FreeTierContentApi(CachingHttpFetcher httpFetcher, ContentApiStyleJSONParser contentApiJsonParser, ContentApiKeyPool contentApiKeyPool) {
+		super(httpFetcher, contentApiJsonParser, contentApiKeyPool);
 	}
 	
 }

@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import nz.gen.wellington.guardian.contentapi.urls.ContentApiStyleUrlBuilder;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApiKeyPool;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
@@ -19,15 +20,16 @@ public class TagsProxyServlet extends UrlBasedCachedRequest {
 	static Logger log = Logger.getLogger(TagsProxyServlet.class);
 
 	private CachingHttpFetcher httpFetcher;
+	private ContentApiKeyPool contentApiKeyPool;
 	
 	@Inject
-	public TagsProxyServlet(CachingHttpFetcher httpFetcher) {
-		super();
+	public TagsProxyServlet(CachingHttpFetcher httpFetcher, ContentApiKeyPool contentApiKeyPool) {
 		this.httpFetcher = httpFetcher;
+		this.contentApiKeyPool = contentApiKeyPool;
 	}
 	
 	protected String getContent(HttpServletRequest request) {
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(ContentApi.API_HOST, ContentApi.API_KEY);
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(ContentApi.API_HOST, contentApiKeyPool.getAvailableApiKey());
 		urlBuilder.setSearchTerm(request.getParameter("q"));
 		urlBuilder.setFormat("json");
 
