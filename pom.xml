@@ -41,7 +41,7 @@
    	<dependency>
   		<groupId>nz.gen.wellington.guardian</groupId>
   		<artifactId>guardian-contentapi-tools</artifactId>
-  		<version>0.0.7</version>
+  		<version>0.0.8</version>
   		<type>jar</type>
   	</dependency>
   	

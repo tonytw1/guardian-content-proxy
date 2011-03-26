@@ -1,7 +1,6 @@
 
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,6 @@ import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -165,7 +163,6 @@ public class ContentApi {
 	}
 
 	
-	// TODO Push refinements parsing to the shared class.
 	private Map<String, List<Refinement>> processRefinements(String callUrl, String apiKey) {
 		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl, apiKey);
 		if (content == null) {
@@ -177,9 +174,11 @@ public class ContentApi {
 			JSONObject json = new JSONObject(content);
 			JSONObject response = json.getJSONObject("response");
 				
-			if (json != null && contentApiJsonParser.isResponseOk(json) && response.has("refinementGroups")) {
-				return parseRefinementGroups(response);				
+			if (json != null && contentApiJsonParser.isResponseOk(json) && response.has("refinementGroups")) {				
+				Map<String, List<Refinement>> allParsedRefinementGroups = contentApiJsonParser.parseRefinementGroups(response);				
+				return filterOutPermittedRefinements(allParsedRefinementGroups);
 			}
+			
 		} catch (JSONException e) {
 			log.error(e.getMessage());
 		}		
@@ -187,45 +186,17 @@ public class ContentApi {
 	}
 
 
-	private Map<String, List<Refinement>> parseRefinementGroups(
-			JSONObject response) throws JSONException {
-		Map<String, List<Refinement>> refinements = new HashMap<String, List<Refinement>>();
-		JSONArray refinementGroups = response.getJSONArray("refinementGroups");
-		for (int i = 0; i < refinementGroups.length(); i++) {
-			JSONObject refinementGroup = refinementGroups.getJSONObject(i);
-			extractRefinement(refinements, refinementGroup);						
+	private Map<String, List<Refinement>> filterOutPermittedRefinements(
+			Map<String, List<Refinement>> allParsedRefinementGroups) {
+		Map<String, List<Refinement>> permittedRefinements = new HashMap<String, List<Refinement>>();
+		for (String refinementType : allParsedRefinementGroups.keySet()) {					
+			boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(refinementType);
+			if (isPermittedRefinementType) {
+				permittedRefinements.put(refinementType, allParsedRefinementGroups.get(refinementType));
+			}					
 		}
-		return refinements;
+		return permittedRefinements;
 	}
-
-
-	private void extractRefinement(Map<String, List<Refinement>> refinements, JSONObject refinementGroup) throws JSONException {
-		String type = refinementGroup.getString("type");
-		boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(type);
-		if (!isPermittedRefinementType) {
-			return;
-		}
-		
-		List<Refinement> tagRefinements = refinements.get(type);
-		if (tagRefinements == null) {
-			tagRefinements = new ArrayList<Refinement>();
-			refinements.put(type, tagRefinements);
-		}
-		
-		JSONArray refinementsJSON = refinementGroup.getJSONArray("refinements");
-		for (int j = 0; j < refinementsJSON.length(); j++) {
-			JSONObject refinement = refinementsJSON.getJSONObject(j);
-			tagRefinements.add(
-					new Refinement(type, 
-							refinement.getString("id"), 
-							refinement.getString("displayName"), 
-							refinement.getString("refinedUrl"),
-							refinement.getInt("count"))
-			);
-		}
-		return;
-	}
-	
 	
 	private String getJSONContentForArticleQuery(SearchQuery query) {
 		final String apiKey = contentApiKeyPool.getAvailableApiKey();
