@@ -250,10 +250,8 @@ public class ContentApi {
 		String content;
 		try {
 			content = httpFetcher.fetchContent(callUrl, "UTF-8");
-		} catch (HttpForbiddenException e) {
-			if (e.getMessage().equals(OVER_RATE_WARNING)) {
-				contentApiKeyPool.markKeyAsBeenOverRate(apiKey);
-			}
+		} catch (HttpForbiddenException e) {			
+			contentApiKeyPool.markKeyAsBeenOverRate(apiKey);			
 			return null;
 		}
 		return content;
