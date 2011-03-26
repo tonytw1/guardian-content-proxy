@@ -173,27 +173,29 @@ public class ContentApi {
 			return null;
 		}
 		
-		JSONObject json;
 		try {
-			json = new JSONObject(content);
+			JSONObject json = new JSONObject(content);
 			JSONObject response = json.getJSONObject("response");
 				
-			if (json != null && contentApiJsonParser.isResponseOk(json)) {
-				Map<String, List<Refinement>> refinements = new HashMap<String, List<Refinement>>();
-				
-				if (response.has("refinementGroups")) {
-					JSONArray refinementGroups = response.getJSONArray("refinementGroups");
-					for (int i = 0; i < refinementGroups.length(); i++) {
-						JSONObject refinementGroup = refinementGroups.getJSONObject(i);
-						extractRefinement(refinements, refinementGroup);						
-					}
-				}
-				return refinements;
+			if (json != null && contentApiJsonParser.isResponseOk(json) && response.has("refinementGroups")) {
+				return parseRefinementGroups(response);				
 			}
 		} catch (JSONException e) {
 			log.error(e.getMessage());
 		}		
 		return null;
+	}
+
+
+	private Map<String, List<Refinement>> parseRefinementGroups(
+			JSONObject response) throws JSONException {
+		Map<String, List<Refinement>> refinements = new HashMap<String, List<Refinement>>();
+		JSONArray refinementGroups = response.getJSONArray("refinementGroups");
+		for (int i = 0; i < refinementGroups.length(); i++) {
+			JSONObject refinementGroup = refinementGroups.getJSONObject(i);
+			extractRefinement(refinements, refinementGroup);						
+		}
+		return refinements;
 	}
 
 
