@@ -28,7 +28,6 @@ import com.google.inject.Inject;
 public class ContentApi {
 	
 	public static final String API_HOST = "http://content.guardianapis.com";
-	private static final String OVER_RATE_WARNING = "over rate";	// TODO check exact wording.
 	
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type", "date"};
 
@@ -186,40 +185,45 @@ public class ContentApi {
 					JSONArray refinementGroups = response.getJSONArray("refinementGroups");
 					for (int i = 0; i < refinementGroups.length(); i++) {
 						JSONObject refinementGroup = refinementGroups.getJSONObject(i);
-						String type = refinementGroup.getString("type");
-						
-						boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(type);
-						if (isPermittedRefinementType) {
-							
-							List<Refinement> tagRefinements = refinements.get(type);
-							if (tagRefinements == null) {
-								tagRefinements = new ArrayList<Refinement>();
-								refinements.put(type, tagRefinements);
-							}
-							
-							JSONArray refinementsJSON = refinementGroup.getJSONArray("refinements");
-							for (int j = 0; j < refinementsJSON.length(); j++) {
-								JSONObject refinement = refinementsJSON.getJSONObject(j);
-								tagRefinements.add(
-										new Refinement(type, 
-												refinement.getString("id"), 
-												refinement.getString("displayName"), 
-												refinement.getString("refinedUrl"),
-												refinement.getInt("count"))
-								);
-							}
-						}
-						
+						extractRefinement(refinements, refinementGroup);						
 					}
 				}
 				return refinements;
 			}
 		} catch (JSONException e) {
 			log.error(e.getMessage());
-		}
-		
+		}		
 		return null;
 	}
+
+
+	private void extractRefinement(Map<String, List<Refinement>> refinements, JSONObject refinementGroup) throws JSONException {
+		String type = refinementGroup.getString("type");
+		boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(type);
+		if (!isPermittedRefinementType) {
+			return;
+		}
+		
+		List<Refinement> tagRefinements = refinements.get(type);
+		if (tagRefinements == null) {
+			tagRefinements = new ArrayList<Refinement>();
+			refinements.put(type, tagRefinements);
+		}
+		
+		JSONArray refinementsJSON = refinementGroup.getJSONArray("refinements");
+		for (int j = 0; j < refinementsJSON.length(); j++) {
+			JSONObject refinement = refinementsJSON.getJSONObject(j);
+			tagRefinements.add(
+					new Refinement(type, 
+							refinement.getString("id"), 
+							refinement.getString("displayName"), 
+							refinement.getString("refinedUrl"),
+							refinement.getInt("count"))
+			);
+		}
+		return;
+	}
+	
 	
 	private String getJSONContentForArticleQuery(SearchQuery query) {
 		final String apiKey = contentApiKeyPool.getAvailableApiKey();
