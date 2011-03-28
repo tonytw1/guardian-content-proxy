@@ -27,6 +27,7 @@ public class ContentApi {
 	
 	public static final String API_HOST = "http://content.guardianapis.com";
 	
+	private static final String DEVELOPER_OVER_RATE = "403 Developer Over Rate";	
 	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type", "date"};
 
 	private static Logger log = Logger.getLogger(ContentApi.class);
@@ -227,8 +228,10 @@ public class ContentApi {
 		String content;
 		try {
 			content = httpFetcher.fetchContent(callUrl, "UTF-8");
-		} catch (HttpForbiddenException e) {			
-			contentApiKeyPool.markKeyAsBeenOverRate(apiKey);			
+		} catch (HttpForbiddenException e) {
+			if (e.getMessage().contains(DEVELOPER_OVER_RATE)) {
+				contentApiKeyPool.markKeyAsBeenOverRate(apiKey);
+			}
 			return null;
 		}
 		return content;

@@ -19,7 +19,6 @@ import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 
-
 public abstract class HttpFetcher {
 
 	private final Logger log = Logger.getLogger(HttpFetcher.class);
@@ -27,7 +26,6 @@ public abstract class HttpFetcher {
 	
 	public String fetchContent(String pageURL, String pageCharacterEncoding) throws HttpForbiddenException {
 		try {
-			StringBuilder output = new StringBuilder();
 			URL url = new URL(pageURL);
 
             URLFetchService urlFetchService = (URLFetchService) URLFetchServiceFactory.getURLFetchService(); 
@@ -54,7 +52,6 @@ public abstract class HttpFetcher {
 		}
 		return null;
 	}
-	
 	
 	
 	public byte[] fetchBytes(String url) throws HttpForbiddenException {
