@@ -116,8 +116,8 @@ public class ArticleToXmlRenderer {
 		 if (article.getByline() != null) writeFieldElement(writer, "byline", article.getByline());
 		 writeFieldElement(writer, "standfirst", article.getStandfirst());
 
-		 if (article.getThumbnailUrl() != null) {
-			 writeFieldElement(writer, "thumbnail", article.getThumbnailUrl());
+		 if (article.getThumbnail() != null) {
+			 writeFieldElement(writer, "thumbnail", article.getThumbnail());
 		 }
 		 
 		 writeFieldElement(writer, "body", article.getDescription());
