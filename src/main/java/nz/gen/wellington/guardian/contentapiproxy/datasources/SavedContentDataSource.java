@@ -3,7 +3,6 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources;
 import java.util.ArrayList;
 import java.util.List;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.model.Article;
 
 import org.apache.log4j.Logger;
@@ -31,13 +30,13 @@ public class SavedContentDataSource {
 			if (article != null) {
 				savedArticles.add(article);
 			} else {
-				savedArticles.add(missingArticlePlaceholderFor(articleId));
+				savedArticles.add(createMissingArticlePlaceholderFor(articleId));
 			}
 		}
 		return savedArticles;
 	}
 
-	private Article missingArticlePlaceholderFor(String articleId) {
+	private Article createMissingArticlePlaceholderFor(String articleId) {
 		Article missingArticle = new Article();
 		missingArticle.setId(articleId);
 		missingArticle.setHeadline("Missing article");
@@ -48,12 +47,7 @@ public class SavedContentDataSource {
 
 	private Article fetchArticle(String contentId) {
 		log.info("Fetching content item: " + contentId);
-		Article article;
-		try {
-			article = contentApi.getArticle(contentId);
-		} catch (HttpForbiddenException e) {
-			article = null;
-		}
+		Article article = contentApi.getArticle(contentId);	
 		
 		if (article != null && article.getShortUrl() != null) {
 			shortUrlDao.storeShortUrl(article.getId(), article.getShortUrl());

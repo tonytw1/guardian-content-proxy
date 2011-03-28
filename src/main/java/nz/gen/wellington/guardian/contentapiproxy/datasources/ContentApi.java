@@ -112,20 +112,34 @@ public class ContentApi {
 	}
 	
 	
-	public Article getArticle(String contentId) throws HttpForbiddenException {
+	public Article getArticle(String contentId) {
 		log.info("Fetching content item: " + contentId);
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, contentApiKeyPool.getAvailableApiKey());
+		
+		String availableApiKey = contentApiKeyPool.getAvailableApiKey();
+		if (availableApiKey == null) {
+			return createOverRatePlaceHolderArticleFor(contentId);
+		}
+		
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, availableApiKey);
 		urlBuilder.setContentId(contentId);
 		urlBuilder.setFormat("json");
 		final String callUrl = urlBuilder.toContentItemUrl();
-		final String content = httpFetcher.fetchContent(callUrl, "UTF-8");
+	
+		String content = null;
+		try {
+			content = httpFetcher.fetchContent(callUrl, "UTF-8");
+		} catch (HttpForbiddenException httpException) {
+			if (isOverRateException(httpException)) {
+				return createOverRatePlaceHolderArticleFor(contentId);
+			}
+		}
+		
 		if (content != null) {				
 			try {
 				JSONObject json = new JSONObject(content);
 				if (json != null && contentApiJsonParser.isResponseOk(json)) {			
 					return contentApiJsonParser.extractContentItem(json, getSections());
-				}
-					
+				}			
 			} catch (JSONException e) {
 				log.info("JSON error while processing call url: " + callUrl);
 				log.info(e);
@@ -133,6 +147,17 @@ public class ContentApi {
 			}				
 		}		
 		return null;		
+	}
+
+
+	private Article createOverRatePlaceHolderArticleFor(String contentId) {
+		log.warn("Returning overrate place holder instead of content item for content id: " + contentId);
+		Article overratePlaceholderArticle = new Article();
+		overratePlaceholderArticle.setId(contentId);
+		overratePlaceholderArticle.setHeadline("Article temporarily unavailable");
+		overratePlaceholderArticle.setPubDate(new DateTime().toDate());
+		overratePlaceholderArticle.setStandfirst("This article (" + contentId + ") could not be downloaded because the Guardian Lite application has temporarily exceeded it's Guardian Content API quota. In the meantime, you should still be able to use the open in browser option to view this content on the Guardian site.");
+		return overratePlaceholderArticle;
 	}
 	
 	@Deprecated // TODO query for whole tags rather than interating over single records.
@@ -229,12 +254,17 @@ public class ContentApi {
 		try {
 			content = httpFetcher.fetchContent(callUrl, "UTF-8");
 		} catch (HttpForbiddenException e) {
-			if (e.getMessage().contains(DEVELOPER_OVER_RATE)) {
+			if (isOverRateException(e)) {
 				contentApiKeyPool.markKeyAsBeenOverRate(apiKey);
 			}
 			return null;
 		}
 		return content;
+	}
+
+
+	private boolean isOverRateException(HttpForbiddenException e) {
+		return e.getMessage().contains(DEVELOPER_OVER_RATE);
 	}
 	
 }
