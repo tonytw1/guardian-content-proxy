@@ -115,31 +115,32 @@ public class ContentApi {
 	public Article getArticle(String contentId) {
 		log.info("Fetching content item: " + contentId);
 		
-		String availableApiKey = contentApiKeyPool.getAvailableApiKey();
-		if (availableApiKey == null) {
-			return createOverRatePlaceHolderArticleFor(contentId);
-		}
+		final String availableApiKey = contentApiKeyPool.getAvailableApiKey();
+		final boolean isOverRate = availableApiKey == null;
 		
 		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, availableApiKey);
 		urlBuilder.setContentId(contentId);
 		urlBuilder.setFormat("json");
+		urlBuilder.setShowAll(true);
 		final String callUrl = urlBuilder.toContentItemUrl();
 	
-		String content = null;
+		String content;
 		try {
 			content = httpFetcher.fetchContent(callUrl, "UTF-8");
-		} catch (HttpForbiddenException httpException) {
-			if (isOverRateException(httpException)) {
-				return createOverRatePlaceHolderArticleFor(contentId);
-			}
+		} catch (HttpForbiddenException e1) {
+			return null;
 		}
 		
-		if (content != null) {				
+		if (content != null) {		
 			try {
 				JSONObject json = new JSONObject(content);
 				if (json != null && contentApiJsonParser.isResponseOk(json)) {			
-					return contentApiJsonParser.extractContentItem(json, getSections());
-				}			
+					Article article = contentApiJsonParser.extractContentItem(json, getSections());
+					if (isOverRate) {
+						article.setDescription("This article (" + contentId + ") could not be downloaded because the Guardian Lite application has temporarily exceeded it's Guardian Content API quota. In the meantime, you should still be able to use the open in browser option to view this content on the Guardian site.");
+					}
+					return article;
+				}
 			} catch (JSONException e) {
 				log.info("JSON error while processing call url: " + callUrl);
 				log.info(e);
@@ -148,17 +149,7 @@ public class ContentApi {
 		}		
 		return null;		
 	}
-
-
-	private Article createOverRatePlaceHolderArticleFor(String contentId) {
-		log.warn("Returning overrate place holder instead of content item for content id: " + contentId);
-		Article overratePlaceholderArticle = new Article();
-		overratePlaceholderArticle.setId(contentId);
-		overratePlaceholderArticle.setHeadline("Article temporarily unavailable");
-		overratePlaceholderArticle.setPubDate(new DateTime().toDate());
-		overratePlaceholderArticle.setStandfirst("This article (" + contentId + ") could not be downloaded because the Guardian Lite application has temporarily exceeded it's Guardian Content API quota. In the meantime, you should still be able to use the open in browser option to view this content on the Guardian site.");
-		return overratePlaceholderArticle;
-	}
+	
 	
 	@Deprecated // TODO query for whole tags rather than interating over single records.
 	public String getShortUrlFor(String contentId) throws HttpForbiddenException {
