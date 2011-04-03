@@ -192,8 +192,12 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		for (Tag favouriteTag : favouriteTags) {
 			SearchQuery query = new SearchQuery();
 			query.setTags(Arrays.asList(favouriteTag));
-			ArticleBundle favouriteTagsArticles = this.fetchArticlesForQuery(query);					
-			putLatestThreeStoriesOntoList(combined, favouriteTagsArticles.getArticles(), numberFromEachFavourite);
+			ArticleBundle favouriteTagsArticles = this.fetchArticlesForQuery(query);
+			if (favouriteTagsArticles != null) {
+				putLatestThreeStoriesOntoList(combined, favouriteTagsArticles.getArticles(), numberFromEachFavourite);
+			} else {
+				log.warn("Failed to fetch articles for tag: " + favouriteTag.getId());
+			}
 		}
 		
 		return new ArticleBundle(combined);
