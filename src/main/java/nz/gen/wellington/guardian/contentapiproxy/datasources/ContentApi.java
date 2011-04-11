@@ -46,13 +46,22 @@ public class ContentApi {
 	}
 	
 	
-	public List<Article> getArticles(SearchQuery query) {			
-		final String content = getJSONContentForArticleQuery(query);			
+	public List<Article> getArticles(SearchQuery query) {
+		final String availableApiKey = contentApiKeyPool.getAvailableApiKey();
+		final boolean isOverRate = availableApiKey == null;
+		
+		final String content = getJSONContentForArticleQuery(query, availableApiKey);			
 		if (content != null) {				
 			try {
 				JSONObject json = new JSONObject(content);
 				if (json != null && contentApiJsonParser.isResponseOk(json)) {
-					return contentApiJsonParser.extractContentItems(json, getSections());
+					List<Article> articles = contentApiJsonParser.extractContentItems(json, getSections());
+					if (isOverRate) {
+						for (Article article : articles) {
+							article.setDescription(makeOverQuotaMessageForContentItem(article.getId()));
+						}
+					}					
+					return articles;
 				}
 				
 			} catch (JSONException e) {
@@ -69,7 +78,9 @@ public class ContentApi {
 		SearchQuery articleCountQuery = new SearchQuery(query);
 		articleCountQuery.setPageSize(1);
 		articleCountQuery.setShowAllFields(false);
-		final String content = getJSONContentForArticleQuery(articleCountQuery);
+
+		final String apiKey = contentApiKeyPool.getAvailableApiKey();
+		final String content = getJSONContentForArticleQuery(articleCountQuery, apiKey);
 		if (content != null) {				
 			try {
 				JSONObject json = new JSONObject(content);
@@ -137,7 +148,7 @@ public class ContentApi {
 				if (json != null && contentApiJsonParser.isResponseOk(json)) {			
 					Article article = contentApiJsonParser.extractContentItem(json, getSections());
 					if (isOverRate) {
-						article.setDescription("This article (" + contentId + ") could not be downloaded because the Guardian Lite application has temporarily exceeded it's Guardian Content API quota. In the meantime, you should still be able to use the open in browser option to view this content on the Guardian site.");
+						article.setDescription(makeOverQuotaMessageForContentItem(contentId));
 					}
 					return article;
 				}
@@ -148,6 +159,11 @@ public class ContentApi {
 			}				
 		}		
 		return null;		
+	}
+
+
+	private String makeOverQuotaMessageForContentItem(String contentId) {
+		return "This article (" + contentId + ") could not be downloaded because the Guardian Lite application has temporarily exceeded it's Guardian Content API quota. In the meantime, you should still be able to use the open in browser option to view this content on the Guardian site.";
 	}
 	
 	
@@ -215,8 +231,7 @@ public class ContentApi {
 		return permittedRefinements;
 	}
 	
-	private String getJSONContentForArticleQuery(SearchQuery query) {
-		final String apiKey = contentApiKeyPool.getAvailableApiKey();
+	private String getJSONContentForArticleQuery(SearchQuery query, String apiKey) {
 		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, apiKey);		
 		urlBuilder.setFormat("json");
 		urlBuilder.setShowAll(query.isShowAllFields());
