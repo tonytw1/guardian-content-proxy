@@ -10,6 +10,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import nz.gen.wellington.guardian.contentapiproxy.config.InstalledLocation;
 import nz.gen.wellington.guardian.contentapiproxy.utils.ContentChecksumCalculator;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.MediaElement;
@@ -31,9 +32,9 @@ public class ArticleToXmlRenderer {
 	private String serverName;
 	
 	@Inject
-	public ArticleToXmlRenderer(ContentChecksumCalculator contentCheckSumCalculator) {
+	public ArticleToXmlRenderer(ContentChecksumCalculator contentCheckSumCalculator, InstalledLocation installedLocation) {
 		this.contentCheckSumCalculator = contentCheckSumCalculator;
-		this.serverName = "4.guardian-lite.appspot.com";	// TODO how can you inject this?
+		this.serverName = installedLocation.getInstalledLocation();
 	}
 	
 	public String outputXml(List<Article> articles, String description, Map<String, List<Refinement>> refinements, boolean showAllFields) {		

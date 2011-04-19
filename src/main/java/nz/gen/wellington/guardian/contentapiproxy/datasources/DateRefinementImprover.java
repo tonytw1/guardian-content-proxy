@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import nz.gen.wellington.guardian.contentapiproxy.config.InstalledLocation;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.model.Refinement;
 import nz.gen.wellington.guardian.model.Tag;
@@ -16,7 +17,6 @@ import com.google.inject.Inject;
 
 public class DateRefinementImprover {
 
-	private static final String PROXY_URL_PREFIX = "http://4.guardian-lite.appspot.com";	// TODO This needs to be resolved from the hostname
 	private static final String API_MONTH_YEAR_DATE_FORMAT = "YYYY-MM";
 	private static final String API_DAY_DATE_FORMAT = "YYYY-MM-dd";
 	private static final String DAY_DATE_FORMAT = "d MMMM YYYY";
@@ -25,12 +25,14 @@ public class DateRefinementImprover {
 	private static Logger log = Logger.getLogger(DateRefinementImprover.class);
 
 	private ContentApi contentApi;
+	private InstalledLocation installedLocation;
 	
 	@Inject
-	public DateRefinementImprover(ContentApi contentApi) {
+	public DateRefinementImprover(ContentApi contentApi, InstalledLocation installedLocation) {
 		this.contentApi = contentApi;	// TODO these calls should be done with a keyless api instance
+		this.installedLocation = installedLocation;
 	}
-
+	
 	public List<Refinement> generateDateRefinementsForTag(SearchQuery query) {
 		int totalCountForCurrentQuery = contentApi.getArticleCount(query);
 		log.info("Total content item count for current search query is: " + totalCountForCurrentQuery);
@@ -71,7 +73,7 @@ public class DateRefinementImprover {
 		List<Refinement> weekRefinements = new ArrayList<Refinement>();
 		while (week.isBefore(fromDate.plusMonths(1))) {	// TODO overlaps with first week of next month
 			String id = "date/weekof/" + week.toString(API_DAY_DATE_FORMAT);			
-			final String refinedUrl = PROXY_URL_PREFIX + "/search&format=xml" +  
+			final String refinedUrl = installedLocation.getInstalledLocation() + "/search&format=xml" +  
 				"&from-date=" + week.toString("yyyy-MM-dd") + 
 				"&to-date=" + week.plusWeeks(1).minusDays(1).toString("yyyy-MM-dd") +
 				"&tag=" + tag.getId();
@@ -93,7 +95,7 @@ public class DateRefinementImprover {
 		List<Refinement> dayRefinements = new ArrayList<Refinement>();
 		while (!day.isAfter(toDate)) {
 			String id = "date/" + day.toString(API_DAY_DATE_FORMAT);			
-			String refinedUrl = PROXY_URL_PREFIX + "/search&format=xml" +  	// TODO push to a function and then out of here?
+			String refinedUrl = installedLocation.getInstalledLocation() + "/search&format=xml" +  	// TODO push to a function and then out of here?
 				"&from-date=" + day.toString(API_DAY_DATE_FORMAT) +
 				"&to-date=" + day.toString(API_DAY_DATE_FORMAT) + 
 				"&tag=" + tag.getId();
@@ -117,7 +119,7 @@ public class DateRefinementImprover {
 		List<Refinement> monthRefinements = new ArrayList<Refinement>();
 		while (month.isBefore(fromDate.plusYears(1))) {
 			String id = "date/" + month.toString(API_MONTH_YEAR_DATE_FORMAT);			
-			String refinedUrl = PROXY_URL_PREFIX + "/search&format=xml" +  
+			String refinedUrl = installedLocation.getInstalledLocation() + "/search&format=xml" +  
 				"&from-date=" + month.toString(API_DAY_DATE_FORMAT) +
 				"&to-date=" + month.plusMonths(1).minusDays(1).toString(API_DAY_DATE_FORMAT) +
 				"&tag=" + tag.getId();
