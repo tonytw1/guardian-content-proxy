@@ -92,13 +92,8 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	
 	
 	private List<Article> sortAndTrimArticleList(SearchQuery query, List<Article> articles) {
-		articles = articleSectionSorter.sort(articles);		
 		int pageSize = query.getPageSize() != null ? query.getPageSize() : DEFAULT_PAGE_SIZE;
-		if (pageSize < articles.size()) {
-			log.info("Limiting articles to: " + pageSize);
-			articles = articles.subList(0, pageSize);
-		}
-		return articles;
+		return articleSectionSorter.sortAndTrim(articles, pageSize);		
 	}
 	
 	

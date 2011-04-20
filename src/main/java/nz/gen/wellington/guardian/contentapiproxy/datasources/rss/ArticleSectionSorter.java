@@ -17,7 +17,7 @@ public class ArticleSectionSorter {
 	
 	Logger log = Logger.getLogger(ArticleSectionSorter.class);
 	
-	public List<Article> sort(List<Article> articles) {
+	public List<Article> sortAndTrim(List<Article> articles, int limit) {
 		LinkedList<Article> results = new LinkedList<Article>();
 
 		SortedMap<Date, Article> sorted = new TreeMap<Date, Article>();
@@ -25,7 +25,7 @@ public class ArticleSectionSorter {
 			sorted.put(article.getPubDate(), article);
 		}
 		
-		SortedMap<Date, Article> trimmed = trim(sorted, 15);
+		SortedMap<Date, Article> trimmed = trim(sorted, limit);
 		
 		while (!trimmed.isEmpty()) {
 			Article latest = trimmed.get(trimmed.lastKey());
