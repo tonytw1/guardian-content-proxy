@@ -47,7 +47,8 @@ public class RssEntryToArticleConvertorTest extends TestCase {
 		assertEquals(7, article.getTags().size());
 				
 		assertEquals("All the news from Westminster including minute-by-minute coverage of PMQs and all the latest reaction to the budget\n\nRead a summary of events so far", article.getStandfirst());
-	//	assertEquals(new DateTime(2010, 6, 23, 7, 3, 39, 0), article.getPubDate());
+		// TODO This assert suffers from an BST problem which would be nice to work out an answer to.
+		//assertEquals(new DateTime(2010, 6, 23, 7, 3, 39, 0), article.getPubDate());	
 	}
 
 	

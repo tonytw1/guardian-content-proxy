@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import nz.gen.wellington.guardian.contentapi.parsing.ContentApiStyleJSONParser;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 
+// TODO This probably isn't very free at all as implemented - needs an empty key pool jammed in it or something...
 public class FreeTierContentApi extends ContentApi {
 
 	@Inject
