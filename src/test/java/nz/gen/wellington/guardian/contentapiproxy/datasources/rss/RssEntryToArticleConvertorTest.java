@@ -115,8 +115,8 @@ public class RssEntryToArticleConvertorTest {
         BufferedReader in = new BufferedReader(freader);
         String str;
         while ((str = in.readLine()) != null) {
-                content.append(str);
-                content.append("\n");
+        	content.append(str);
+        	content.append("\n");
         }
         in.close();
         freader.close();
