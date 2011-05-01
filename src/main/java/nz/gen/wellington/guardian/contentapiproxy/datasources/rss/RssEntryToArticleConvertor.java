@@ -120,7 +120,7 @@ public class RssEntryToArticleConvertor {
 		if (firstMediaContent.getType().startsWith("image")) {			
 			// Thumbnail handling is different for articles and galleries.
 			
-			final boolean isGallery = article.getId().contains("gallery");	// TODO use DC type
+			final boolean isGallery = article.getId() != null && article.getId().contains("gallery");	// TODO use DC type
 			if (isGallery) {
 				log.info("Content item is a gallery");
 				// Each media content item is a full sized image with a thumbnail field set.
