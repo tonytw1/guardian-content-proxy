@@ -51,10 +51,11 @@ public class RssEntryToArticleConvertorTest {
 	}
 	
 	@Test
-	public void shouldExtractAllFieldsCorrectly() throws Exception {
+	public void shouldExtractArticleFieldsCorrectly() throws Exception {
 		SyndEntry firstEntry = (SyndEntry) feed.getEntries().get(0);		
 		Article article = convertor.entryToArticle(firstEntry, sections);
 		
+		assertEquals("politics/blog/2010/jun/23/politics-live-blog-budget-pmqs", article.getId());
 		assertEquals("Cameron defends Osborne's budget 'to protect the poor'", article.getHeadline());
 		assertEquals("politics", article.getSection().getId());
 		assertEquals("Andrew Sparrow", article.getByline());
@@ -62,6 +63,16 @@ public class RssEntryToArticleConvertorTest {
 		assertEquals(7, article.getTags().size());				
 		// TODO This assert suffers from an BST problem which would be nice to work out an answer to.
 		//assertEquals(new DateTime(2010, 6, 23, 7, 3, 39, 0), article.getPubDate());	
+	}
+		
+	@Test
+	public void shouldExtractGalleryFieldsCorrectly() throws Exception {
+		SyndEntry firstEntry = (SyndEntry) galleryFeed.getEntries().get(0);		
+		Article gallery = convertor.entryToArticle(firstEntry, sections);
+		
+		assertEquals("tv-and-radio/gallery/2011/apr/26/bafta-tv-awards-2011", gallery.getId());
+		assertEquals("Bafta TV award nominations - in pictures", gallery.getHeadline());
+		assertEquals("tv-and-radio", gallery.getSection().getId());
 	}
 
 	@Test
@@ -73,11 +84,10 @@ public class RssEntryToArticleConvertorTest {
 	
 	@Test
 	public void galleryThumbnailShouldBeSetToTheThumbnailUrlOfTheFirstMediaElement() throws Exception {
-		SyndEntry firstEntry = (SyndEntry) galleryFeed.getEntries().get(0);		
+		SyndEntry firstEntry = (SyndEntry) galleryFeed.getEntries().get(0);
 		Article article = convertor.entryToArticle(firstEntry, sections);
 		assertEquals("http://static.guim.co.uk/sys-images/Media/Pix/pictures/2011/4/26/1303818961303/Misfits-001-thumb-338.jpg", article.getThumbnail());
 	}
-	
 	
 	@Test
 	public void galleryMediaElementsShouldHaveDescriptionsAndThumbnailsCorrectlySet() throws Exception {
@@ -92,11 +102,8 @@ public class RssEntryToArticleConvertorTest {
 
 	}
 	
-	
-	
-	
 	@Test
-	public void testShouldIgnoreNonArticles() throws Exception {
+	public void testShouldIgnoreNonArticlesAndGalleries() throws Exception {
 		SyndEntry galleryEntry = (SyndEntry) feed.getEntries().get(11);
 		assertNull(convertor.entryToArticle(galleryEntry, sections));
 	}
