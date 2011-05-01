@@ -1,6 +1,7 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources.rss;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.BufferedReader;
@@ -25,19 +26,27 @@ import com.sun.syndication.io.SyndFeedInput;
 
 public class RssEntryToArticleConvertorTest {
 	
-	private SyndFeed feed;
 	private RssEntryToArticleConvertor convertor;
 	private Map<String, Section> sections;
 	
+	private SyndFeed feed;
+	private SyndFeed galleryFeed;
+	
 	@Before
 	public void setUp() throws Exception {
-		String content = loadContent("rss.htm").toString();
-		
-		SyndFeedInput input = new SyndFeedInput();
-		feed = input.build(new StringReader(content));
 		convertor = new RssEntryToArticleConvertor(new HtmlCleaner());
 		sections = new HashMap<String, Section>();
 		sections.put("poltics", new Section("politics", "Politics"));
+		sections.put("media", new Section("media", "Media"));
+		sections.put("tv-and-radio", new Section("tv-and-radio", "Television & radio"));
+		
+		String content = loadContent("rss.htm").toString();
+		SyndFeedInput input = new SyndFeedInput();
+		feed = input.build(new StringReader(content));
+		
+		content = loadContent("gallery-rss.htm").toString();
+		input = new SyndFeedInput();
+		galleryFeed = input.build(new StringReader(content));				
 	}
 	
 	@Test
@@ -59,6 +68,16 @@ public class RssEntryToArticleConvertorTest {
 		SyndEntry firstEntry = (SyndEntry) feed.getEntries().get(0);		
 		Article article = convertor.entryToArticle(firstEntry, sections);	
 		assertEquals("http://static.guim.co.uk/sys-images/Politics/Pix/pictures/2010/6/22/1277210802573/Budget-2010-George-Osborn-002.jpg", article.getThumbnail());
+	}
+	
+	@Test
+	public void galleryThumbnailShouldBeSetToTheThumbnailUrlOfTheFirstMediaElement() throws Exception {
+		SyndEntry firstEntry = (SyndEntry) galleryFeed.getEntries().get(0);
+		assertNotNull(firstEntry);
+		
+		Article article = convertor.entryToArticle(firstEntry, sections);
+		assertNotNull(article);
+		assertEquals("http://static.guim.co.uk/sys-images/Media/Pix/pictures/2011/4/26/1303818961303/Misfits-001-thumb-338.jpg", article.getThumbnail());
 	}
 	
 	@Test

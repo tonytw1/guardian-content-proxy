@@ -24,6 +24,7 @@ import com.sun.syndication.feed.module.mediarss.MediaEntryModuleImpl;
 import com.sun.syndication.feed.module.mediarss.MediaModule;
 import com.sun.syndication.feed.module.mediarss.types.MediaContent;
 import com.sun.syndication.feed.module.mediarss.types.Metadata;
+import com.sun.syndication.feed.module.mediarss.types.Thumbnail;
 import com.sun.syndication.feed.module.mediarss.types.UrlReference;
 import com.sun.syndication.feed.synd.SyndEntry;
 
@@ -84,20 +85,15 @@ public class RssEntryToArticleConvertor {
 		MediaEntryModuleImpl mediaModule = (MediaEntryModuleImpl) item.getModule(MediaModule.URI);
         if (mediaModule != null) {
         
-	         log.debug("Found media module");        
+	         log.info("Found media module");        
 	         MediaContent[] mediaContents = mediaModule.getMediaContents();
 	         if (mediaContents.length > 0) {
-	        	 MediaContent mediaContent = mediaContents[0];
-	        	 
-	        	 if (mediaContent.getType().startsWith("image")) {
-	        		 UrlReference reference = (UrlReference) mediaContent.getReference();
-	        		 if (mediaContent.getWidth() == 140 && mediaContent.getHeight() == 84) {
-	        			 article.setThumbnailUrl(reference.getUrl().toExternalForm());
-	        		 }
-	        	 }
+
+	        	 MediaContent firstMediaContent = mediaContents[0];	        	 
+	        	 extractContentItemThumbnailFromFirstMediaContent(article, firstMediaContent);
 	        	 
 	        	 for (int i = 0; i < mediaContents.length; i++) {
-	        		 mediaContent = mediaContents[i];
+	        		 MediaContent mediaContent = mediaContents[i];
 	        		 
 	        		 final boolean mediaElementIsPicture = mediaContent.getType() != null && mediaContent.getType().startsWith("image");
 	        		 if (mediaElementIsPicture) {
@@ -110,6 +106,41 @@ public class RssEntryToArticleConvertor {
 	         }
         }
 
+	}
+
+	private void extractContentItemThumbnailFromFirstMediaContent(Article article, MediaContent firstMediaContent) {		
+		log.info("Extracting thumbnail for: " + article.getHeadline());
+		log.info("Is gallery: " + article.isGallery());
+
+		if (firstMediaContent.getType().startsWith("image")) {			
+			// Thumbnail handling is different for articles and galleries.
+			
+			final boolean isGallery = article.getId().contains("gallery");	// TODO use DC type
+			if (isGallery) {
+				log.info("Content item is a gallery");
+				// Each media content item is a full sized image with a thumbnail field set.
+				// TODO how to this with the RSS API?
+				if (firstMediaContent.getMetadata() != null) {
+					log.info("Content item metadata is not null");
+
+					Thumbnail[] thumbnails = firstMediaContent.getMetadata().getThumbnail();
+					log.info("First media content thumbnails: " + thumbnails);
+
+					if (thumbnails != null && thumbnails.length > 0) {
+						Thumbnail thumbnail = thumbnails[0];
+						log.info("First thumbnail: " + thumbnail);
+						article.setThumbnailUrl(thumbnail.getUrl().toExternalForm());
+					}
+				}
+				
+			} else {
+				// The first media content for an article is a thumbnail sized media content item.
+				UrlReference reference = (UrlReference) firstMediaContent.getReference();
+				if (firstMediaContent.getWidth() == 140 && firstMediaContent.getHeight() == 84) {
+					article.setThumbnailUrl(reference.getUrl().toExternalForm());
+				}
+			}
+		 }
 	}
 
 
