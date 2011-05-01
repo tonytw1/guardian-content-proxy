@@ -18,7 +18,6 @@ public class GuiceServletConfig extends GuiceServletContextListener {
 		    	 serve("/search").with(SearchProxyServlet.class);
 		    	 serve("/sections").with(SectionProxyServlet.class);
 		    	 serve("/tags").with(TagsProxyServlet.class);
-		    	 serve("/thumb").with(ThumbnailProxyServlet.class);
 		     }
 		     
 		});

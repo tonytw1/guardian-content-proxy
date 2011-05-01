@@ -1,8 +1,6 @@
 package nz.gen.wellington.guardian.contentapiproxy.output;
 
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +8,6 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import nz.gen.wellington.guardian.contentapiproxy.config.InstalledLocation;
 import nz.gen.wellington.guardian.contentapiproxy.utils.ContentChecksumCalculator;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.MediaElement;
@@ -29,12 +26,10 @@ public class ArticleToXmlRenderer {
 	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
 	private ContentChecksumCalculator contentCheckSumCalculator;
-	private String serverName;
 	
 	@Inject
-	public ArticleToXmlRenderer(ContentChecksumCalculator contentCheckSumCalculator, InstalledLocation installedLocation) {
+	public ArticleToXmlRenderer(ContentChecksumCalculator contentCheckSumCalculator) {
 		this.contentCheckSumCalculator = contentCheckSumCalculator;
-		this.serverName = installedLocation.getInstalledLocation();
 	}
 	
 	public String outputXml(List<Article> articles, String description, Map<String, List<Refinement>> refinements, boolean showAllFields) {		
@@ -162,22 +157,17 @@ public class ArticleToXmlRenderer {
 		if (mediaElement.getHeight() != null) {
 			writeFieldElement(writer, "height", mediaElement.getHeight().toString());
 		}
-		writeFieldElement(writer, "caption", mediaElement.getCaption());
-		writeFieldElement(writer, "thumbnail", "http://" + serverName + "/thumb?file=" + encodeValue(mediaElement.getFile()));		
+		if (mediaElement.getCaption() != null) {
+			writeFieldElement(writer, "caption", mediaElement.getCaption());
+		}
+		if (mediaElement.getThumbnail() != null) {
+			writeFieldElement(writer, "thumbnail", mediaElement.getThumbnail());		
+		}
 		writer.writeEndElement();
 		
 		writer.writeEndElement();
 	}
-
-
-	private String encodeValue(String value) {
-		try {
-			return URLEncoder.encode(value, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			return value;
-		}
-	}
-
+	
 	private void writeFieldElement(XMLStreamWriter writer, String fieldname, String value) throws XMLStreamException {
 		writer.writeStartElement("field");
 		writer.writeAttribute("name", fieldname);
