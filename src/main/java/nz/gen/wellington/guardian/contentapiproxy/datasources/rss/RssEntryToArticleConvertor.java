@@ -99,7 +99,12 @@ public class RssEntryToArticleConvertor {
 	        		 if (mediaElementIsPicture) {
 	        			 UrlReference reference = (UrlReference) mediaContent.getReference();
 		        		 Metadata metadata = mediaContent.getMetadata();
-	        			 MediaElement picture = new MediaElement("picture", reference.getUrl().toExternalForm(), metadata.getDescription(), mediaContent.getWidth(), mediaContent.getHeight());
+
+		        		 MediaElement picture = new MediaElement("picture", reference.getUrl().toExternalForm(), metadata.getDescription(), mediaContent.getWidth(), mediaContent.getHeight());        			 
+	        			 if ( mediaContent.getMetadata() != null && mediaContent.getMetadata().getThumbnail() != null && mediaContent.getMetadata().getThumbnail().length > 0) {
+	        				 picture.setThumbnail(mediaContent.getMetadata().getThumbnail()[0].getUrl().toExternalForm());
+	        			 }
+	        			 
 	        			 article.addMediaElement(picture);
 	        		 }
 	        	 }

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapi.cleaning.HtmlCleaner;
 import nz.gen.wellington.guardian.model.Article;
+import nz.gen.wellington.guardian.model.MediaElement;
 import nz.gen.wellington.guardian.model.Section;
 
 import org.junit.Before;
@@ -72,13 +73,27 @@ public class RssEntryToArticleConvertorTest {
 	
 	@Test
 	public void galleryThumbnailShouldBeSetToTheThumbnailUrlOfTheFirstMediaElement() throws Exception {
+		SyndEntry firstEntry = (SyndEntry) galleryFeed.getEntries().get(0);		
+		Article article = convertor.entryToArticle(firstEntry, sections);
+		assertEquals("http://static.guim.co.uk/sys-images/Media/Pix/pictures/2011/4/26/1303818961303/Misfits-001-thumb-338.jpg", article.getThumbnail());
+	}
+	
+	
+	@Test
+	public void galleryMediaElementsShouldHaveDescriptionsAndThumbnailsCorrectlySet() throws Exception {
 		SyndEntry firstEntry = (SyndEntry) galleryFeed.getEntries().get(0);
 		assertNotNull(firstEntry);
 		
 		Article article = convertor.entryToArticle(firstEntry, sections);
-		assertNotNull(article);
-		assertEquals("http://static.guim.co.uk/sys-images/Media/Pix/pictures/2011/4/26/1303818961303/Misfits-001-thumb-338.jpg", article.getThumbnail());
+		
+		MediaElement firstMediaElement = article.getMediaElements().get(0);		
+		assertEquals("Misfits lands four Bafta nominations, including supporting actress for Lauren Socha (right) and supporting actor Robert Sheehan (second right)", firstMediaElement.getCaption());		
+		assertEquals("http://static.guim.co.uk/sys-images/Media/Pix/pictures/2011/4/26/1303818961303/Misfits-001-thumb-338.jpg", firstMediaElement.getThumbnail());
+
 	}
+	
+	
+	
 	
 	@Test
 	public void testShouldIgnoreNonArticles() throws Exception {
