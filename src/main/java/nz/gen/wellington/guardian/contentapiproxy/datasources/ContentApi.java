@@ -204,7 +204,7 @@ public class ContentApi {
 			urlBuilder.setFromDate(fromDate.toString("YYYY-MM-dd"));
 		}
 		if (toDate != null) {
-			urlBuilder.setFromDate(toDate.toString("YYYY-MM-dd"));
+			urlBuilder.setToDate(toDate.toString("YYYY-MM-dd"));
 		}
 		urlBuilder.setFormat("json");	
 		final String callUrl = urlBuilder.toSearchQueryUrl();		
