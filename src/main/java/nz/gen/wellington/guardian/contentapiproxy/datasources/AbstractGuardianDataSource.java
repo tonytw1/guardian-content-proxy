@@ -29,8 +29,7 @@ public abstract class AbstractGuardianDataSource implements GuardianDataSource {
 	}
 	
 	private Map<String, List<Refinement>> getTagRefinements(Tag tag) {
-		return contentApi.getTagRefinements(tag, new DateTime().minusWeeks(2), new DateTime()
-		);
+		return contentApi.getTagRefinements(tag, new DateTime().minusWeeks(2), new DateTime());
 	}
 	
 }
