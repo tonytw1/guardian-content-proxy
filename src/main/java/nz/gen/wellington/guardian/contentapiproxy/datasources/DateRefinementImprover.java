@@ -139,15 +139,20 @@ public class DateRefinementImprover {
 	
 	private List<Refinement> createYearDateRefinementsForTag(SearchQuery query, Tag tag, DateTime fromDate, DateTime toDate) {
 		Map<String, List<Refinement>> tagRefinements = contentApi.getTagRefinements(tag, fromDate, toDate);
-		if (tagRefinements.containsKey("date")) {
-			List<Refinement> yearRefinements = new ArrayList<Refinement>();
-			for (Refinement refinement : tagRefinements.get("date")) {
-				if (refinement.getDisplayName().matches("\\d\\d\\d\\d")) {
-					log.info("Adding year date refinement: " + refinement.getDisplayName());
-					yearRefinements.add(refinement);
+		if (tagRefinements != null) {
+			if (tagRefinements.containsKey("date")) {			
+				List<Refinement> yearRefinements = new ArrayList<Refinement>();
+				for (Refinement refinement : tagRefinements.get("date")) {
+					if (refinement.getDisplayName().matches("\\d\\d\\d\\d")) {
+						log.info("Adding year date refinement: " + refinement.getDisplayName());
+						yearRefinements.add(refinement);
+					}
 				}
+				return yearRefinements;
 			}
-			return yearRefinements;
+			
+		} else {
+			log.warn("Tag refinements were null while attempting to create year refinements for tag: " + tag.getName());
 		}
 		return null;
 	}
