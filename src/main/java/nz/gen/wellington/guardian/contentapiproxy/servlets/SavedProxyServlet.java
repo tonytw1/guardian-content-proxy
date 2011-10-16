@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SavedContentDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.output.ArticleToXmlRenderer;
 import nz.gen.wellington.guardian.model.Article;
@@ -28,8 +29,8 @@ public class SavedProxyServlet extends CacheAwareProxyServlet {
 
 	
 	@Inject
-	public SavedProxyServlet(SavedContentDataSource datasource, ArticleToXmlRenderer articleToXmlRenderer) {
-		super();
+	public SavedProxyServlet(Cache cache, SavedContentDataSource datasource, ArticleToXmlRenderer articleToXmlRenderer) {
+		super(cache);
 		this.datasource = datasource;
 		this.articleToXmlRenderer = articleToXmlRenderer;
 	}

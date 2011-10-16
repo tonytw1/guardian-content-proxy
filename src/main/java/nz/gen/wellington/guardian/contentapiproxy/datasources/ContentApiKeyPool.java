@@ -1,10 +1,9 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
+import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
+
 import org.apache.log4j.Logger;
 
-import com.google.appengine.api.memcache.Expiration;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.inject.Inject;
 
 public class ContentApiKeyPool {
@@ -15,12 +14,11 @@ public class ContentApiKeyPool {
 	public static final String API_KEY = "";	
 	private static final int DEFAULT_TTL = 60 * 60;
 	
-	private MemcacheService cache;
-
+	private Cache cache;
+	
 	@Inject
-	public ContentApiKeyPool() {	
-		cache = MemcacheServiceFactory.getMemcacheService();
-		cache.clearAll();
+	public ContentApiKeyPool(Cache cache) {
+		this.cache = cache;
 	}
 	
 	public String getAvailableApiKey() {		
@@ -33,8 +31,7 @@ public class ContentApiKeyPool {
 	}
 	
 	public void markKeyAsBeenOverRate(String apiKey) {
-		Expiration expiration = Expiration.byDeltaSeconds(DEFAULT_TTL);
-		cache.put(CACHE_KEY_PREFIX + apiKey, 1, expiration);
+		cache.put(CACHE_KEY_PREFIX + apiKey, "1", DEFAULT_TTL);
 	}
 	
 }

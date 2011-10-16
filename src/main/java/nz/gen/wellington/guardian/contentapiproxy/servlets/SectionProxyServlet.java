@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.output.SectionsToJSONRenderer;
@@ -30,8 +31,8 @@ public class SectionProxyServlet extends CacheAwareProxyServlet {
 
 	
 	@Inject
-	public SectionProxyServlet(RssDataSource dataSource, SectionsToJSONRenderer sectionsToJSONRenderer) {
-		super();
+	public SectionProxyServlet(Cache cache, RssDataSource dataSource, SectionsToJSONRenderer sectionsToJSONRenderer) {
+		super(cache);
 		this.dataSource = dataSource;
 		this.sectionsToJSONRenderer = sectionsToJSONRenderer;
 	}

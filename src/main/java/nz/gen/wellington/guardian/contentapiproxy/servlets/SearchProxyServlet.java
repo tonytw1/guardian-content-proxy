@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.DateRefinementImprover;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ContentApiDataSource;
@@ -39,8 +40,8 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	private DateRefinementImprover dateRefinementImprover;
 	
 	@Inject
-	public SearchProxyServlet(RssDataSource rssDataSource, ContentApiDataSource contentApiDataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser, DateRefinementImprover dateRefinementImprover) {
-		super();
+	public SearchProxyServlet(Cache cache, RssDataSource rssDataSource, ContentApiDataSource contentApiDataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser, DateRefinementImprover dateRefinementImprover) {
+		super(cache);
 		this.rssDataSource = rssDataSource;
 		this.contentApiDataSource = contentApiDataSource;
 		this.articleToXmlRenderer = articleToXmlRenderer;

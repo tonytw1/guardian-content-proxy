@@ -3,6 +3,7 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 import javax.servlet.http.HttpServletRequest;
 
 import nz.gen.wellington.guardian.contentapi.urls.ContentApiStyleUrlBuilder;
+import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApiKeyPool;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
@@ -23,7 +24,8 @@ public class TagsProxyServlet extends UrlBasedCachedRequest {
 	private ContentApiKeyPool contentApiKeyPool;
 	
 	@Inject
-	public TagsProxyServlet(CachingHttpFetcher httpFetcher, ContentApiKeyPool contentApiKeyPool) {
+	public TagsProxyServlet(Cache cache, CachingHttpFetcher httpFetcher, ContentApiKeyPool contentApiKeyPool) {
+		super(cache);
 		this.httpFetcher = httpFetcher;
 		this.contentApiKeyPool = contentApiKeyPool;
 	}

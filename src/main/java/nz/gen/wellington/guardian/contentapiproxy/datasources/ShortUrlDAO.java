@@ -1,10 +1,9 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
+import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
+
 import org.apache.log4j.Logger;
 
-import com.google.appengine.api.memcache.Expiration;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.inject.Inject;
 
 public class ShortUrlDAO {
@@ -13,20 +12,18 @@ public class ShortUrlDAO {
 	private static final String CACHE_PREFIX = "SHORTURL:";
 
 	private final Logger log = Logger.getLogger(ShortUrlDAO.class);
-	private MemcacheService cache;
+	private Cache cache;
 	
 	@Inject
-	public ShortUrlDAO() {
-		cache = MemcacheServiceFactory.getMemcacheService();
+	public ShortUrlDAO(Cache cache) {
+		this.cache = cache;
 	}
 	
 	public void storeShortUrl(String contentId, String shortUrl) {
-		Expiration expiration = Expiration.byDeltaSeconds(SHORT_URL_TTL);
-		cache.put(getCacheKeyFor(contentId), shortUrl, expiration);
+		cache.put(getCacheKeyFor(contentId), shortUrl, SHORT_URL_TTL);
 		log.info("Cached short url: " + contentId + " -> " + shortUrl);
 	}
-
-
+	
 	public String getShortUrlFor(String contentId) {
 		String shortUrl = (String) cache.get(getCacheKeyFor(contentId));
 		if (cache.contains(getCacheKeyFor(contentId))) {
