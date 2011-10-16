@@ -80,10 +80,13 @@
   		<type>jar</type>
   		<scope>compile</scope>
   	</dependency>
-
   	
-  	
-  	
+  	<dependency>
+    	<groupId>org.apache.httpcomponents</groupId>
+    	<artifactId>httpclient</artifactId>
+    	<version>4.1.2</version>
+	</dependency>
+  	  	
   	<dependency>
   		<groupId>org.jdom</groupId>
   		<artifactId>jdom</artifactId>

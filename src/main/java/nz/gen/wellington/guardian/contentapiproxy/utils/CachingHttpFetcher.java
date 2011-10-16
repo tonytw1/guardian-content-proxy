@@ -16,6 +16,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 	
 	@Inject
 	public CachingHttpFetcher(Cache cache) {
+		super();
 		this.cache = cache;
 	}
 	
