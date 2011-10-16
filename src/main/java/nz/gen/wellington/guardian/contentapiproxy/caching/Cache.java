@@ -1,36 +1,57 @@
 package nz.gen.wellington.guardian.contentapiproxy.caching;
 
-import com.google.appengine.api.memcache.Expiration;
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import java.io.IOException;
+
+import net.spy.memcached.AddrUtil;
+import net.spy.memcached.MemcachedClient;
+
+import org.apache.log4j.Logger;
+
 import com.google.inject.Inject;
 
 public class Cache {
 
-	private static final String KEY_PREFIX = "GUARDIANLITE5:";
+	private final Logger log = Logger.getLogger(Cache.class);
 	
-	private MemcacheService cache;
+	private static final String KEY_PREFIX = "GUARDIANLITE5:";	// TODO hardcoded version number
 	
+	private MemcachedClient memcachedClient;
+		
 	@Inject
 	public Cache() {
-		cache = MemcacheServiceFactory.getMemcacheService();
 	}
 	
 	public void put(String url, String content, int ttl) {
-		Expiration expiration = Expiration.byDeltaSeconds(ttl);
-		cache.put(makeCachekKey(url), content, expiration);
+		try {
+			getClient().set(makeCachekKey(url), ttl, content);
+		} catch (IOException e) {
+			log.error(e);
+		}
 	}
 
 	public String get(String url) {
-		return (String) cache.get(makeCachekKey(url)); 
+		try {
+			return (String) getClient().get(makeCachekKey(url));
+		} catch (IOException e) {
+			log.error(e);
+		} 
+		return null;
 	}
 	
+	@Deprecated 	// TODO Not atomic - calling code should be doing this
 	public boolean contains(String key) {
-		return cache.contains(makeCachekKey(key));
+		return get(key) != null;
 	}
 	
 	private String makeCachekKey(String url) {
 		return KEY_PREFIX + url;
 	}
 	
+	private MemcachedClient getClient() throws IOException {
+		if (memcachedClient == null) {
+			memcachedClient= new MemcachedClient( AddrUtil.getAddresses("localhost:11211"));
+		}
+		return memcachedClient;
+	}
+
 }
