@@ -27,6 +27,17 @@
                 http://dist.wso2.org/maven2/
             </url>
         </repository>
+        
+         <repository>
+      <id>spy</id>
+      <name>Spy Repository</name>
+      <layout>default</layout>
+      <url>http://files.couchbase.com/maven2/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+            
     </repositories>
  
  
@@ -121,17 +132,13 @@
   		<type>jar</type>
   		<scope>compile</scope>
   	</dependency>
-
-
-  <dependency>
-    <groupId>com.google.appengine</groupId>
-    <artifactId>appengine-api-1.0-sdk</artifactId>
-    <version>1.2.8</version>
-    <type>jar</type>
-    <scope>compile</scope>
-  </dependency>
-
   	  
+    <dependency>
+        <groupId>spy</groupId>
+        <artifactId>spymemcached</artifactId>
+        <version>2.6</version>        
+    </dependency>
+    	  
   <dependency>
   	<groupId>xerces</groupId>
   	<artifactId>xerces</artifactId>
