@@ -43,37 +43,32 @@ public class SectionProxyServlet extends CacheAwareProxyServlet {
 		response.setContentType("text/plain");
 		response.setCharacterEncoding("UTF-8");
 		
-		if (request.getRequestURI().equals("/sections")) {
-			
-			final String queryCacheKey = "sections";
-			String content = cacheGet(queryCacheKey);
-			if (content != null) {
-	        	log.info("Returning cached results for call url: " + queryCacheKey);
+		final String queryCacheKey = "sections";
+		String content = cacheGet(queryCacheKey);
+		if (content != null) {
+			log.info("Returning cached results for call url: " + queryCacheKey);
 
-			} else {
-				Map<String, Section> sections = dataSource.getSections();
-				if (sections != null) {				
-					content = sectionsToJSONRenderer.outputJSON(sections);				
-					cacheContent(queryCacheKey, content);
-				}
-			}
-				
-			if (content != null) {	
-				response.setStatus(HttpServletResponse.SC_OK);
-				response.addHeader("Etag", DigestUtils.md5Hex(content));
-				PrintWriter writer = response.getWriter();
-				writer.print(content);
-				writer.flush();
-				return;
-			
-			} else {			
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				return;
+		} else {
+			Map<String, Section> sections = dataSource.getSections();
+			if (sections != null) {
+				content = sectionsToJSONRenderer.outputJSON(sections);
+				cacheContent(queryCacheKey, content);
 			}
 		}
+
+		if (content != null) {
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.addHeader("Etag", DigestUtils.md5Hex(content));
+			PrintWriter writer = response.getWriter();
+			writer.print(content);
+			writer.flush();
+			return;
+
+		} else {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
 		
-		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		return;
 	}
 
 }

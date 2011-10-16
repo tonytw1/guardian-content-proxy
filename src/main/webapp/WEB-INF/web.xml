@@ -1,5 +1,5 @@
 <web-app>
-  <display-name>Brown Bag</display-name>
+  <display-name>Guardian content proxy</display-name>
 
 	  <filter>
 	    <filter-name>guiceFilter</filter-name>

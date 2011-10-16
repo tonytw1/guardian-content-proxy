@@ -52,32 +52,28 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
 				
-		if (request.getRequestURI().equals("/search")) {					
-            SearchQuery query = requestQueryParser.getSearchQueryFromRequest(request);
+		SearchQuery query = requestQueryParser.getSearchQueryFromRequest(request);
 
-            List<GuardianDataSource> datasources = new ArrayList<GuardianDataSource>();
-            datasources.add(rssDataSource);
-            datasources.add(contentApiDataSource);
-            
-            final String queryCacheKey = getQueryCacheKey(request);
-            String output = cacheGet(queryCacheKey);
-            if (output != null) {
-            	log.info("Returning cached results for call url: " + queryCacheKey);
-            	outputResponse(response, output);
-            	return;
-            }
-            
-            
-			for (GuardianDataSource dataSource : datasources) {
+		List<GuardianDataSource> datasources = new ArrayList<GuardianDataSource>();
+		datasources.add(rssDataSource);
+		datasources.add(contentApiDataSource);
 
-				if (dataSource.isSupported(query)) {
-					log.info("Building result for call: " + queryCacheKey);
-					output = getContent(query, dataSource);
-					if (output != null) {
-						cacheContent(queryCacheKey, output);
-						outputResponse(response, output);
-						return;
-					}
+		final String queryCacheKey = getQueryCacheKey(request);
+		String output = cacheGet(queryCacheKey);
+		if (output != null) {
+			log.info("Returning cached results for call url: " + queryCacheKey);
+			outputResponse(response, output);
+			return;
+		}
+
+		for (GuardianDataSource dataSource : datasources) {
+			if (dataSource.isSupported(query)) {
+				log.info("Building result for call: " + queryCacheKey);
+				output = getContent(query, dataSource);
+				if (output != null) {
+					cacheContent(queryCacheKey, output);
+					outputResponse(response, output);
+					return;
 				}
 			}
 		}

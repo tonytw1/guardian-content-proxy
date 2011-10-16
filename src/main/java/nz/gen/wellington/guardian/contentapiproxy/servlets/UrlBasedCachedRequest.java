@@ -21,38 +21,33 @@ public abstract class UrlBasedCachedRequest extends CacheAwareProxyServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
 				
-		if (request.getRequestURI().equals("/tags")) {
-			
-            final String queryCacheKey = getQueryCacheKey(request);
-            String output = cacheGet(queryCacheKey);
-            if (output != null) {
-            	log.info("Returning cached results for call url: " + queryCacheKey);				
-            }
-            
-			if (output == null) {			
-				log.info("Building result for call: " + queryCacheKey);	
-				output = getContent(request);
-				if (output != null) {
-					cacheContent(queryCacheKey, output);
-				}				
-			}
-			
+		final String queryCacheKey = getQueryCacheKey(request);
+		String output = cacheGet(queryCacheKey);
+		if (output != null) {
+			log.info("Returning cached results for call url: " + queryCacheKey);
+		}
+
+		if (output == null) {
+			log.info("Building result for call: " + queryCacheKey);
+			output = getContent(request);
 			if (output != null) {
-				log.info("Outputing content: " + output.length() + " characters");
-				response.setStatus(HttpServletResponse.SC_OK);
-				response.setContentType("text/xml");
-				response.setCharacterEncoding("UTF-8");
-				response.addHeader("Etag", DigestUtils.md5Hex(output));
-				PrintWriter writer = response.getWriter();
-				writer.print(output);
-				writer.flush();
-				
-			} else {
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);				
+				cacheContent(queryCacheKey, output);
 			}
 		}
-		
-		return;
+
+		if (output != null) {
+			log.info("Outputing content: " + output.length() + " characters");
+			response.setStatus(HttpServletResponse.SC_OK);
+			response.setContentType("text/xml");
+			response.setCharacterEncoding("UTF-8");
+			response.addHeader("Etag", DigestUtils.md5Hex(output));
+			PrintWriter writer = response.getWriter();
+			writer.print(output);
+			writer.flush();
+
+		} else {
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
 	}
 
 	protected abstract String getContent(HttpServletRequest request);

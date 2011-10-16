@@ -32,6 +32,7 @@ public class TagsProxyServlet extends UrlBasedCachedRequest {
 	
 	protected String getContent(HttpServletRequest request) {
 		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(ContentApi.API_HOST, contentApiKeyPool.getAvailableApiKey());
+		// TODO fails if q is not present
 		urlBuilder.setSearchTerm(request.getParameter("q"));
 		urlBuilder.setFormat("json");
 

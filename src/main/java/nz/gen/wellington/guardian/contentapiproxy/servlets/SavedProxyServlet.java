@@ -37,9 +37,8 @@ public class SavedProxyServlet extends CacheAwareProxyServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
-				
-		if (request.getRequestURI().equals("/saved") && request.getParameter("content") != null) {
-			
+		
+		if (request.getParameter("content") != null) {			
             final String queryCacheKey = getQueryCacheKey(request);
             String output = cacheGet(queryCacheKey);
             if (output != null) {
