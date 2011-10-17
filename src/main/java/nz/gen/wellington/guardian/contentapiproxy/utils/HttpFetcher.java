@@ -34,42 +34,9 @@ public abstract class HttpFetcher {
 
 	private static final int HTTP_TIMEOUT = 15000;
 
-	private HttpClient client;
-
 	public HttpFetcher() {
-		client = new DefaultHttpClient();
-
-		((AbstractHttpClient) client)
-				.addRequestInterceptor(new HttpRequestInterceptor() {
-					public void process(final HttpRequest request,
-							final HttpContext context) throws HttpException,
-							IOException {
-						if (!request.containsHeader("Accept-Encoding")) {
-							request.addHeader("Accept-Encoding", "gzip");
-						}
-					}
-				});
-		
-		((AbstractHttpClient) client).addResponseInterceptor(new HttpResponseInterceptor() {
-			public void process(final HttpResponse response, final HttpContext context) throws HttpException, IOException {
-				HttpEntity entity = response.getEntity();
-				Header ceheader = entity.getContentEncoding();
-				if (ceheader != null) {
-					HeaderElement[] codecs = ceheader.getElements();
-					for (int i = 0; i < codecs.length; i++) {
-						if (codecs[i].getName().equalsIgnoreCase("gzip")) {
-							response.setEntity(new GzipDecompressingEntity(response.getEntity()));
-							return;
-						}
-					}
-				}
-			}
-		});
-		
-		client.getParams().setParameter("http.socket.timeout", new Integer(HTTP_TIMEOUT));
-		client.getParams().setParameter("http.connection.timeout", new Integer(HTTP_TIMEOUT));
 	}
-
+	
 	public String fetchContent(String url, String charEncoding) throws HttpForbiddenException {
 		InputStream inputStream = httpFetch(url);
 		if (inputStream != null) {
@@ -108,11 +75,43 @@ public abstract class HttpFetcher {
 		return null;
 	}
 	
-	private HttpResponse executeRequest(HttpRequestBase request)
-			throws IOException, ClientProtocolException {
-		return client.execute(request);
+	private HttpResponse executeRequest(HttpRequestBase request) throws IOException, ClientProtocolException {
+		return setupHttpClient().execute(request);
 	}
 	
+	private HttpClient setupHttpClient() {
+		HttpClient client = new DefaultHttpClient();
+		((AbstractHttpClient) client)
+				.addRequestInterceptor(new HttpRequestInterceptor() {
+					public void process(final HttpRequest request,
+							final HttpContext context) throws HttpException,
+							IOException {
+						if (!request.containsHeader("Accept-Encoding")) {
+							request.addHeader("Accept-Encoding", "gzip");
+						}
+					}
+				});
+		
+		((AbstractHttpClient) client).addResponseInterceptor(new HttpResponseInterceptor() {
+			public void process(final HttpResponse response, final HttpContext context) throws HttpException, IOException {
+				HttpEntity entity = response.getEntity();
+				Header ceheader = entity.getContentEncoding();
+				if (ceheader != null) {
+					HeaderElement[] codecs = ceheader.getElements();
+					for (int i = 0; i < codecs.length; i++) {
+						if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+							response.setEntity(new GzipDecompressingEntity(response.getEntity()));
+							return;
+						}
+					}
+				}
+			}
+		});
+		
+		client.getParams().setParameter("http.socket.timeout", new Integer(HTTP_TIMEOUT));
+		client.getParams().setParameter("http.connection.timeout", new Integer(HTTP_TIMEOUT));
+		return client;
+	}
 	
 	private String readResponseBody(String pageCharacterEncoding, InputStream inputStream) throws UnsupportedEncodingException, IOException {
 		StringBuilder output = new StringBuilder();
@@ -128,19 +127,18 @@ public abstract class HttpFetcher {
 		return output.toString();
 		}
 
-	static class GzipDecompressingEntity extends HttpEntityWrapper {
+	private static class GzipDecompressingEntity extends HttpEntityWrapper {
 
 		public GzipDecompressingEntity(final HttpEntity entity) {
 			super(entity);
 		}
 
 		@Override
-		public InputStream getContent() throws IOException,
-				IllegalStateException {
+		public InputStream getContent() throws IOException, IllegalStateException {
 			InputStream wrappedin = wrappedEntity.getContent();
 			return new GZIPInputStream(wrappedin);
 		}
-
+		
 		@Override
 		public long getContentLength() {
 			return this.wrappedEntity.getContentLength();
