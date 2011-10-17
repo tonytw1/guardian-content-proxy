@@ -110,7 +110,7 @@ public class RssEntryToArticleConvertorTest {
 		
 	private StringBuffer loadContent(String filename) throws IOException {
         StringBuffer content = new StringBuffer();
-        File contentFile = new File(ClassLoader.getSystemClassLoader().getResource(filename).getFile());
+        File contentFile = new File(getClass().getClassLoader().getResource(filename).getFile());
         Reader freader = new FileReader(contentFile);
         BufferedReader in = new BufferedReader(freader);
         String str;
