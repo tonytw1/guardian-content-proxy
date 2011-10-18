@@ -5,6 +5,7 @@ import java.io.IOException;
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.MemcachedClient;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
@@ -44,7 +45,7 @@ public class Cache {
 	}
 	
 	private String makeCachekKey(String url) {
-		return KEY_PREFIX + url;
+		return KEY_PREFIX + DigestUtils.shaHex(url);
 	}
 	
 	private MemcachedClient getClient() throws IOException {
