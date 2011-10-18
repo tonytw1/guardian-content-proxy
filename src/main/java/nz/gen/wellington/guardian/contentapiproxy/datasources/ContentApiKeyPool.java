@@ -11,7 +11,7 @@ public class ContentApiKeyPool {
 	private final Logger log = Logger.getLogger(ContentApiKeyPool.class);
 	
 	private static final String CACHE_KEY_PREFIX = "expired-api-key:";
-	public static final String API_KEY = "";	
+	public static final String API_KEY = "";	// TODO push to a property
 	private static final int DEFAULT_TTL = 60 * 60;
 	
 	private Cache cache;
