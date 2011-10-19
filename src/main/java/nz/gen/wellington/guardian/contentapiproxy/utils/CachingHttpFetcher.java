@@ -21,8 +21,8 @@ public class CachingHttpFetcher extends HttpFetcher {
 	}
 	
 	public String fetchContent(String url, String charEncoding) throws HttpForbiddenException {
-		log.info("Called for url '" + url);
-
+		log.debug("Called for url '" + url);
+		
 		final String content = fetchFromCache(url);
 		if (content != null) {
 			log.info("Found content for url '" + url + "' in cache");

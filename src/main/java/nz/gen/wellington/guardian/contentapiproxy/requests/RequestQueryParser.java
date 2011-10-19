@@ -30,14 +30,14 @@ public class RequestQueryParser {
 		if (tagParameter != null) {
 			
 			if (isCompoundTagQuery(tagParameter)) {
-				log.info(tagParameter + " is a compound tag query");
+				log.debug(tagParameter + " is a compound tag query");
 				final String leftMostTagGroup = extractLeftMostTagGroupFromComplexTagQuery(tagParameter);
 				final String rightMostTagGroup = extractRightMostTagGroupFromComplexTagQuery(tagParameter);
 
-				log.info("Leftmost tag group is: " + leftMostTagGroup);
+				log.debug("Leftmost tag group is: " + leftMostTagGroup);
 				extractOrSeperatedTagsIds(query, leftMostTagGroup);
 				
-				log.info("Rightmore tag group is: " + rightMostTagGroup);
+				log.debug("Rightmore tag group is: " + rightMostTagGroup);
 				if (rightMostTagGroup != null && rightMostTagGroup.equals("type/gallery")) {
 					query.setCombinerTag(rightMostTagGroup);
 				}

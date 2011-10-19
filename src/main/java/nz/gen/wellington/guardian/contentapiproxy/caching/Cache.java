@@ -45,7 +45,9 @@ public class Cache {
 	}
 	
 	private String makeCachekKey(String url) {
-		return KEY_PREFIX + DigestUtils.shaHex(url);
+		String key = KEY_PREFIX + DigestUtils.shaHex(url);
+		log.info(url + " key is: " + key);
+		return key;
 	}
 	
 	private MemcachedClient getClient() throws IOException {

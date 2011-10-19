@@ -85,7 +85,7 @@ public class RssEntryToArticleConvertor {
 		MediaEntryModuleImpl mediaModule = (MediaEntryModuleImpl) item.getModule(MediaModule.URI);
         if (mediaModule != null) {
         
-	         log.info("Found media module");        
+	         log.debug("Found media module");        
 	         MediaContent[] mediaContents = mediaModule.getMediaContents();
 	         if (mediaContents.length > 0) {
 
@@ -114,26 +114,24 @@ public class RssEntryToArticleConvertor {
 	}
 
 	private void extractContentItemThumbnailFromFirstMediaContent(Article article, MediaContent firstMediaContent) {		
-		log.info("Extracting thumbnail for: " + article.getHeadline());
-		log.info("Is gallery: " + article.isGallery());
-
+		log.debug("Extracting thumbnail for: " + article.getHeadline());
 		if (firstMediaContent.getType().startsWith("image")) {			
 			// Thumbnail handling is different for articles and galleries.
 			
 			final boolean isGallery = article.getId() != null && article.getId().contains("gallery");	// TODO use DC type
 			if (isGallery) {
-				log.info("Content item is a gallery");
+				log.debug("Content item is a gallery");
 				// Each media content item is a full sized image with a thumbnail field set.
 				// TODO how to this with the RSS API?
 				if (firstMediaContent.getMetadata() != null) {
-					log.info("Content item metadata is not null");
+					log.debug("Content item metadata is not null");
 
 					Thumbnail[] thumbnails = firstMediaContent.getMetadata().getThumbnail();
-					log.info("First media content thumbnails: " + thumbnails);
+					log.debug("First media content thumbnails: " + thumbnails);
 
 					if (thumbnails != null && thumbnails.length > 0) {
 						Thumbnail thumbnail = thumbnails[0];
-						log.info("First thumbnail: " + thumbnail);
+						log.debug("First thumbnail: " + thumbnail);
 						article.setThumbnailUrl(thumbnail.getUrl().toExternalForm());
 					}
 				}
