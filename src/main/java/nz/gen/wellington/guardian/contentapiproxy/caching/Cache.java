@@ -24,7 +24,7 @@ public class Cache {
 	
 	public void put(String url, String content, int ttl) {
 		try {
-			getClient().set(makeCachekKey(url), ttl, content);
+			getClient().set(makeCacheKey(url), ttl, content);
 		} catch (IOException e) {
 			log.error(e);
 		}
@@ -32,19 +32,14 @@ public class Cache {
 
 	public String get(String url) {
 		try {
-			return (String) getClient().get(makeCachekKey(url));
+			return (String) getClient().get(makeCacheKey(url));
 		} catch (IOException e) {
 			log.error(e);
 		} 
 		return null;
 	}
 	
-	@Deprecated 	// TODO Not atomic - calling code should be doing this
-	public boolean contains(String key) {
-		return get(key) != null;
-	}
-	
-	private String makeCachekKey(String url) {
+	private String makeCacheKey(String url) {
 		String key = KEY_PREFIX + DigestUtils.shaHex(url);
 		log.info(url + " key is: " + key);
 		return key;

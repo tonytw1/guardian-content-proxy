@@ -25,11 +25,7 @@ public class ShortUrlDAO {
 	}
 	
 	public String getShortUrlFor(String contentId) {
-		String shortUrl = (String) cache.get(getCacheKeyFor(contentId));
-		if (cache.contains(getCacheKeyFor(contentId))) {
-			return shortUrl;
-		}
-		return null;
+		return cache.get(getCacheKeyFor(contentId));
 	}
 	
 	private String getCacheKeyFor(String contentId) {
