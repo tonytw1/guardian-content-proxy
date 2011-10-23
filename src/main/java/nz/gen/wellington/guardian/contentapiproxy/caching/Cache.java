@@ -9,6 +9,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 public class Cache {
 
@@ -17,9 +18,11 @@ public class Cache {
 	private static final String KEY_PREFIX = "GUARDIANLITE5:";	// TODO hardcoded version number
 	
 	private MemcachedClient memcachedClient;
-		
+	private String memcacheUrl;
+	
 	@Inject
-	public Cache() {
+	public Cache(@Named("memcacheUrl") String memcacheUrl) {
+		this.memcacheUrl = memcacheUrl;
 	}
 	
 	public void put(String url, String content, int ttl) {
@@ -47,7 +50,7 @@ public class Cache {
 	
 	private MemcachedClient getClient() throws IOException {
 		if (memcachedClient == null) {
-			memcachedClient= new MemcachedClient( AddrUtil.getAddresses("localhost:11211"));
+			memcachedClient= new MemcachedClient(AddrUtil.getAddresses(memcacheUrl));
 		}
 		return memcachedClient;
 	}
