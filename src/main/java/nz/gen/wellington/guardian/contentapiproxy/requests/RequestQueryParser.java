@@ -110,11 +110,11 @@ public class RequestQueryParser {
 		parameter = parameter.replaceAll("\\(", "");	// TODO
 		parameter = parameter.replaceAll("\\)", "");
 
-		log.info("Parameter: " + parameter);
+		log.debug("Parameter: " + parameter);
 		String[] fields = parameter.split("\\|");
 		List<String> asList = Arrays.asList(fields);
 		for (String field : asList) {
-			log.info("Field: " + field);			
+			log.debug("Field: " + field);			
 			Tag tag = new Tag(null, field, null, null);
 			query.addTag(tag);				
 		}
