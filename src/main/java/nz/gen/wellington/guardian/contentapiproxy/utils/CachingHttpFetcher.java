@@ -25,7 +25,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 		
 		final String content = fetchFromCache(url);
 		if (content != null) {
-			log.info("Found content for url '" + url + "' in cache");
+			log.debug("Found content for url '" + url + "' in cache");
 			return content;
 		}
 		
@@ -34,7 +34,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 
 		if (fetchedContent != null) {
 			cache.put(url, fetchedContent, DEFAULT_TTL);
-			log.info("Cached url: " + url);
+			log.debug("Cached url: " + url);
 		}
 		return fetchedContent;		
 	}

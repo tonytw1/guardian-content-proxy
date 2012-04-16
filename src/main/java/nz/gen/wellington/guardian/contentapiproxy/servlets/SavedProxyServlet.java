@@ -42,11 +42,11 @@ public class SavedProxyServlet extends CacheAwareProxyServlet {
             final String queryCacheKey = getQueryCacheKey(request);
             String output = cacheGet(queryCacheKey);
             if (output != null) {
-            	log.info("Returning cached results for call url: " + queryCacheKey);				
+            	log.debug("Returning cached results for call url: " + queryCacheKey);				
             }
             
 			if (output == null) {			
-				log.info("Building result for call: " + queryCacheKey);	
+				log.debug("Building result for call: " + queryCacheKey);	
 				output = getContent(request.getParameter("content"));
 				if (output != null) {
 					cacheContent(queryCacheKey, output);

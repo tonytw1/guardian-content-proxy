@@ -22,7 +22,7 @@ public class ShortUrlDecorator {
 	}
 
 	public void decorateArticlesWithShortUrls(List<Article> articles) {
-		log.info("Decorating " + articles.size() + " articles with short urls");
+		log.debug("Decorating " + articles.size() + " articles with short urls");
 		for (Article article : articles) {
 			try {
 				decorateArticleWithShortUrlIfAvailable(article);

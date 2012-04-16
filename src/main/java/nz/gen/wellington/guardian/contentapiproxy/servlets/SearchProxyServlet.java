@@ -61,14 +61,14 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 		final String queryCacheKey = getQueryCacheKey(request);
 		String output = cacheGet(queryCacheKey);
 		if (output != null) {
-			log.info("Returning cached results for call url: " + queryCacheKey);
+			log.debug("Returning cached results for call url: " + queryCacheKey);
 			outputResponse(response, output);
 			return;
 		}
 
 		for (GuardianDataSource dataSource : datasources) {
 			if (dataSource.isSupported(query)) {
-				log.info("Building result for call: " + queryCacheKey);
+				log.debug("Building result for call: " + queryCacheKey);
 				output = getContent(query, dataSource);
 				if (output != null) {
 					cacheContent(queryCacheKey, output);
@@ -97,17 +97,17 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 
 	
 	private String getContent(SearchQuery query, GuardianDataSource datasource) {
-		log.info("Getting content for query: " + query.toString());
+		log.debug("Getting content for query: " + query.toString());
 		ArticleBundle articleBundle = datasource.getArticles(query);
 		if (articleBundle == null || articleBundle.getArticles() == null) {
 			return null;
 		}
 		
-		log.info("Getting refinements");
+		log.debug("Getting refinements");
 		Map<String, List<Refinement>> refinements = datasource.getRefinements(query);
 		
 		if (refinements != null) {
-			log.info("'Improving' the date refinements");
+			log.debug("'Improving' the date refinements");
 			refinements.remove("date");
 			if (query.isSingleTagOrSectionQuery()) {
 				List<Refinement> dateRefinements = dateRefinementImprover.generateDateRefinementsForTag(query);

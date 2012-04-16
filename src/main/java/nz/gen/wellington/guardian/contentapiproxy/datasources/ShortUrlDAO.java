@@ -21,7 +21,7 @@ public class ShortUrlDAO {
 	
 	public void storeShortUrl(String contentId, String shortUrl) {
 		cache.put(getCacheKeyFor(contentId), shortUrl, SHORT_URL_TTL);
-		log.info("Cached short url: " + contentId + " -> " + shortUrl);
+		log.debug("Cached short url: " + contentId + " -> " + shortUrl);
 	}
 	
 	public String getShortUrlFor(String contentId) {

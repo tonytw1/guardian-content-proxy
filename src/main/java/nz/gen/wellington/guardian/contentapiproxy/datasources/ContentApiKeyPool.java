@@ -26,7 +26,7 @@ public class ContentApiKeyPool {
 	public String getAvailableApiKey() {	
 		final String availableApiKey = apiKey;
 		if (cache.get(CACHE_KEY_PREFIX + availableApiKey) != null) {
-			log.info("Api key is marked as over rate; returning null: " + availableApiKey);
+			log.warn("Api key is marked as over rate; returning null: " + availableApiKey);
 			return null;
 		}
 		return availableApiKey;		

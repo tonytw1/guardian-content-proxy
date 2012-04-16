@@ -105,7 +105,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 						
 			@SuppressWarnings("unchecked")
 			List<SyndEntry> entries = feed.getEntries();
-			log.info("Found " + entries.size() + " content items");
+			log.debug("Found " + entries.size() + " content items");
 			
 			Map<String, Section> sections = getSections();
 			if (sections == null) {

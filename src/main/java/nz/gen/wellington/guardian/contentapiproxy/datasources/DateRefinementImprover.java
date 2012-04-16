@@ -35,13 +35,13 @@ public class DateRefinementImprover {
 	
 	public List<Refinement> generateDateRefinementsForTag(SearchQuery query) {
 		int totalCountForCurrentQuery = contentApi.getArticleCount(query);
-		log.info("Total content item count for current search query is: " + totalCountForCurrentQuery);
+		log.debug("Total content item count for current search query is: " + totalCountForCurrentQuery);
 		if (totalCountForCurrentQuery <= query.getPageSize()) {
-			log.info("Not generating additional date refinements as the client already has all available items in the current query");
+			log.debug("Not generating additional date refinements as the client already has all available items in the current query");
 			return null;
 		}
 				
-		log.info("Generating date refinements for query: " + query.toString());		
+		log.debug("Generating date refinements for query: " + query.toString());		
 		Tag tag = query.getTags().get(0);
 		DateTime fromDate = query.getFromDate();
 		DateTime toDate = query.getToDate();

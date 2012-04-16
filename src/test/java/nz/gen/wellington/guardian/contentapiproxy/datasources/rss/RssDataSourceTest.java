@@ -1,7 +1,5 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources.rss;
 
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 
 public class RssDataSourceTest {

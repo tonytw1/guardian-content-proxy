@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 
 public class ContentApi {
 	
+	private static final String API_DATE_FORMAT = "yyyy-MM-dd";
 	public static final String API_HOST = "http://content.guardianapis.com";
 	
 	private static final String DEVELOPER_OVER_RATE = "403 Developer Over Rate";	
@@ -70,8 +71,7 @@ public class ContentApi {
 				}
 				
 			} catch (JSONException e) {
-				log.info("JSON error while parsing response", e);
-				log.info(e);
+				log.warn("JSON error while parsing response", e);
 				return null;
 			}
 		}		
@@ -84,7 +84,7 @@ public class ContentApi {
 			final String contentId = article.getId();
 			final boolean isNewShortUrl = contentId != null && article.getShortUrl() != null && shortUrlDao.getShortUrlFor(article.getId()) == null;
 			if (isNewShortUrl) {
-				log.info("Caching short url for content item: " + article.getId());
+				log.debug("Caching short url for content item: " + article.getId());
 				shortUrlDao.storeShortUrl(article.getId(), article.getShortUrl());
 			}
 		}
@@ -105,8 +105,7 @@ public class ContentApi {
 					return contentApiJsonParser.extractContentItemsCount(json);
 				}					
 			} catch (JSONException e) {
-				log.info("JSON error while parsing response", e);
-				log.info(e);
+				log.warn("JSON error while parsing response", e);
 				return 0;
 			}
 		}
@@ -127,7 +126,7 @@ public class ContentApi {
 		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl, apiKey);
 		if (content != null) {			
 			List<Section> sections = contentApiJsonParser.parseSectionsRequestResponse(content);
-			log.info("Found " + sections.size() + " good sections");
+			log.debug("Found " + sections.size() + " good sections");
 			
 			Map<String, Section> sectionsMap = new HashMap<String, Section>();
 			for (Section section : sections) {
@@ -170,8 +169,7 @@ public class ContentApi {
 					return article;
 				}
 			} catch (JSONException e) {
-				log.info("JSON error while processing call url: " + callUrl);
-				log.info(e);
+				log.warn("JSON error while processing call url: " + callUrl, e);
 				return null;
 			}				
 		}		
@@ -201,10 +199,10 @@ public class ContentApi {
 		urlBuilder.setShowAll(false);
 		urlBuilder.setShowRefinements(true);
 		if (fromDate != null) {
-			urlBuilder.setFromDate(fromDate.toString("YYYY-MM-dd"));
+			urlBuilder.setFromDate(fromDate.toString(API_DATE_FORMAT));
 		}
 		if (toDate != null) {
-			urlBuilder.setToDate(toDate.toString("YYYY-MM-dd"));
+			urlBuilder.setToDate(toDate.toString(API_DATE_FORMAT));
 		}
 		urlBuilder.setFormat("json");	
 		final String callUrl = urlBuilder.toSearchQueryUrl();		
@@ -254,10 +252,10 @@ public class ContentApi {
 		urlBuilder.setShowAll(query.isShowAllFields());
 		
 		if (query.getFromDate() != null) {
-			urlBuilder.setFromDate(query.getFromDate().toString("yyyy-MM-dd"));
+			urlBuilder.setFromDate(query.getFromDate().toString(API_DATE_FORMAT));
 		}
 		if (query.getToDate() != null) {
-			urlBuilder.setToDate(query.getToDate().toString("yyyy-MM-dd"));
+			urlBuilder.setToDate(query.getToDate().toString(API_DATE_FORMAT));
 		}
 		
 		urlBuilder.setPageSize(query.getPageSize());

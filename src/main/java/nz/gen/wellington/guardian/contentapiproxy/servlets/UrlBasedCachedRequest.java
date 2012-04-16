@@ -24,11 +24,11 @@ public abstract class UrlBasedCachedRequest extends CacheAwareProxyServlet {
 		final String queryCacheKey = getQueryCacheKey(request);
 		String output = cacheGet(queryCacheKey);
 		if (output != null) {
-			log.info("Returning cached results for call url: " + queryCacheKey);
+			log.debug("Returning cached results for call url: " + queryCacheKey);
 		}
 
 		if (output == null) {
-			log.info("Building result for call: " + queryCacheKey);
+			log.debug("Building result for call: " + queryCacheKey);
 			output = getContent(request);
 			if (output != null) {
 				cacheContent(queryCacheKey, output);
@@ -36,7 +36,7 @@ public abstract class UrlBasedCachedRequest extends CacheAwareProxyServlet {
 		}
 
 		if (output != null) {
-			log.info("Outputing content: " + output.length() + " characters");
+			log.debug("Outputing content: " + output.length() + " characters");
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentType("text/xml");
 			response.setCharacterEncoding("UTF-8");

@@ -46,7 +46,7 @@ public class SectionProxyServlet extends CacheAwareProxyServlet {
 		final String queryCacheKey = "sections";
 		String content = cacheGet(queryCacheKey);
 		if (content != null) {
-			log.info("Returning cached results for call url: " + queryCacheKey);
+			log.debug("Returning cached results for call url: " + queryCacheKey);
 
 		} else {
 			Map<String, Section> sections = dataSource.getSections();

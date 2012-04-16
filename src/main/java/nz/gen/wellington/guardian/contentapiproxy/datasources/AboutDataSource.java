@@ -64,7 +64,7 @@ public class AboutDataSource {
 				
 				@SuppressWarnings("unchecked")
 				List<SyndEntry> entries = feed.getEntries();				
-				log.info("Found " + entries.size() + " content items");
+				log.debug("Found " + entries.size() + " content items");
 				
 				for (int i = 0; i < entries.size(); i++) {
 					SyndEntry item = (SyndEntry) entries.get(i);

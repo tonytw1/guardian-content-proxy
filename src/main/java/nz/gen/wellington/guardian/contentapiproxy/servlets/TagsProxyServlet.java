@@ -37,7 +37,7 @@ public class TagsProxyServlet extends UrlBasedCachedRequest {
 		urlBuilder.setFormat("json");
 
 		final String queryUrl = urlBuilder.toTagSearchQueryUrl();
-		log.info("Tag query url is: " + queryUrl);
+		log.debug("Tag query url is: " + queryUrl);
 		try {
 			return httpFetcher.fetchContent(queryUrl, "UTF-8");
 		} catch (HttpForbiddenException e) {
