@@ -4,7 +4,7 @@
   <artifactId>guardian-content-proxy</artifactId>
   <packaging>war</packaging>
   <name>Guardian content proxy</name>
-  <version>0.0.6</version>
+  <version>0.0.7</version>
   <build>
   	<plugins>  		
   		<plugin>
@@ -136,7 +136,7 @@
     <dependency>
         <groupId>spy</groupId>
         <artifactId>spymemcached</artifactId>
-        <version>2.6</version>        
+        <version>2.7.3</version>        
     </dependency>
 
 	<dependency>
