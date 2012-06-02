@@ -4,37 +4,23 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
-
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.log4j.Logger;
 
-@SuppressWarnings("serial")
-public abstract class UrlBasedCachedRequest extends CacheAwareProxyServlet {
-
-	public UrlBasedCachedRequest(Cache cache) {
-		super(cache);
-	}
-
+public abstract class UrlBasedCachedRequest extends HttpServlet {
+	
+	private static final long serialVersionUID = 1L;
+	
+	private static Logger log = Logger.getLogger(UrlBasedCachedRequest.class);
+	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
-				
-		final String queryCacheKey = getQueryCacheKey(request);
-		String output = cacheGet(queryCacheKey);
-		if (output != null) {
-			log.debug("Returning cached results for call url: " + queryCacheKey);
-		}
-
-		if (output == null) {
-			log.debug("Building result for call: " + queryCacheKey);
-			output = getContent(request);
-			if (output != null) {
-				cacheContent(queryCacheKey, output);
-			}
-		}
-
+		
+		final String output = getContent(request);
 		if (output != null) {
 			log.debug("Outputing content: " + output.length() + " characters");
 			response.setStatus(HttpServletResponse.SC_OK);
@@ -49,7 +35,7 @@ public abstract class UrlBasedCachedRequest extends CacheAwareProxyServlet {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
 	}
-
+	
 	protected abstract String getContent(HttpServletRequest request);
 
 }

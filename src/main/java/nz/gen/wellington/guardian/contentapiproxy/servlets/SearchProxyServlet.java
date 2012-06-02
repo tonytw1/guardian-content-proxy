@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.DateRefinementImprover;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ContentApiDataSource;
@@ -27,10 +27,11 @@ import org.apache.log4j.Logger;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-@SuppressWarnings("serial")
 @Singleton
-public class SearchProxyServlet extends CacheAwareProxyServlet {
+public class SearchProxyServlet extends HttpServlet {
 	
+	private static final long serialVersionUID = 1L;
+
 	private static Logger log = Logger.getLogger(SearchProxyServlet.class);
 		
 	private GuardianDataSource rssDataSource;
@@ -40,8 +41,7 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 	private DateRefinementImprover dateRefinementImprover;
 	
 	@Inject
-	public SearchProxyServlet(Cache cache, RssDataSource rssDataSource, ContentApiDataSource contentApiDataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser, DateRefinementImprover dateRefinementImprover) {
-		super(cache);
+	public SearchProxyServlet(RssDataSource rssDataSource, ContentApiDataSource contentApiDataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser, DateRefinementImprover dateRefinementImprover) {
 		this.rssDataSource = rssDataSource;
 		this.contentApiDataSource = contentApiDataSource;
 		this.articleToXmlRenderer = articleToXmlRenderer;
@@ -57,21 +57,11 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 		List<GuardianDataSource> datasources = new ArrayList<GuardianDataSource>();
 		datasources.add(rssDataSource);
 		datasources.add(contentApiDataSource);
-
-		final String queryCacheKey = getQueryCacheKey(request);
-		String output = cacheGet(queryCacheKey);
-		if (output != null) {
-			log.debug("Returning cached results for call url: " + queryCacheKey);
-			outputResponse(response, output);
-			return;
-		}
-
+		
 		for (GuardianDataSource dataSource : datasources) {
 			if (dataSource.isSupported(query)) {
-				log.debug("Building result for call: " + queryCacheKey);
-				output = getContent(query, dataSource);
+				final String output = getContent(query, dataSource);
 				if (output != null) {
-					cacheContent(queryCacheKey, output);
 					outputResponse(response, output);
 					return;
 				}
@@ -94,7 +84,6 @@ public class SearchProxyServlet extends CacheAwareProxyServlet {
 		writer.flush();
 		return;
 	}
-
 	
 	private String getContent(SearchQuery query, GuardianDataSource datasource) {
 		log.debug("Getting content for query: " + query.toString());

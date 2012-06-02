@@ -5,10 +5,10 @@ import java.io.PrintWriter;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AboutDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.output.ArticleToXmlRenderer;
 import nz.gen.wellington.guardian.model.Article;
@@ -19,42 +19,28 @@ import org.apache.log4j.Logger;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-
-@SuppressWarnings("serial")
 @Singleton
-public class AboutProxyServlet extends CacheAwareProxyServlet {
-	
-	static Logger log = Logger.getLogger(AboutProxyServlet.class);
+public class AboutProxyServlet extends HttpServlet {
+
+	private static final long serialVersionUID = 1L;
+
+	private static Logger log = Logger.getLogger(AboutProxyServlet.class);
 	
 	private AboutDataSource datasource;
 	private ArticleToXmlRenderer articleToXmlRenderer;
 	
 	@Inject
-	public AboutProxyServlet(Cache cache, AboutDataSource datasource, ArticleToXmlRenderer articleToXmlRenderer) {
-		super(cache);
+	public AboutProxyServlet(AboutDataSource datasource, ArticleToXmlRenderer articleToXmlRenderer) {
 		this.datasource = datasource;
 		this.articleToXmlRenderer = articleToXmlRenderer;
 	}
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		log.info("Handling request for path: " + request.getRequestURI());
-				
-		final String queryCacheKey = "about";
-		String output = cacheGet(queryCacheKey);
+		
+		final String output = getContent();
 		if (output != null) {
-			log.info("Returning cached results for call url: " + queryCacheKey);
-		}
-
-		if (output == null) {
-			log.info("Building result for call: " + queryCacheKey);
-			output = getContent();
-			if (output != null) {
-				cacheContent(queryCacheKey, output);
-			}
-		}
-
-		if (output != null) {
-			log.info("Outputing content: " + output.length() + " characters");
+			log.info("Outputting content: " + output.length() + " characters");
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentType("text/xml");
 			response.setCharacterEncoding("UTF-8");
@@ -62,12 +48,10 @@ public class AboutProxyServlet extends CacheAwareProxyServlet {
 			PrintWriter writer = response.getWriter();
 			writer.print(output);
 			writer.flush();
-
+			
 		} else {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		}
-				
-		return;
 	}
 	
 	private String getContent() {

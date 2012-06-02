@@ -3,7 +3,6 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 import javax.servlet.http.HttpServletRequest;
 
 import nz.gen.wellington.guardian.contentapi.urls.ContentApiStyleUrlBuilder;
-import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApiKeyPool;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
@@ -14,18 +13,18 @@ import org.apache.log4j.Logger;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-@SuppressWarnings("serial")
 @Singleton
 public class TagsProxyServlet extends UrlBasedCachedRequest {
 	
+	private static final long serialVersionUID = 1L;
+
 	static Logger log = Logger.getLogger(TagsProxyServlet.class);
 
 	private CachingHttpFetcher httpFetcher;
 	private ContentApiKeyPool contentApiKeyPool;
 	
 	@Inject
-	public TagsProxyServlet(Cache cache, CachingHttpFetcher httpFetcher, ContentApiKeyPool contentApiKeyPool) {
-		super(cache);
+	public TagsProxyServlet(CachingHttpFetcher httpFetcher, ContentApiKeyPool contentApiKeyPool) {
 		this.httpFetcher = httpFetcher;
 		this.contentApiKeyPool = contentApiKeyPool;
 	}
