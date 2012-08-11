@@ -72,9 +72,8 @@ public class SearchProxyServlet extends HttpServlet {
 		return;
 	}
 
-	private void outputResponse(HttpServletResponse response, String output)
-			throws IOException {
-		log.info("Outputing content: " + output.length() + " characters");
+	private void outputResponse(HttpServletResponse response, String output) throws IOException {
+		log.debug("Outputing content: " + output.length() + " characters");
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("text/xml");
 		response.setCharacterEncoding("UTF-8");

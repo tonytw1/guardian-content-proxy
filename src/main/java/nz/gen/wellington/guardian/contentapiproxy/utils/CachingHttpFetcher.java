@@ -29,7 +29,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 			return content;
 		}
 		
-		log.info("Attempting to live fetch url: " + url);
+		log.debug("Attempting to live fetch url: " + url);
 		final String fetchedContent = super.fetchContent(url, charEncoding);
 
 		if (fetchedContent != null) {

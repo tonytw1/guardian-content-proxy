@@ -144,7 +144,7 @@ public class DateRefinementImprover {
 				List<Refinement> yearRefinements = new ArrayList<Refinement>();
 				for (Refinement refinement : tagRefinements.get("date")) {
 					if (refinement.getDisplayName().matches("\\d\\d\\d\\d")) {
-						log.info("Adding year date refinement: " + refinement.getDisplayName());
+						log.debug("Adding year date refinement: " + refinement.getDisplayName());
 						yearRefinements.add(refinement);
 					}
 				}

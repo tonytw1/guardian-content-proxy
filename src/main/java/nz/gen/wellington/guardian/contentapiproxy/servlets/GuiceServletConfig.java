@@ -36,13 +36,10 @@ public class GuiceServletConfig extends GuiceServletContextListener {
 					serve("/tags").with(TagsProxyServlet.class);
 
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error(e);					
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error(e);
 				}
-
 			}
 
 			private void bindProperties() throws FileNotFoundException, IOException {
