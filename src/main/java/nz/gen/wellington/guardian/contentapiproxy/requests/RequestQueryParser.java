@@ -54,6 +54,8 @@ public class RequestQueryParser {
 				query.setPageSize(pageSize);
 			} catch (NumberFormatException e) {
 			}
+		} else {
+			query.setPageSize(15);	// TODO Duplicated logic
 		}
 		
 		if (request.getParameter("from-date") != null) {
