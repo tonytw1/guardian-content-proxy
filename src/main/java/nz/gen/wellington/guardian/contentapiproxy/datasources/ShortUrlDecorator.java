@@ -2,17 +2,16 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
 import java.util.List;
 
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
+import nz.gen.wellington.guardian.model.Article;
+
 import org.apache.log4j.Logger;
 
 import com.google.inject.Inject;
 
-import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
-import nz.gen.wellington.guardian.model.Article;
-
 public class ShortUrlDecorator {
 	
-	private static Logger log = Logger.getLogger(RssDataSource.class);
+	private static Logger log = Logger.getLogger(ShortUrlDecorator.class);
 
 	private ShortUrlDAO shortUrlDao;
 	
@@ -21,7 +20,7 @@ public class ShortUrlDecorator {
 		this.shortUrlDao = shortUrlDao;
 	}
 
-	public void decorateArticlesWithShortUrls(List<Article> articles) {
+	public void decorateArticlesWithLocallyAvailableShortUrls(List<Article> articles) {
 		log.debug("Decorating " + articles.size() + " articles with short urls");
 		for (Article article : articles) {
 			try {

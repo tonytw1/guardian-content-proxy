@@ -59,9 +59,23 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		ArticleBundle rawArticleBundle = fetchArticlesForQuery(query);
 		if (rawArticleBundle != null) {
 			List<Article> articles = rawArticleBundle.getArticles();
-			shortUrlDecorator.decorateArticlesWithShortUrls(articles);
+			
+			shortUrlDecorator.decorateArticlesWithLocallyAvailableShortUrls(articles);			
+			int missingShortUrlsCount = 0;
+			for (Article article : articles) {
+				if (article.getShortUrl() == null) {
+					missingShortUrlsCount++;
+				}
+			}
+			if (missingShortUrlsCount > 0) {
+				log.warn("After shorturl doceration " + missingShortUrlsCount + "/" + articles.size() + " still had no short url");
+			}
+			
+			contentApi.getArticles(query);
 			return new ArticleBundle(sortAndTrimArticleList(query, articles), rawArticleBundle.getDescription());
 		}
+		
+		
 		return null;
 	}
 	
