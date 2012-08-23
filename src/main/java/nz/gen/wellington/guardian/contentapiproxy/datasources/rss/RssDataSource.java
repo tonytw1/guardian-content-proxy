@@ -9,6 +9,7 @@ import java.util.Map;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ShortUrlDecorator;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.model.ArticleBundle;
@@ -38,9 +39,10 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	private DescriptionFilter descriptionFilter;
 	private ArticleSectionSorter articleSectionSorter;
 	private ShortUrlDecorator shortUrlDecorator;
+	private ShortUrlDAO shortUrlDAO;
 	
 	@Inject
-	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ArticleSectionSorter articleSectionSorter, SectionCleaner sectionCleaner, ShortUrlDecorator shortUrlDecorator) {
+	public RssDataSource(CachingHttpFetcher httpFetcher, RssEntryToArticleConvertor rssEntryConvertor, ContentApi contentApi, DescriptionFilter descriptionFilter, ArticleSectionSorter articleSectionSorter, SectionCleaner sectionCleaner, ShortUrlDecorator shortUrlDecorator, ShortUrlDAO shortUrlDAO) {
 		this.httpFetcher = httpFetcher;
 		this.rssEntryConvertor = rssEntryConvertor;
 		this.contentApi = contentApi;
@@ -48,6 +50,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 		this.articleSectionSorter = articleSectionSorter;
 		this.sectionCleaner = sectionCleaner;
 		this.shortUrlDecorator = shortUrlDecorator;
+		this.shortUrlDAO = shortUrlDAO;
 	}
 	
 	public boolean isSupported(SearchQuery query) {
@@ -58,25 +61,42 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	public ArticleBundle getArticles(SearchQuery query) {
 		ArticleBundle rawArticleBundle = fetchArticlesForQuery(query);
 		if (rawArticleBundle != null) {
-			List<Article> articles = rawArticleBundle.getArticles();
+			final List<Article> sortedAndTrimmedArticleList = sortAndTrimArticleList(query, rawArticleBundle.getArticles());
 			
-			shortUrlDecorator.decorateArticlesWithLocallyAvailableShortUrls(articles);			
-			int missingShortUrlsCount = 0;
-			for (Article article : articles) {
-				if (article.getShortUrl() == null) {
-					missingShortUrlsCount++;
-				}
-			}
+			shortUrlDecorator.decorateArticlesWithLocallyAvailableShortUrls(sortedAndTrimmedArticleList);			
+			final int missingShortUrlsCount = countMissingShortUrls(sortedAndTrimmedArticleList);
 			if (missingShortUrlsCount > 0) {
-				log.warn("After shorturl doceration " + missingShortUrlsCount + "/" + articles.size() + " still had no short url");
+				log.info("After shorturl decoration " + missingShortUrlsCount + "/" + sortedAndTrimmedArticleList.size() + " still had no short url. Fetching articles set from content api and redecorating");
+				for (Article article : sortedAndTrimmedArticleList) {
+					if (article.getShortUrl() == null) {
+						final String contentId = article.getId();
+						final String shortUrlFromContentApi = contentApi.getShortUrlFor(contentId);
+						if (shortUrlFromContentApi != null) {
+							shortUrlDAO.storeShortUrl(contentId, shortUrlFromContentApi);
+						}
+					}
+				}
+				
+				shortUrlDecorator.decorateArticlesWithLocallyAvailableShortUrls(sortedAndTrimmedArticleList);
+				
+				final int missingShortUrlsCountAfterContentApiFetch = countMissingShortUrls(sortedAndTrimmedArticleList);
+				log.info("After content api fetch and redecoration " + missingShortUrlsCountAfterContentApiFetch + "/" + sortedAndTrimmedArticleList.size() + " still had no short url.");
 			}
 			
-			contentApi.getArticles(query);
-			return new ArticleBundle(sortAndTrimArticleList(query, articles), rawArticleBundle.getDescription());
+			return new ArticleBundle(sortedAndTrimmedArticleList, rawArticleBundle.getDescription());
 		}
-		
-		
+				
 		return null;
+	}
+
+	private int countMissingShortUrls(List<Article> articles) {
+		int missingShortUrlsCount = 0;
+		for (Article article : articles) {
+			if (article.getShortUrl() == null) {
+				missingShortUrlsCount++;
+			}
+		}
+		return missingShortUrlsCount;
 	}
 	
 	
@@ -111,7 +131,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	}
 	
 	
-	private ArticleBundle extractArticlesFromRss(final String content) {		// TODO return article bundle to make description handling thread safe
+	private ArticleBundle extractArticlesFromRss(final String content) {
 		SyndFeedInput input = new SyndFeedInput();		
 		try {
 			SyndFeed feed = input.build(new StringReader(content));
@@ -132,10 +152,10 @@ public class RssDataSource extends AbstractGuardianDataSource {
 				SyndEntry item = entries.get(i);
 				Article article = rssEntryConvertor.entryToArticle(item, sections);
 				
-				if (article != null) {
+				if (article != null && article.getId() != null) {
 					articles.add(article);
 				} else {
-					log.warn("Ignoring feed item which gave null article: " + item.getTitle());
+					log.warn("Ignoring feed item which gave null article or content id: " + item.getTitle());
 				}
 			}
 			

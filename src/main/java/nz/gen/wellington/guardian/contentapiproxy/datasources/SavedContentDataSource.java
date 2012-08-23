@@ -47,7 +47,7 @@ public class SavedContentDataSource {
 
 	private Article fetchArticle(String contentId) {
 		log.info("Fetching content item: " + contentId);
-		Article article = contentApi.getArticle(contentId);	
+		Article article = contentApi.getArticle(contentId, false);	
 		
 		if (article != null && article.getShortUrl() != null) {
 			shortUrlDao.storeShortUrl(article.getId(), article.getShortUrl());

@@ -54,7 +54,7 @@ public class ContentApi {
 		final String availableApiKey = contentApiKeyPool.getAvailableApiKey();
 		final boolean isOverRate = availableApiKey == null;
 		
-		final String content = getJSONContentForArticleQuery(query, availableApiKey);			
+		final String content = getJSONContentForArticleQuery(query, availableApiKey);
 		if (content != null) {				
 			try {
 				JSONObject json = new JSONObject(content);
@@ -139,13 +139,13 @@ public class ContentApi {
 	}
 	
 	
-	public Article getArticle(String contentId) {
+	public Article getArticle(String contentId, boolean useFreeTier) {
 		log.info("Fetching content item: " + contentId);
 		
 		final String availableApiKey = contentApiKeyPool.getAvailableApiKey();
 		final boolean isOverRate = availableApiKey == null;
 		
-		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, availableApiKey);
+		ContentApiStyleUrlBuilder urlBuilder = new ContentApiStyleUrlBuilder(API_HOST, useFreeTier ? null : availableApiKey);
 		urlBuilder.setContentId(contentId);
 		urlBuilder.setFormat("json");
 		urlBuilder.setShowAll(true);
@@ -182,10 +182,9 @@ public class ContentApi {
 	}
 	
 	
-	@Deprecated // TODO query for whole tags rather than interating over single records.
-	public String getShortUrlFor(String contentId) throws HttpForbiddenException {
+	public String getShortUrlFor(String contentId) {
 		log.info("Fetching short url for: " + contentId);
-		Article article = this.getArticle(contentId);	
+		Article article = this.getArticle(contentId, true);	
 		if (article != null) {
 			return article.getShortUrl();
 		}
