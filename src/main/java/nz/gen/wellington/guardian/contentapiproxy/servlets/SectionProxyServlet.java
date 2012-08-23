@@ -47,6 +47,7 @@ public class SectionProxyServlet extends HttpServlet {
 	
 			if (content != null) {
 				response.setStatus(HttpServletResponse.SC_OK);
+				response.setHeader("Cache-Control", "max-age=1800");
 				response.addHeader("Etag", DigestUtils.md5Hex(content));
 				PrintWriter writer = response.getWriter();
 				writer.print(content);

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 
-public abstract class UrlBasedCachedRequest extends HttpServlet {
+public abstract class UrlBasedCachedRequest extends HttpServlet {	// TODO inline
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -26,6 +26,7 @@ public abstract class UrlBasedCachedRequest extends HttpServlet {
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentType("text/xml");
 			response.setCharacterEncoding("UTF-8");
+			response.setHeader("Cache-Control", "max-age=600");
 			response.addHeader("Etag", DigestUtils.md5Hex(output));
 			PrintWriter writer = response.getWriter();
 			writer.print(output);

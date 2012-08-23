@@ -77,6 +77,7 @@ public class SearchProxyServlet extends HttpServlet {
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("text/xml");
 		response.setCharacterEncoding("UTF-8");
+		response.setHeader("Cache-Control", "max-age=300");
 		response.addHeader("Etag", DigestUtils.md5Hex(output));
 		PrintWriter writer = response.getWriter();
 		writer.print(output);
