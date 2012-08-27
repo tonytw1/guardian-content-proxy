@@ -1,9 +1,11 @@
 package nz.gen.wellington.guardian.contentapiproxy.utils;
 
 import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 
 import org.apache.log4j.Logger;
+
+import uk.co.eelpieconsulting.common.http.HttpFetchException;
+import uk.co.eelpieconsulting.common.http.HttpFetcher;
 
 import com.google.inject.Inject;
 
@@ -20,7 +22,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 		this.cache = cache;
 	}
 	
-	public String fetchContent(String url, String charEncoding) throws HttpForbiddenException {
+	public String fetchContent(String url) throws HttpFetchException {
 		log.debug("Called for url '" + url);
 		
 		final String content = fetchFromCache(url);
@@ -30,7 +32,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 		}
 		
 		log.debug("Attempting to live fetch url: " + url);
-		final String fetchedContent = super.fetchContent(url, charEncoding);
+		final String fetchedContent = super.fetchContent(url);
 
 		if (fetchedContent != null) {
 			cache.put(url, fetchedContent, DEFAULT_TTL);

@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nz.gen.wellington.guardian.contentapi.cleaning.HtmlCleaner;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.MediaElement;
 
 import org.apache.log4j.Logger;
+
+import uk.co.eelpieconsulting.common.http.HttpFetchException;
 
 import com.google.inject.Inject;
 import com.sun.syndication.feed.module.mediarss.MediaEntryModuleImpl;
@@ -47,8 +48,9 @@ public class AboutDataSource {
 		log.info("Fetching articles from: " + callUrl);
 		String content;
 		try {
-			content = httpFetcher.fetchContent(callUrl, "UTF-8");
-		} catch (HttpForbiddenException e1) {
+			content = httpFetcher.fetchContent(callUrl);
+		} catch (HttpFetchException e) {
+			log.warn("Failed to fetch url; returning null: " + callUrl);
 			return null;
 		}
 		

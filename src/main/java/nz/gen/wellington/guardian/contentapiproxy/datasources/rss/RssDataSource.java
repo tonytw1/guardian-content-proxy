@@ -11,7 +11,6 @@ import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ShortUrlDAO;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ShortUrlDecorator;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.model.ArticleBundle;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
@@ -20,6 +19,8 @@ import nz.gen.wellington.guardian.model.Section;
 import nz.gen.wellington.guardian.model.Tag;
 
 import org.apache.log4j.Logger;
+
+import uk.co.eelpieconsulting.common.http.HttpFetchException;
 
 import com.google.inject.Inject;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -107,8 +108,9 @@ public class RssDataSource extends AbstractGuardianDataSource {
 			log.info("Fetching articles from: " + callUrl);
 			String content;
 			try {
-				content = httpFetcher.fetchContent(callUrl, "UTF-8");
-			} catch (HttpForbiddenException e) {
+				content = httpFetcher.fetchContent(callUrl);
+			} catch (HttpFetchException e) {
+				log.warn("Failed to fetch url; returning null: " + callUrl);
 				return null;
 			}
 			

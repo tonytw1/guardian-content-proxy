@@ -56,6 +56,13 @@
   		<type>jar</type>
   	</dependency>
   	
+  	 <dependency>
+  		<groupId>uk.co.eelpieconsulting.common</groupId>
+  		<artifactId>common-http</artifactId>
+  		<version>1.0.0</version>
+  		<type>jar</type>
+  	</dependency>
+  	
   	<dependency>
   		<groupId>log4j</groupId>
   		<artifactId>log4j</artifactId>

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapi.parsing.ContentApiStyleJSONParser;
 import nz.gen.wellington.guardian.contentapi.urls.ContentApiStyleUrlBuilder;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.HttpForbiddenException;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingHttpFetcher;
 import nz.gen.wellington.guardian.model.Article;
@@ -20,6 +19,8 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import uk.co.eelpieconsulting.common.http.HttpFetchException;
 
 import com.google.inject.Inject;
 
@@ -153,8 +154,10 @@ public class ContentApi {
 	
 		String content;
 		try {
-			content = httpFetcher.fetchContent(callUrl, "UTF-8");
-		} catch (HttpForbiddenException e1) {
+			content = httpFetcher.fetchContent(callUrl);
+			
+		} catch (HttpFetchException e) {
+			log.warn("Failed to fetch url; returning null: " + callUrl);
 			return null;
 		}
 		
@@ -272,18 +275,21 @@ public class ContentApi {
 	private String getContentFromUrlSuppressingHttpExceptions(final String callUrl, String apiKey) {
 		String content;
 		try {
-			content = httpFetcher.fetchContent(callUrl, "UTF-8");
-		} catch (HttpForbiddenException e) {
-			if (isOverRateException(e)) {
-				contentApiKeyPool.markKeyAsBeenOverRate(apiKey);
-			}
+			content = httpFetcher.fetchContent(callUrl);
+			
+		} catch (HttpFetchException e) {
+			log.warn("Failed to fetch url; returning null: " + callUrl);
+			// TODO reimplement
+			// if (isOverRateException(e)) {
+			//	contentApiKeyPool.markKeyAsBeenOverRate(apiKey);
+			//}
 			return null;
 		}
 		return content;
 	}
 
 
-	private boolean isOverRateException(HttpForbiddenException e) {
+	private boolean isOverRateException(HttpFetchException e) {
 		return e.getMessage().contains(DEVELOPER_OVER_RATE);
 	}
 	
