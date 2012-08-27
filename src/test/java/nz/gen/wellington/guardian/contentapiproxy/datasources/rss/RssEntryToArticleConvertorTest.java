@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapi.cleaning.HtmlCleaner;
+import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
+import nz.gen.wellington.guardian.contentapiproxy.utils.CachingShortUrlResolver;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.MediaElement;
 import nz.gen.wellington.guardian.model.Section;
@@ -35,7 +37,7 @@ public class RssEntryToArticleConvertorTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		convertor = new RssEntryToArticleConvertor(new HtmlCleaner());
+		convertor = new RssEntryToArticleConvertor(new HtmlCleaner(), new CachingShortUrlResolver(new Cache("localhost:11211")));	// TODO mocks
 		sections = new HashMap<String, Section>();
 		sections.put("poltics", new Section("politics", "Politics"));
 		sections.put("media", new Section("media", "Media"));

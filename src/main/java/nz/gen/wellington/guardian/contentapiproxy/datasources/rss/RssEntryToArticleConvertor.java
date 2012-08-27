@@ -3,6 +3,7 @@ package nz.gen.wellington.guardian.contentapiproxy.datasources.rss;
 import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapi.cleaning.HtmlCleaner;
+import nz.gen.wellington.guardian.contentapiproxy.utils.CachingShortUrlResolver;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.MediaElement;
 import nz.gen.wellington.guardian.model.Section;
@@ -35,10 +36,12 @@ public class RssEntryToArticleConvertor {
 	private static final String URL_PREFIX = "http://www.guardian.co.uk/";
 	
 	private HtmlCleaner htmlCleaner;
+	private CachingShortUrlResolver cachingShortUrlResolver;
 	
 	@Inject
-	public RssEntryToArticleConvertor(HtmlCleaner htmlCleaner) {
-		this.htmlCleaner = htmlCleaner;
+	public RssEntryToArticleConvertor(HtmlCleaner htmlCleaner, CachingShortUrlResolver cachingShortUrlResolver) {
+		this.htmlCleaner = htmlCleaner;		
+		this.cachingShortUrlResolver = cachingShortUrlResolver;	
 	}
 	
 	public Article entryToArticle(SyndEntry item, Map<String, Section> sections) {		
@@ -48,9 +51,15 @@ public class RssEntryToArticleConvertor {
 		}
 		
 		Article article = new Article();
-		if (item.getLink().startsWith(URL_PREFIX)) {
-			article.setId(item.getLink().replace(URL_PREFIX, ""));
-			article.setWebUrl(item.getLink());			
+		
+		log.info("Resolving article link: " + item.getLink());
+		String link = cachingShortUrlResolver.resolve(item.getLink());		
+		log.info("Resolved to: " + link);		
+		link = link.replaceAll("\\?.*$", "");
+		
+		if (link.startsWith(URL_PREFIX)) {
+			article.setId(link.replace(URL_PREFIX, ""));
+			article.setWebUrl(link);			
 		}
 		article.setHeadline(htmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(item.getPublishedDate());
@@ -62,8 +71,7 @@ public class RssEntryToArticleConvertor {
 		processBody(description, article, sections);
 		
 		processMediaElements(item, article);
-		
-		
+				
 		if (dcModule.getType().equals("Gallery")) {
 			article.addTag(new Tag("Gallery", "type/gallery", null, "type"));
 		}
