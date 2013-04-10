@@ -201,7 +201,13 @@ public class RssDataSource extends AbstractGuardianDataSource {
 				queryUrl.append("/" + tag.getId().split("/")[0]);
 			}
 		}
-		queryUrl.append("/rss");
+
+		if (queryUrl.toString().equals("http://www.guardian.co.uk")) {
+			queryUrl.append("/theguardian");	
+		}
+
+                queryUrl.append("/rss");
+
 		return queryUrl.toString();
 	}
 	
