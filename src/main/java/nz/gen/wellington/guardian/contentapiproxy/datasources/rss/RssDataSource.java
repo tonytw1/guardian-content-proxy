@@ -152,12 +152,15 @@ public class RssDataSource extends AbstractGuardianDataSource {
 			List<Article> articles = new ArrayList<Article>();
 			for (int i = 0; i < entries.size(); i++) {
 				SyndEntry item = entries.get(i);
-				Article article = rssEntryConvertor.entryToArticle(item, sections);
-				
-				if (article != null && article.getId() != null) {
-					articles.add(article);
+				Article article = rssEntryConvertor.entryToArticle(item, sections);				
+				if (article != null) {
+					if (article.getId() != null) {
+						articles.add(article);
+					} else {
+						log.warn("Ignoring feed item which gave null content id: " + item.getTitle());
+					}
 				} else {
-					log.warn("Ignoring feed item which gave null article or content id: " + item.getTitle());
+					log.warn("Ignoring feed item which gave null article: " + item.getTitle());
 				}
 			}
 			
