@@ -32,7 +32,7 @@ public class CachingHttpFetcher extends HttpFetcher {
 		}
 		
 		log.debug("Attempting to live fetch url: " + url);
-		final String fetchedContent = super.fetchContent(url);
+		final String fetchedContent = super.get(url);
 
 		if (fetchedContent != null) {
 			cache.put(url, fetchedContent, DEFAULT_TTL);
