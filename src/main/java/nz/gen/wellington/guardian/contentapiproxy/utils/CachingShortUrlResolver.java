@@ -1,6 +1,7 @@
 package nz.gen.wellington.guardian.contentapiproxy.utils;
 
 import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.FeedsPortalUrlResolver;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.GuardianFeedsUrlResolver;
 
 import org.apache.log4j.Logger;
@@ -21,7 +22,7 @@ public class CachingShortUrlResolver {
 	@Inject
 	public CachingShortUrlResolver(Cache cache) {
 		this.cache = cache;
-		shortUrlResolverService = new ShortUrlResolverService(new GuardianFeedsUrlResolver());
+		shortUrlResolverService = new ShortUrlResolverService(new GuardianFeedsUrlResolver(), new FeedsPortalUrlResolver());
 	}
 	
 	public String resolve(String url) {
