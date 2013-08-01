@@ -57,8 +57,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	public boolean isSupported(SearchQuery query) {
 		return !query.hasDateRefinement();
 	}
-
-
+	
 	public ArticleBundle getArticles(SearchQuery query) {
 		ArticleBundle rawArticleBundle = fetchArticlesForQuery(query);
 		if (rawArticleBundle != null) {
@@ -134,11 +133,10 @@ public class RssDataSource extends AbstractGuardianDataSource {
 	
 	
 	private ArticleBundle extractArticlesFromRss(final String content) {
-		SyndFeedInput input = new SyndFeedInput();		
 		try {
-			SyndFeed feed = input.build(new StringReader(content));
-				
-						
+			final SyndFeedInput input = new SyndFeedInput();
+			final SyndFeed feed = input.build(new StringReader(content));
+			
 			@SuppressWarnings("unchecked")
 			List<SyndEntry> entries = feed.getEntries();
 			log.debug("Found " + entries.size() + " content items");
@@ -159,6 +157,7 @@ public class RssDataSource extends AbstractGuardianDataSource {
 					} else {
 						log.warn("Ignoring feed item which gave null content id: " + item.getTitle());
 					}
+					
 				} else {
 					log.warn("Ignoring feed item which gave null article: " + item.getTitle());
 				}

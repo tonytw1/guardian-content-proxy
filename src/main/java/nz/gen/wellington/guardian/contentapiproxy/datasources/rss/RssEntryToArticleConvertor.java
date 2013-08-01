@@ -33,7 +33,7 @@ public class RssEntryToArticleConvertor {
 
 	private static Logger log = Logger.getLogger(RssEntryToArticleConvertor.class);
 	
-	private static final String URL_PREFIX = "http://www.guardian.co.uk/";
+	private static final String URL_PREFIX = "http://www.theguardian.com/";
 	
 	private HtmlCleaner htmlCleaner;
 	private CachingShortUrlResolver cachingShortUrlResolver;
@@ -61,6 +61,7 @@ public class RssEntryToArticleConvertor {
 			article.setId(link.replace(URL_PREFIX, ""));
 			article.setWebUrl(link);			
 		}
+		
 		article.setHeadline(htmlCleaner.stripHtml(item.getTitle()));
 		article.setPubDate(item.getPublishedDate());
 		article.setByline(htmlCleaner.stripHtml(item.getAuthor()));
@@ -85,10 +86,10 @@ public class RssEntryToArticleConvertor {
 			log.warn("Dropping article with null section: " + item.getTitle());
 			return null;
 		}
+		
 		return article;
 	}
-
-
+	
 	private void processMediaElements(SyndEntry item, Article article) {
 		MediaEntryModuleImpl mediaModule = (MediaEntryModuleImpl) item.getModule(MediaModule.URI);
         if (mediaModule != null) {
@@ -153,8 +154,7 @@ public class RssEntryToArticleConvertor {
 			}
 		 }
 	}
-
-
+	
 	private void processBody(final String description, Article article, Map<String, Section> sections) {
 		Parser parser = new Parser();
 		 try {
@@ -165,8 +165,7 @@ public class RssEntryToArticleConvertor {
 			log.error(e.getMessage());
 		}
 	}
-
-
+	
 	private void extractStandfirstAndBodyText(final String description,
 			Article article, Parser parser) throws ParserException {
 		parser.setInputHTML(description);
@@ -200,8 +199,7 @@ public class RssEntryToArticleConvertor {
 		body.append("<p>&copy; Guardian News & Media Limited " + new DateTime().toString("yyyy") + "</p>");
 		article.setDescription(htmlCleaner.stripHtml(body.toString()));
 	}
-
-
+	
 	private void extractTagsFromRelatedDiv(final String description, Article article, Parser parser, Map<String, Section> sections) throws ParserException {
 		parser.setInputHTML(description);
 		NodeFilter relatedFilter = new HasAttributeFilter("class", "related");
@@ -255,7 +253,6 @@ public class RssEntryToArticleConvertor {
 			}
 		}		
 	}
-	
 	
 	private void setSectionFromDCSubject(DCModule dcModule, Article article, Map<String, Section> sections) {
 		String sectionName = htmlCleaner.stripHtml(dcModule.getSubject().getValue());
