@@ -4,24 +4,25 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
 import nz.gen.wellington.guardian.contentapi.cleaning.HtmlCleaner;
-import nz.gen.wellington.guardian.contentapiproxy.caching.Cache;
 import nz.gen.wellington.guardian.contentapiproxy.utils.CachingShortUrlResolver;
 import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.MediaElement;
 import nz.gen.wellington.guardian.model.Section;
 
+import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
@@ -35,9 +36,15 @@ public class RssEntryToArticleConvertorTest {
 	private SyndFeed feed;
 	private SyndFeed galleryFeed;
 	
+	@Mock
+	private CachingShortUrlResolver cachingShortUrlResolver;
+	
 	@Before
 	public void setUp() throws Exception {
-		convertor = new RssEntryToArticleConvertor(new HtmlCleaner(), new CachingShortUrlResolver(new Cache("localhost:11211")));	// TODO mocks
+		MockitoAnnotations.initMocks(this);	
+		Mockito.when(cachingShortUrlResolver.resolve(Mockito.anyString())).thenReturn("");
+		
+		convertor = new RssEntryToArticleConvertor(new HtmlCleaner(), cachingShortUrlResolver);
 		sections = new HashMap<String, Section>();
 		sections.put("poltics", new Section("politics", "Politics"));
 		sections.put("media", new Section("media", "Media"));
@@ -57,14 +64,13 @@ public class RssEntryToArticleConvertorTest {
 		SyndEntry firstEntry = (SyndEntry) feed.getEntries().get(0);		
 		Article article = convertor.entryToArticle(firstEntry, sections);
 		
-		assertEquals("politics/blog/2010/jun/23/politics-live-blog-budget-pmqs", article.getId());
 		assertEquals("Cameron defends Osborne's budget 'to protect the poor'", article.getHeadline());
 		assertEquals("politics", article.getSection().getId());
 		assertEquals("Andrew Sparrow", article.getByline());
 		assertEquals("All the news from Westminster including minute-by-minute coverage of PMQs and all the latest reaction to the budget\n\nRead a summary of events so far", article.getStandfirst());
 		assertEquals(7, article.getTags().size());				
-		// TODO This assert suffers from an BST problem which would be nice to work out an answer to.
-		//assertEquals(new DateTime(2010, 6, 23, 7, 3, 39, 0), article.getPubDate());	
+		assertEquals(new DateTime(2010, 6, 23, 7, 3, 39, 0, DateTimeZone.UTC), new DateTime(article.getPubDate(), DateTimeZone.UTC));
+		assertEquals("politics/blog/2010/jun/23/politics-live-blog-budget-pmqs", article.getId());
 	}
 		
 	@Test
@@ -72,9 +78,9 @@ public class RssEntryToArticleConvertorTest {
 		SyndEntry firstEntry = (SyndEntry) galleryFeed.getEntries().get(0);		
 		Article gallery = convertor.entryToArticle(firstEntry, sections);
 		
-		assertEquals("tv-and-radio/gallery/2011/apr/26/bafta-tv-awards-2011", gallery.getId());
 		assertEquals("Bafta TV award nominations - in pictures", gallery.getHeadline());
 		assertEquals("tv-and-radio", gallery.getSection().getId());
+		assertEquals("tv-and-radio/gallery/2011/apr/26/bafta-tv-awards-2011", gallery.getId());
 	}
 
 	@Test
@@ -110,19 +116,8 @@ public class RssEntryToArticleConvertorTest {
 		assertNull(convertor.entryToArticle(galleryEntry, sections));
 	}
 		
-	private StringBuffer loadContent(String filename) throws IOException {
-        StringBuffer content = new StringBuffer();
-        File contentFile = new File(getClass().getClassLoader().getResource(filename).getFile());
-        Reader freader = new FileReader(contentFile);
-        BufferedReader in = new BufferedReader(freader);
-        String str;
-        while ((str = in.readLine()) != null) {
-        	content.append(str);
-        	content.append("\n");
-        }
-        in.close();
-        freader.close();
-        return content;
+	private String loadContent(String filename) throws IOException {
+       return IOUtils.toString(ClassLoader.getSystemResourceAsStream(filename));
 	}
 
 }
