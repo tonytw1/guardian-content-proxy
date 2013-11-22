@@ -1,195 +1,203 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>nz.gen.wellington.guardian.proxy</groupId>
-  <artifactId>guardian-content-proxy</artifactId>
-  <packaging>war</packaging>
-  <name>Guardian content proxy</name>
-  <version>0.0.8</version>
-  <build>
-  	<plugins>  		
-  		<plugin>
-  			<groupId>org.apache.maven.plugins</groupId>
-  			<artifactId>maven-compiler-plugin</artifactId>
-  				<configuration>
-  				 <source>1.5</source>
-  				 <target>1.5</target>
-  				</configuration>
-  			<version>2.0.2</version>
-  		</plugin>
-		<plugin>
-			<groupId>org.apache.tomcat.maven</groupId>
-			<artifactId>tomcat7-maven-plugin</artifactId>
-			<version>2.0</version>
-			<configuration>
-				<port>9090</port>
-				<path>/</path>
-				<useTestClasspath>true</useTestClasspath>
-			</configuration>
-		</plugin>
-  	</plugins>
-  </build>
- 
-  	<repositories>
-        <repository>
-            <id>dist.wso2.org</id>
-            <name>dist.wso2.org</name>
-            <url>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>nz.gen.wellington.guardian.proxy</groupId>
+	<artifactId>guardian-content-proxy</artifactId>
+	<packaging>war</packaging>
+	<name>Guardian content proxy</name>
+	<version>0.0.8</version>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+				<version>2.0.2</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.0</version>
+				<configuration>
+					<port>9090</port>
+					<path>/</path>
+					<useTestClasspath>true</useTestClasspath>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>dist.wso2.org</id>
+			<name>dist.wso2.org</name>
+			<url>
                 http://dist.wso2.org/maven2/
             </url>
-        </repository>
-        
-         <repository>
-      <id>spy</id>
-      <name>Spy Repository</name>
-      <layout>default</layout>
-      <url>http://files.couchbase.com/maven2/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-            
-    </repositories>
- 
- 
-  <dependencies>
-   	<dependency>
-  		<groupId>nz.gen.wellington.guardian</groupId>
-  		<artifactId>guardian-model</artifactId>
-  		<version>0.0.8</version>
-  		<type>jar</type>
-  	</dependency>
-  	
-   	<dependency>
-  		<groupId>nz.gen.wellington.guardian</groupId>
-  		<artifactId>guardian-contentapi-tools</artifactId>
-  		<version>0.0.11</version>
-  		<type>jar</type>
-  	</dependency>
-  	
-  	 <dependency>
-  		<groupId>uk.co.eelpieconsulting.common</groupId>
-  		<artifactId>common-http</artifactId>
-  		<version>1.1.4</version>
-  		<type>jar</type>
-  	</dependency>
+		</repository>
 
- 	<dependency>
-                <groupId>uk.co.eelpieconsulting.common</groupId>
-                <artifactId>common-shorturls</artifactId>
-                <version>1.0.1</version>
-                <type>jar</type>
-        </dependency>
-  	
-  	<dependency>
-  		<groupId>log4j</groupId>
-  		<artifactId>log4j</artifactId>
-  		<version>1.2.8</version>
-  		<type>jar</type>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.htmlparser</groupId>
-  		<artifactId>htmlparser</artifactId>
-  		<version>1.6</version>
-  		<type>jar</type>
-  		<scope>compile</scope>
-  	</dependency>
-  	<dependency>
-  		<groupId>javax.servlet</groupId>
-  		<artifactId>servlet-api</artifactId>
-  		<version>2.5</version>
-  		<type>jar</type>
-  		<scope>provided</scope>
-  	</dependency>
-  
-  	<dependency>
-  		<groupId>net.jcip</groupId>
-  		<artifactId>jcip-annotations</artifactId>
-  		<version>1.0</version>
-  		<type>jar</type>
-  		<scope>compile</scope>
-  	</dependency>
-  	<dependency>
-  		<groupId>commons-lang</groupId>
-  		<artifactId>commons-lang</artifactId>
-  		<version>2.4</version>
-  		<type>jar</type>
-  		<scope>compile</scope>
-  	</dependency>
-  	  	
-  	<dependency>
-  		<groupId>org.jdom</groupId>
-  		<artifactId>jdom</artifactId>
-  		<version>1.1</version>
-  	</dependency>
-  	
-  	<dependency>
-   		<groupId>joda-time</groupId>
-   		<artifactId>joda-time</artifactId>
-   		<version>1.6</version>
-   		<type>jar</type>
-   		<scope>compile</scope>
-   	</dependency>
-    	  	
-  	<dependency>
-  		<groupId>com.google.inject</groupId>
-  		<artifactId>guice</artifactId>
-  		<version>2.0</version>
-	</dependency>
-  	
-  	   <dependency>
-    <groupId>rome</groupId>
-    <artifactId>rome-mediarss</artifactId>
-     <!-- rome Yahoo! Media RSS Plugin for ROME , hosted on http://dist.wso2.org/maven2-->
-    <version>0.2.1</version>
-</dependency>
+		<repository>
+			<id>spy</id>
+			<name>Spy Repository</name>
+			<layout>default</layout>
+			<url>http://files.couchbase.com/maven2/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
-  	<dependency>
-  		<groupId>com.google.inject.extensions</groupId>
-  		<artifactId>guice-servlet</artifactId>
-  		<version>2.0</version>
-  		<type>jar</type>
-  		<scope>compile</scope>
-  	</dependency>
-  	  
-    <dependency>
-        <groupId>spy</groupId>
-        <artifactId>spymemcached</artifactId>
-        <version>2.7.3</version>        
-    </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>nz.gen.wellington.guardian</groupId>
+			<artifactId>guardian-model</artifactId>
+			<version>0.0.8</version>
+			<type>jar</type>
+		</dependency>
 
-	<dependency>
-		<groupId>org.json</groupId>
-		<artifactId>json</artifactId>
-		<version>20090211</version>
-	</dependency>
-    	  
-  <dependency>
-  	<groupId>xerces</groupId>
-  	<artifactId>xerces</artifactId>
-  	<version>2.4.0</version>
-  	<type>jar</type>
-  	<scope>compile</scope>
-  </dependency>
-  <dependency>
-  	<groupId>commons-codec</groupId>
-  	<artifactId>commons-codec</artifactId>
-  	<version>1.4</version>
-  	<type>jar</type>
-  	<scope>compile</scope>
-  </dependency>
-  <dependency>
-  	<groupId>net.java.dev.rome</groupId>
-  	<artifactId>rome</artifactId>
-  	<version>1.0.0</version>
-  	<type>jar</type>
-  	<scope>compile</scope>
-  </dependency>
-  <dependency>
-  	<groupId>junit</groupId>
-  	<artifactId>junit</artifactId>
-  	<version>4.8.2</version>
-  	<type>jar</type>
-  	<scope>test</scope>
-  </dependency>
-  </dependencies>
+		<dependency>
+			<groupId>nz.gen.wellington.guardian</groupId>
+			<artifactId>guardian-contentapi-tools</artifactId>
+			<version>0.0.11</version>
+			<type>jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>uk.co.eelpieconsulting.common</groupId>
+			<artifactId>common-http</artifactId>
+			<version>1.1.4</version>
+			<type>jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>uk.co.eelpieconsulting.common</groupId>
+			<artifactId>common-shorturls</artifactId>
+			<version>1.0.1</version>
+			<type>jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.8</version>
+			<type>jar</type>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.htmlparser</groupId>
+			<artifactId>htmlparser</artifactId>
+			<version>1.6</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.jcip</groupId>
+			<artifactId>jcip-annotations</artifactId>
+			<version>1.0</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.4</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>1.6</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>rome</groupId>
+			<artifactId>rome-mediarss</artifactId>
+			<!--
+				rome Yahoo! Media RSS Plugin for ROME , hosted on
+				http://dist.wso2.org/maven2
+			-->
+			<version>0.2.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.inject.extensions</groupId>
+			<artifactId>guice-servlet</artifactId>
+			<version>2.0</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>spy</groupId>
+			<artifactId>spymemcached</artifactId>
+			<version>2.7.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090211</version>
+		</dependency>
+
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xerces</artifactId>
+			<version>2.4.0</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.4</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.rome</groupId>
+			<artifactId>rome</artifactId>
+			<version>1.0.0</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+			<type>jar</type>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	
 </project>
