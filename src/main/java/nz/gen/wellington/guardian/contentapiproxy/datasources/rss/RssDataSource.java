@@ -155,11 +155,11 @@ public class RssDataSource extends AbstractGuardianDataSource {
 					if (article.getId() != null) {
 						articles.add(article);
 					} else {
-						log.warn("Ignoring feed item which gave null content id: " + item.getTitle());
+						log.warn("Ignoring feed item which gave null content id: " + item.getUri());
 					}
 					
 				} else {
-					log.warn("Ignoring feed item which gave null article: " + item.getTitle());
+					log.warn("Ignoring feed item which gave null article: " + item.getUri());
 				}
 			}
 			

@@ -20,6 +20,7 @@ import org.htmlparser.util.ParserException;
 import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 import com.sun.syndication.feed.module.DCModule;
 import com.sun.syndication.feed.module.mediarss.MediaEntryModuleImpl;
 import com.sun.syndication.feed.module.mediarss.MediaModule;
@@ -46,9 +47,11 @@ public class RssEntryToArticleConvertor {
 	
 	public Article entryToArticle(SyndEntry item, Map<String, Section> sections) {		
 		DCModule dcModule = (DCModule) item.getModule("http://purl.org/dc/elements/1.1/");
-		if (dcModule == null || dcModule.getType() == null || !(dcModule.getType().equals("Article") || dcModule.getType().equals("Gallery"))) {
-			return null;
-		}
+		
+		//if (dcModule == null || dcModule.getType() == null || !(dcModule.getType().equals("Article") || dcModule.getType().equals("Gallery"))) {
+		//	log.warn("Returning null article for SyndEntry: " + dcModule);
+		//	return null
+		//}
 		
 		Article article = new Article();
 		
@@ -63,7 +66,8 @@ public class RssEntryToArticleConvertor {
 		}
 		
 		article.setHeadline(htmlCleaner.stripHtml(item.getTitle()));
-		article.setPubDate(item.getPublishedDate());
+		//article.setPubDate(item.getPublishedDate());
+		article.setPubDate(new DateTime().toDate());	// TODO
 		article.setByline(htmlCleaner.stripHtml(item.getAuthor()));
 
 		setSectionFromDCSubject(dcModule, article, sections);
@@ -73,9 +77,9 @@ public class RssEntryToArticleConvertor {
 		
 		processMediaElements(item, article);
 				
-		if (dcModule.getType().equals("Gallery")) {
-			article.addTag(new Tag("Gallery", "type/gallery", null, "type"));
-		}
+		//if (dcModule.getType().equals("Gallery")) {
+		//	article.addTag(new Tag("Gallery", "type/gallery", null, "type"));
+		//}
 				
 		if (article.getPubDate() == null) {
 			log.warn("Dropping article with null publication date: " + item.getTitle());
@@ -124,7 +128,8 @@ public class RssEntryToArticleConvertor {
 
 	private void extractContentItemThumbnailFromFirstMediaContent(Article article, MediaContent firstMediaContent) {		
 		log.debug("Extracting thumbnail for: " + article.getHeadline());
-		if (firstMediaContent.getType().startsWith("image")) {			
+		/*
+
 			// Thumbnail handling is different for articles and galleries.
 			
 			final boolean isGallery = article.getId() != null && article.getId().contains("gallery");	// TODO use DC type
@@ -153,6 +158,7 @@ public class RssEntryToArticleConvertor {
 				}
 			}
 		 }
+		 */
 	}
 	
 	private void processBody(final String description, Article article, Map<String, Section> sections) {
@@ -255,9 +261,9 @@ public class RssEntryToArticleConvertor {
 	}
 	
 	private void setSectionFromDCSubject(DCModule dcModule, Article article, Map<String, Section> sections) {
-		String sectionName = htmlCleaner.stripHtml(dcModule.getSubject().getValue());
-		log.debug("Looking for article section of name: " + sectionName);
-		article.setSection(getSectionByName(sections, sectionName));
+		//String sectionName = htmlCleaner.stripHtml(dcModule.getSubject().getValue());
+		//log.debug("Looking for article section of name: " + sectionName);
+		article.setSection(getSectionByName(sections, "World news"));	// TODO
 	}
 	
 	
@@ -270,7 +276,7 @@ public class RssEntryToArticleConvertor {
 		for (String sectionId : sections.keySet()) {
 			Section section = sections.get(sectionId);
 			if (section.getName().equals(sectionName)) {
-				log.debug("Found section: " + section.getName() + " (" + section.getId() + ")");
+				log.info("Found section: " + section.getName() + " (" + section.getId() + ")");
 				return section;
 			}
 		}

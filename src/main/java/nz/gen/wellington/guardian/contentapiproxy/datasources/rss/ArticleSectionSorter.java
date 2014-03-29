@@ -12,6 +12,9 @@ import nz.gen.wellington.guardian.model.Article;
 import nz.gen.wellington.guardian.model.Section;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+
+import com.google.inject.internal.Lists;
 
 public class ArticleSectionSorter {
 	
@@ -22,16 +25,17 @@ public class ArticleSectionSorter {
 
 		SortedMap<Date, Article> sorted = new TreeMap<Date, Article>();
 		for (Article article : articles) {
-			sorted.put(article.getPubDate(), article);
+			sorted.put(article.getPubDate() != null ? article.getPubDate() : new DateTime().toDate(), article);	// TODO
 		}
 		
 		SortedMap<Date, Article> trimmed = trim(sorted, limit);
 		
-		while (!trimmed.isEmpty()) {
-			Article latest = trimmed.get(trimmed.lastKey());
-			addArticlesForSection(trimmed, results, latest.getSection());
-		}
-		return results;
+		//while (!trimmed.isEmpty()) {
+		//	Article latest = trimmed.get(trimmed.lastKey());
+		//	addArticlesForSection(trimmed, results, latest.getSection());
+		//}	
+		//return results;
+		return Lists.newArrayList(trimmed.values());
 	}
 	
 	
