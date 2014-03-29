@@ -36,16 +36,14 @@ public class ContentApi {
 	private CachingHttpFetcher httpFetcher;
 	private ContentApiStyleJSONParser contentApiJsonParser;
 	private ContentApiKeyPool contentApiKeyPool;
-	private ShortUrlDAO shortUrlDao;
 
 	private Map<String, Section> sectionsMap;
 	
 	@Inject
-	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiStyleJSONParser contentApiJsonParser, ContentApiKeyPool contentApiKeyPool, ShortUrlDAO shortUrlDao) {
+	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiStyleJSONParser contentApiJsonParser, ContentApiKeyPool contentApiKeyPool) {
 		this.httpFetcher = httpFetcher;
 		this.contentApiJsonParser = contentApiJsonParser;
 		this.contentApiKeyPool = contentApiKeyPool;
-		this.shortUrlDao = shortUrlDao;	// TODO This content may now be available inline from the content API
 	}
 		
 	public List<Article> getArticles(SearchQuery query) {
@@ -62,9 +60,7 @@ public class ContentApi {
 						for (Article article : articles) {
 							article.setDescription(makeOverQuotaMessageForContentItem(article.getId()));
 						}
-					}
-					
-					hooverUpPreviouslyUnknownShortUrls(articles);					
+					}					
 					return articles;
 				}
 				
@@ -264,17 +260,6 @@ public class ContentApi {
 			return null;
 		}
 		return content;
-	}
-
-	private void hooverUpPreviouslyUnknownShortUrls(List<Article> articles) {
-		for (Article article : articles) {
-			final String contentId = article.getId();
-			final boolean isNewShortUrl = contentId != null && article.getShortUrl() != null && shortUrlDao.getShortUrlFor(article.getId()) == null;
-			if (isNewShortUrl) {
-				log.debug("Caching short url for content item: " + article.getId());
-				shortUrlDao.storeShortUrl(article.getId(), article.getShortUrl());
-			}
-		}
 	}
 	
 	private boolean isOverRateException(HttpFetchException e) {

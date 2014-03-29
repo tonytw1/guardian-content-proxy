@@ -15,12 +15,10 @@ public class SavedContentDataSource {
 	private static Logger log = Logger.getLogger(SavedContentDataSource.class);
 	
 	private ContentApi contentApi;
-	private ShortUrlDAO shortUrlDao;
 	
 	@Inject
-	public SavedContentDataSource(ContentApi contentApi, ShortUrlDAO shortUrlDao) {
+	public SavedContentDataSource(ContentApi contentApi) {
 		this.contentApi = contentApi;
-		this.shortUrlDao = shortUrlDao;
 	}
 		
 	public List<Article> getArticles(List<String> articleIds) {		
@@ -47,12 +45,7 @@ public class SavedContentDataSource {
 
 	private Article fetchArticle(String contentId) {
 		log.info("Fetching content item: " + contentId);
-		Article article = contentApi.getArticle(contentId, false);	
-		
-		if (article != null && article.getShortUrl() != null) {
-			shortUrlDao.storeShortUrl(article.getId(), article.getShortUrl());
-		}
-		return article;
+		return contentApi.getArticle(contentId, false);
 	}
 	
 	public String getDescription() {
