@@ -1,8 +1,6 @@
 
 package nz.gen.wellington.guardian.contentapiproxy.datasources;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,34 +21,33 @@ import org.json.JSONObject;
 import uk.co.eelpieconsulting.common.http.HttpFetchException;
 
 import com.google.inject.Inject;
+import com.google.inject.internal.Lists;
+import com.google.inject.internal.Maps;
 
 public class ContentApi {
 	
+	private static Logger log = Logger.getLogger(ContentApi.class);
+	
 	private static final String API_DATE_FORMAT = "yyyy-MM-dd";
 	public static final String API_HOST = "http://content.guardianapis.com";
-	
 	private static final String DEVELOPER_OVER_RATE = "403 Developer Over Rate";	
-	private final String[] permittedRefinementTypes = {"keyword", "blog", "contributor", "section", "type", "date"};
-
-	private static Logger log = Logger.getLogger(ContentApi.class);
+	private static final List<String> PERMITTED_REFINEMENT_TYPES = Lists.newArrayList("keyword", "blog", "contributor", "section", "type", "date");
 	
 	private CachingHttpFetcher httpFetcher;
 	private ContentApiStyleJSONParser contentApiJsonParser;
 	private ContentApiKeyPool contentApiKeyPool;
 	private ShortUrlDAO shortUrlDao;
 
-	private Map<String, Section>  sectionsMap;
-
+	private Map<String, Section> sectionsMap;
 	
 	@Inject
 	public ContentApi(CachingHttpFetcher httpFetcher, ContentApiStyleJSONParser contentApiJsonParser, ContentApiKeyPool contentApiKeyPool, ShortUrlDAO shortUrlDao) {
 		this.httpFetcher = httpFetcher;
 		this.contentApiJsonParser = contentApiJsonParser;
 		this.contentApiKeyPool = contentApiKeyPool;
-		this.shortUrlDao = shortUrlDao;
+		this.shortUrlDao = shortUrlDao;	// TODO This content may now be available inline from the content API
 	}
-	
-	
+		
 	public List<Article> getArticles(SearchQuery query) {
 		final String availableApiKey = contentApiKeyPool.getAvailableApiKey();
 		final boolean isOverRate = availableApiKey == null;
@@ -78,19 +75,6 @@ public class ContentApi {
 		}		
 		return null;
 	}
-
-
-	private void hooverUpPreviouslyUnknownShortUrls(List<Article> articles) {
-		for (Article article : articles) {
-			final String contentId = article.getId();
-			final boolean isNewShortUrl = contentId != null && article.getShortUrl() != null && shortUrlDao.getShortUrlFor(article.getId()) == null;
-			if (isNewShortUrl) {
-				log.debug("Caching short url for content item: " + article.getId());
-				shortUrlDao.storeShortUrl(article.getId(), article.getShortUrl());
-			}
-		}
-	}
-	
 	
 	public int getArticleCount(SearchQuery query) {		
 		SearchQuery articleCountQuery = new SearchQuery(query);
@@ -112,8 +96,7 @@ public class ContentApi {
 		}
 		return 0;
 	}
-	
-	
+		
 	public Map<String, Section> getSections() {
 		if (sectionsMap != null) {
 			return sectionsMap;	// TODO put into the cache proper, so that it has a finite TTL
@@ -129,7 +112,7 @@ public class ContentApi {
 			List<Section> sections = contentApiJsonParser.parseSectionsRequestResponse(content);
 			log.debug("Found " + sections.size() + " good sections");
 			
-			Map<String, Section> sectionsMap = new HashMap<String, Section>();
+			Map<String, Section> sectionsMap = Maps.newHashMap();
 			for (Section section : sections) {
 				sectionsMap.put(section.getId(), section);
 			}
@@ -138,8 +121,7 @@ public class ContentApi {
 		}
 		return null;
 	}
-	
-	
+		
 	public Article getArticle(String contentId, boolean useFreeTier) {
 		log.info("Fetching content item: " + contentId);
 		
@@ -179,12 +161,10 @@ public class ContentApi {
 		return null;		
 	}
 
-
 	private String makeOverQuotaMessageForContentItem(String contentId) {
 		return "This article (" + contentId + ") could not be downloaded because the Guardian Lite application has temporarily exceeded it's Guardian Content API quota. In the meantime, you should still be able to use the open in browser option to view this content on the Guardian site.";
 	}
-	
-	
+		
 	public String getShortUrlFor(String contentId) {
 		log.info("Fetching short url for: " + contentId);
 		Article article = this.getArticle(contentId, true);	
@@ -211,7 +191,6 @@ public class ContentApi {
 		log.info("Fetching from: " + callUrl);
 		return processRefinements(callUrl, apiKey);
 	}
-
 	
 	private Map<String, List<Refinement>> processRefinements(String callUrl, String apiKey) {
 		final String content = getContentFromUrlSuppressingHttpExceptions(callUrl, apiKey);
@@ -236,14 +215,13 @@ public class ContentApi {
 	}
 
 
-	private Map<String, List<Refinement>> filterOutPermittedRefinements(
-			Map<String, List<Refinement>> allParsedRefinementGroups) {
-		Map<String, List<Refinement>> permittedRefinements = new HashMap<String, List<Refinement>>();
+	private Map<String, List<Refinement>> filterOutPermittedRefinements(Map<String, List<Refinement>> allParsedRefinementGroups) {
+		Map<String, List<Refinement>> permittedRefinements = Maps.newHashMap();
 		for (String refinementType : allParsedRefinementGroups.keySet()) {					
-			boolean isPermittedRefinementType = Arrays.asList(permittedRefinementTypes).contains(refinementType);
+			boolean isPermittedRefinementType = PERMITTED_REFINEMENT_TYPES.contains(refinementType);
 			if (isPermittedRefinementType) {
 				permittedRefinements.put(refinementType, allParsedRefinementGroups.get(refinementType));
-			}					
+			}
 		}
 		return permittedRefinements;
 	}
@@ -288,7 +266,17 @@ public class ContentApi {
 		return content;
 	}
 
-
+	private void hooverUpPreviouslyUnknownShortUrls(List<Article> articles) {
+		for (Article article : articles) {
+			final String contentId = article.getId();
+			final boolean isNewShortUrl = contentId != null && article.getShortUrl() != null && shortUrlDao.getShortUrlFor(article.getId()) == null;
+			if (isNewShortUrl) {
+				log.debug("Caching short url for content item: " + article.getId());
+				shortUrlDao.storeShortUrl(article.getId(), article.getShortUrl());
+			}
+		}
+	}
+	
 	private boolean isOverRateException(HttpFetchException e) {
 		return e.getMessage().contains(DEVELOPER_OVER_RATE);
 	}
