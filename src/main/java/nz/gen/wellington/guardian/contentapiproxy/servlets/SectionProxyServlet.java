@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
+import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ContentApiDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.output.SectionsToJSONRenderer;
 import nz.gen.wellington.guardian.model.Section;
 
@@ -31,7 +31,7 @@ public class SectionProxyServlet extends HttpServlet {
 	private SectionsToJSONRenderer sectionsToJSONRenderer;
 	
 	@Inject
-	public SectionProxyServlet(RssDataSource dataSource, SectionsToJSONRenderer sectionsToJSONRenderer) {
+	public SectionProxyServlet(ContentApiDataSource dataSource, SectionsToJSONRenderer sectionsToJSONRenderer) {
 		this.dataSource = dataSource;
 		this.sectionsToJSONRenderer = sectionsToJSONRenderer;
 	}

@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.DateRefinementImprover;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.GuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi.ContentApiDataSource;
-import nz.gen.wellington.guardian.contentapiproxy.datasources.rss.RssDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.model.ArticleBundle;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.contentapiproxy.output.ArticleToXmlRenderer;
@@ -34,15 +33,13 @@ public class SearchProxyServlet extends HttpServlet {
 
 	private static Logger log = Logger.getLogger(SearchProxyServlet.class);
 		
-	private GuardianDataSource rssDataSource;
 	private GuardianDataSource contentApiDataSource;
 	private RequestQueryParser requestQueryParser;
 	private ArticleToXmlRenderer articleToXmlRenderer;
 	private DateRefinementImprover dateRefinementImprover;
 	
 	@Inject
-	public SearchProxyServlet(RssDataSource rssDataSource, ContentApiDataSource contentApiDataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser, DateRefinementImprover dateRefinementImprover) {
-		this.rssDataSource = rssDataSource;
+	public SearchProxyServlet(ContentApiDataSource contentApiDataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser, DateRefinementImprover dateRefinementImprover) {
 		this.contentApiDataSource = contentApiDataSource;
 		this.articleToXmlRenderer = articleToXmlRenderer;
 		this.requestQueryParser = requestQueryParser;
@@ -55,7 +52,6 @@ public class SearchProxyServlet extends HttpServlet {
 		SearchQuery query = requestQueryParser.getSearchQueryFromRequest(request);
 
 		List<GuardianDataSource> datasources = new ArrayList<GuardianDataSource>();
-		datasources.add(rssDataSource);
 		datasources.add(contentApiDataSource);
 		
 		for (GuardianDataSource dataSource : datasources) {
