@@ -23,10 +23,10 @@ import com.google.inject.Singleton;
 @Singleton
 public class SectionProxyServlet extends HttpServlet {
 	
-	private static final long serialVersionUID = 1L;
-
 	private static Logger log = Logger.getLogger(SectionProxyServlet.class);
 
+	private static final long serialVersionUID = 1L;
+	
 	private GuardianDataSource dataSource;
 	private SectionsToJSONRenderer sectionsToJSONRenderer;
 	
@@ -37,7 +37,7 @@ public class SectionProxyServlet extends HttpServlet {
 	}
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		log.info("Handling request for path: " + request.getRequestURI());
+		log.debug("Handling request for path: " + request.getRequestURI());
 		response.setContentType("text/plain");
 		response.setCharacterEncoding("UTF-8");
 		

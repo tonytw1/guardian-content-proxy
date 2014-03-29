@@ -62,12 +62,13 @@ public class SearchProxyServlet extends HttpServlet {
 	}
 
 	private void outputResponse(HttpServletResponse response, String output) throws IOException {
-		log.debug("Outputing content: " + output.length() + " characters");
+		log.debug("Outputting content: " + output.length() + " characters");
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType("text/xml");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "max-age=300");
 		response.addHeader("Etag", DigestUtils.md5Hex(output));
+		
 		PrintWriter writer = response.getWriter();
 		writer.print(output);
 		writer.flush();
@@ -82,8 +83,7 @@ public class SearchProxyServlet extends HttpServlet {
 		}
 		
 		log.debug("Getting refinements");
-		Map<String, List<Refinement>> refinements = datasource.getRefinements(query);
-		
+		Map<String, List<Refinement>> refinements = datasource.getRefinements(query);		
 		if (refinements != null) {
 			log.debug("'Improving' the date refinements");
 			refinements.remove("date");

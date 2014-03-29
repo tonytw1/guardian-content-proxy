@@ -38,13 +38,13 @@ public class SavedProxyServlet extends HttpServlet {
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		log.info("Handling request for path: " + request.getRequestURI());
+		log.debug("Handling request for path: " + request.getRequestURI());
 		
 		if (request.getParameter("content") != null) {			
 			final String output = getContent(request.getParameter("content"));
 			
 			if (output != null) {
-				log.info("Outputting content: " + output.length() + " characters");
+				log.debug("Outputing content: " + output.length() + " characters");
 				response.setStatus(HttpServletResponse.SC_OK);
 				response.setContentType("text/xml");
 				response.setCharacterEncoding("UTF-8");

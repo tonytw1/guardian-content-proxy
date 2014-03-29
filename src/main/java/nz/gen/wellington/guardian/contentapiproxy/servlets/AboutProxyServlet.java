@@ -35,12 +35,10 @@ public class AboutProxyServlet extends HttpServlet {
 		this.articleToXmlRenderer = articleToXmlRenderer;
 	}
 	
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		log.info("Handling request for path: " + request.getRequestURI());
-		
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
 		final String output = getContent();
 		if (output != null) {
-			log.info("Outputting content: " + output.length() + " characters");
+			log.debug("Outputting content: " + output.length() + " characters");
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentType("text/xml");
 			response.setCharacterEncoding("UTF-8");
