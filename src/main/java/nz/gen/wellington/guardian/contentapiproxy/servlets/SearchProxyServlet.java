@@ -2,7 +2,6 @@ package nz.gen.wellington.guardian.contentapiproxy.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,34 +32,28 @@ public class SearchProxyServlet extends HttpServlet {
 
 	private static Logger log = Logger.getLogger(SearchProxyServlet.class);
 		
-	private GuardianDataSource contentApiDataSource;
+	private GuardianDataSource dataSource;
 	private RequestQueryParser requestQueryParser;
 	private ArticleToXmlRenderer articleToXmlRenderer;
 	private DateRefinementImprover dateRefinementImprover;
 	
 	@Inject
-	public SearchProxyServlet(ContentApiDataSource contentApiDataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser, DateRefinementImprover dateRefinementImprover) {
-		this.contentApiDataSource = contentApiDataSource;
+	public SearchProxyServlet(ContentApiDataSource dataSource, ArticleToXmlRenderer articleToXmlRenderer, RequestQueryParser requestQueryParser, DateRefinementImprover dateRefinementImprover) {
+		this.dataSource = dataSource;
 		this.articleToXmlRenderer = articleToXmlRenderer;
 		this.requestQueryParser = requestQueryParser;
 		this.dateRefinementImprover = dateRefinementImprover;
 	}
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		log.info("Handling request for path: " + request.getRequestURI());
+		log.debug("Handling request for path: " + request.getRequestURI());
 				
-		SearchQuery query = requestQueryParser.getSearchQueryFromRequest(request);
-
-		List<GuardianDataSource> datasources = new ArrayList<GuardianDataSource>();
-		datasources.add(contentApiDataSource);
-		
-		for (GuardianDataSource dataSource : datasources) {
-			if (dataSource.isSupported(query)) {
-				final String output = getContent(query, dataSource);
-				if (output != null) {
-					outputResponse(response, output);
-					return;
-				}
+		SearchQuery query = requestQueryParser.getSearchQueryFromRequest(request);		
+		if (dataSource.isSupported(query)) {
+			final String output = getContent(query, dataSource);
+			if (output != null) {
+				outputResponse(response, output);
+				return;
 			}
 		}
 		
