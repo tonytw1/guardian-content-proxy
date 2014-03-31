@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import uk.co.eelpieconsulting.common.http.HttpFetchException;
+import uk.co.eelpieconsulting.common.http.HttpForbiddenException;
 
 import com.google.inject.Inject;
 import com.google.inject.internal.Lists;
@@ -30,7 +31,6 @@ public class ContentApi {
 	
 	private static final String API_DATE_FORMAT = "yyyy-MM-dd";
 	public static final String API_HOST = "http://content.guardianapis.com";
-	private static final String DEVELOPER_OVER_RATE = "403 Developer Over Rate";	
 	private static final List<String> PERMITTED_REFINEMENT_TYPES = Lists.newArrayList("keyword", "blog", "contributor", "section", "type", "date");
 	
 	private CachingHttpFetcher httpFetcher;
@@ -253,17 +253,16 @@ public class ContentApi {
 			
 		} catch (HttpFetchException e) {
 			log.warn("Failed to fetch url; returning null: " + callUrl);
-			// TODO reimplement
-			// if (isOverRateException(e)) {
-			//	contentApiKeyPool.markKeyAsBeenOverRate(apiKey);
-			//}
+			if (isOverRateException(e)) {
+				contentApiKeyPool.markKeyAsBeenOverRate(apiKey);
+			}
 			return null;
 		}
 		return content;
 	}
 	
 	private boolean isOverRateException(HttpFetchException e) {
-		return e.getMessage().contains(DEVELOPER_OVER_RATE);
+		return e instanceof HttpForbiddenException;
 	}
 	
 }
