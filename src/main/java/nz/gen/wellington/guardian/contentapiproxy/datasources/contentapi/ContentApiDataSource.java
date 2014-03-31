@@ -32,8 +32,8 @@ public class ContentApiDataSource extends AbstractGuardianDataSource {
 		Article decommisioningNotice = new Article();
 		decommisioningNotice.setHeadline("This application will be withdrawn from service on the 5th of May");
 		decommisioningNotice.setPubDate(new DateTime().toDate());
-		decommisioningNotice.setDescription("<p>The Guardian has recently made changes to the source data which this application consumes.</p>" +
-				"<p>Not all Guardian content is available for redistribution by 3rd party application such as this one. Users requiring a complete set of content should move to one of the official Guardian applications.</p>" +
+		decommisioningNotice.setDescription("<p>Not all Guardian content is available for redistribution by 3rd party applications such as this one.</p>" +
+				"<p>Users requiring a complete set of content should move to one of the official Guardian applications.</p>" +
 				"<p>When this application was developed the Guardian did not provide an official Android app. Now that they do the developers of this application would like to devote their efforts to other projects. As such, this application will no longer be available after the 5th of May 2014.</p>");
 		return decommisioningNotice;
 	}
