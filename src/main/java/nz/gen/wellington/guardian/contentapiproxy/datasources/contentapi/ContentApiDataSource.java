@@ -23,8 +23,8 @@ public class ContentApiDataSource extends AbstractGuardianDataSource {
 	}
 
 	public ArticleBundle getArticles(SearchQuery query) {
-		List<Article> articles = contentApi.getArticles(query);
-		Lists.newArrayList(decommissioningNotice(), articles);
+		final List<Article> articles = Lists.newArrayList(decommissioningNotice());
+		articles.addAll(contentApi.getArticles(query));	
 		return new ArticleBundle(articles);
 	}
 
