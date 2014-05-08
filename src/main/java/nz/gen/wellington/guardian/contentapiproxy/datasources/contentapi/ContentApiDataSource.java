@@ -1,15 +1,13 @@
 package nz.gen.wellington.guardian.contentapiproxy.datasources.contentapi;
 
-import java.util.List;
-
-import org.joda.time.DateTime;
-
 import nz.gen.wellington.guardian.contentapiproxy.datasources.AbstractGuardianDataSource;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.ContentApi;
 import nz.gen.wellington.guardian.contentapiproxy.datasources.SectionCleaner;
 import nz.gen.wellington.guardian.contentapiproxy.model.ArticleBundle;
 import nz.gen.wellington.guardian.contentapiproxy.model.SearchQuery;
 import nz.gen.wellington.guardian.model.Article;
+
+import org.joda.time.DateTime;
 
 import com.google.inject.Inject;
 import com.google.inject.internal.Lists;
@@ -23,9 +21,7 @@ public class ContentApiDataSource extends AbstractGuardianDataSource {
 	}
 
 	public ArticleBundle getArticles(SearchQuery query) {
-		final List<Article> articles = Lists.newArrayList(decommissioningNotice());
-		articles.addAll(contentApi.getArticles(query));	
-		return new ArticleBundle(articles);
+		return new ArticleBundle(Lists.newArrayList(decommissioningNotice()));
 	}
 
 	private Article decommissioningNotice() {
